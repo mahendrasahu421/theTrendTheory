@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <title>The Trend Theory · collection sliders</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Brand Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ---------- BASE & VARIABLES ---------- */
+        body {
+            font-family: 'Cinzel', serif;
+            margin: 0;
+            background: #ffffff;
+        }
+
+        :root {
+            --logo-navy-dark: #00285A;
+            --logo-navy-mid: #1E3F75;
+            --logo-soft-gray: #D9DEE6;
+            --logo-white: #FFFFFF;
+        }
+
+        .offer-bar {
+            background: var(--logo-navy-dark);
+            color: white;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 14px;
+            padding: 7px 0;
+            border-bottom: 1px solid #8C96AA;
+        }
+
+        .offer-track {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scrollText 25s linear infinite;
+        }
+
+        @keyframes scrollText {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .navbar-custom {
+            background: white;
+            padding: 18px 0;
+            border-bottom: 2px solid var(--logo-soft-gray);
+        }
+
+        .nav-link {
+            color: var(--logo-navy-dark) !important;
+            font-size: 14px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .brand-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .brand-text {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--logo-navy-dark);
+        }
+
+        .icon-group {
+            display: flex;
+            gap: 22px;
+            color: var(--logo-navy-dark);
+            font-size: 20px;
+        }
+
+        @media (max-width: 991px) {
+            .brand-center {
+                position: static;
+                transform: none;
+                margin: auto;
+            }
+        }
+
+        /* ===== UNIFIED BUTTON STYLE ===== */
+        .btn-shop,
+        .btn-gender,
+        .btn-most,
+        .btn-bestseller,
+        .btn-view-all,
+        .btn-top,
+        .most-link,
+        .btn-style,
+        .glossy-btn,
+        .btn-hover-add,
+        .section-btn {
+            position: relative;
+            background: linear-gradient(145deg, #00285A, #1E3F75) !important;
+            color: white !important;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(0, 40, 90, 0.3);
+            z-index: 1;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-shop::after,
+        .btn-gender::after,
+        .btn-most::after,
+        .btn-bestseller::after,
+        .btn-view-all::after,
+        .btn-top::after,
+        .most-link::after,
+        .btn-style::after,
+        .glossy-btn::after,
+        .btn-hover-add::after,
+        .section-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(115deg,
+                    transparent 20%,
+                    rgba(255, 255, 255, 0.7) 40%,
+                    rgba(255, 255, 255, 0.9) 50%,
+                    rgba(255, 255, 255, 0.7) 60%,
+                    transparent 80%);
+            transform: skewX(-25deg);
+            animation: glossyShine 3.5s infinite linear;
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes glossyShine {
+            0% {
+                left: -100%;
+                opacity: 0.8;
+            }
+
+            30% {
+                left: -100%;
+                opacity: 0.8;
+            }
+
+            70% {
+                left: 30%;
+                opacity: 1;
+            }
+
+            100% {
+                left: 100%;
+                opacity: 0;
+            }
+        }
+
+        .btn-shop:hover,
+        .btn-gender:hover,
+        .btn-most:hover,
+        .btn-bestseller:hover,
+        .btn-view-all:hover,
+        .btn-top:hover,
+        .most-link:hover,
+        .btn-style:hover,
+        .glossy-btn:hover,
+        .btn-hover-add:hover,
+        .section-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 40, 90, 0.5);
+            background: linear-gradient(145deg, #00285A, #1E3F75) !important;
+            color: white !important;
+        }
+
+        /* ===== HERO SLIDER - INFINITE LOOP ===== */
+        .hero-slider-section {
+            padding: 50px 0 70px;
+            background: linear-gradient(to bottom, #ffffff, #f6f8fb);
+            font-family: 'Cinzel', serif;
+            overflow: hidden;
+        }
+
+        .hero-slider-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .hero-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-header h1 {
+            color: #00285A;
+            font-weight: 700;
+            letter-spacing: 4px;
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+        }
+
+        .hero-header p {
+            color: #4a5f7a;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .hero-slider-wrapper {
+            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 30px 50px rgba(0, 40, 90, 0.2);
+            cursor: grab;
+        }
+
+        .hero-slider-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .hero-slider-track {
+            display: flex;
+            width: max-content;
+            transition: transform 0.8s cubic-bezier(0.22, 0.68, 0.32, 1);
+            will-change: transform;
+        }
+
+        .hero-slide {
+            position: relative;
+            width: 520px;
+            height: 600px;
+            flex-shrink: 0;
+            margin-right: 12px;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s;
+        }
+
+        .hero-slide:hover img {
+            transform: scale(1.05);
+        }
+
+        .slide-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 35px 30px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .slide-overlay h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-arrow {
+            position: absolute;
+            top: 55%;
+            transform: translateY(-50%);
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            color: #00285A;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .hero-arrow:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 10px 25px rgba(0, 40, 90, 0.4);
+        }
+
+        .hero-arrow-left {
+            left: 5px;
+        }
+
+        .hero-arrow-right {
+            right: 5px;
+        }
+
+        .hero-dots {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #b0c0d0;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: #00285A;
+            width: 32px;
+            border-radius: 20px;
+        }
+
+        /* ===== GENDER SECTION ===== */
+        .gender-section {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+
+        .gender-card {
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.15);
+            transition: transform 0.5s ease, box-shadow 0.4s;
+            height: 100%;
+            min-height: 520px;
+            background-color: #f0f2f5;
+        }
+
+        .gender-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 40px 70px rgba(0, 40, 90, 0.3);
+        }
+
+        .gender-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s;
+        }
+
+        .gender-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .gender-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-start;
+            padding: 3rem 2.5rem;
+        }
+
+        .gender-overlay h2 {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-gender {
+            padding: 14px 42px;
+            font-size: 1.1rem;
+        }
+
+        /* ===== MOST PURCHASED SLIDER ===== */
+        .most-slider-section {
+            padding: 60px 0 80px;
+            background: linear-gradient(135deg, #f8fafd 0%, #ffffff 100%);
+            font-family: 'Cinzel', serif;
+            border-top: 2px solid var(--logo-soft-gray);
+            border-bottom: 2px solid var(--logo-soft-gray);
+            overflow: hidden;
+        }
+
+        .most-slider-header {
+            margin-bottom: 40px;
+        }
+
+        .most-slider-header i {
+            font-size: 3rem;
+            color: #FFD700;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .most-slider-header h2 {
+            color: var(--logo-navy-dark);
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin: 10px 0 5px;
+        }
+
+        .most-slider-header p {
+            color: #4a5f7a;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .slider-container-most {
+            position: relative;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .most-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 40, 90, 0.75);
+            border: none;
+            color: white;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .most-arrow:hover {
+            background: var(--logo-navy-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .most-arrow-left {
+            left: 0;
+        }
+
+        .most-arrow-right {
+            right: 0;
+        }
+
+        .most-slider-wrapper {
+            overflow: hidden;
+            cursor: grab;
+            border-radius: 32px;
+            padding: 10px 0;
+        }
+
+        .most-slider-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .most-slider-track {
+            display: flex;
+            gap: 25px;
+            width: max-content;
+            transition: transform 0.8s cubic-bezier(0.22, 0.68, 0.32, 1);
+            will-change: transform;
+            padding: 10px 5px;
+        }
+
+        .most-slide {
+            width: 360px;
+            flex-shrink: 0;
+        }
+
+        .most-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px rgba(0, 40, 90, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            border: 1px solid var(--logo-soft-gray);
+            height: 100%;
+        }
+
+        .most-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 50px rgba(0, 40, 90, 0.2);
+        }
+
+        .most-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(145deg, #00285A, #1E3F75);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            z-index: 10;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .most-img {
+            height: 380px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .most-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .most-card:hover .most-img img {
+            transform: scale(1.08);
+        }
+
+        .img-hover-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 40, 90, 0.4);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 15;
+        }
+
+        .most-img:hover .img-hover-btn {
+            opacity: 1;
+        }
+
+        .btn-hover-add {
+            padding: 14px 28px;
+            font-size: 1rem;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .most-img:hover .btn-hover-add {
+            transform: translateY(0);
+        }
+
+        .most-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .most-rating {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            pointer-events: none;
+        }
+
+        .most-rating i {
+            color: #ffc107;
+        }
+
+        .most-info {
+            padding: 12px 15px 15px;
+        }
+
+        .most-info h3 {
+            color: var(--logo-navy-dark);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-transform: capitalize;
+        }
+
+        .most-price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #c44536;
+            margin-bottom: 0;
+            line-height: 1.2;
+        }
+
+        /* ===== COLLECTION SLIDERS (MEN, WOMEN, NEW IN) ===== */
+        .collection-slider-section {
+            padding: 60px 0;
+            background: #ffffff;
+            border-bottom: 1px solid var(--logo-soft-gray);
+            overflow: hidden;
+        }
+
+        .collection-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .collection-header h2 {
+            color: var(--logo-navy-dark);
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .collection-header p {
+            color: #4a5f7a;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .slider-container-collection {
+            position: relative;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .collection-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 40, 90, 0.75);
+            border: none;
+            color: white;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .collection-arrow:hover {
+            background: var(--logo-navy-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .collection-arrow-left {
+            left: 0;
+        }
+
+        .collection-arrow-right {
+            right: 0;
+        }
+
+        .collection-slider-wrapper {
+            overflow: hidden;
+            cursor: grab;
+            border-radius: 32px;
+            padding: 10px 0;
+        }
+
+        .collection-slider-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .collection-track {
+            display: flex;
+            gap: 25px;
+            width: max-content;
+            transition: transform 0.8s cubic-bezier(0.22, 0.68, 0.32, 1);
+            will-change: transform;
+            padding: 10px 5px;
+        }
+
+        .collection-slide {
+            width: 380px;
+            flex-shrink: 0;
+        }
+
+        .collection-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px rgba(0, 40, 90, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--logo-soft-gray);
+            height: 100%;
+        }
+
+        .collection-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 50px rgba(0, 40, 90, 0.2);
+        }
+
+        .collection-img {
+            height: 450px;
+            /* Larger image for better product visibility */
+            overflow: hidden;
+            position: relative;
+        }
+
+        .collection-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .collection-card:hover .collection-img img {
+            transform: scale(1.08);
+        }
+
+        /* Hover add to cart button */
+        .collection-hover-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 40, 90, 0.4);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 15;
+        }
+
+        .collection-img:hover .collection-hover-btn {
+            opacity: 1;
+        }
+
+        .collection-info {
+            padding: 15px 15px 20px;
+            text-align: left;
+            /* Left aligned */
+        }
+
+        .collection-info h3 {
+            color: var(--logo-navy-dark);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-transform: capitalize;
+        }
+
+        .collection-info .price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #c44536;
+            margin-bottom: 0;
+        }
+
+        .collection-footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* Lifestyle cards for NEW IN section */
+        .lifestyle-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px rgba(0, 40, 90, 0.1);
+            border: 1px solid var(--logo-soft-gray);
+        }
+
+        .lifestyle-img {
+            height: 500px;
+            /* Extra large for lifestyle shots */
+            overflow: hidden;
+            position: relative;
+        }
+
+        .lifestyle-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .lifestyle-card:hover .lifestyle-img img {
+            transform: scale(1.05);
+        }
+
+        .lifestyle-hover-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 40, 90, 0.4);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 15;
+        }
+
+        .lifestyle-img:hover .lifestyle-hover-btn {
+            opacity: 1;
+        }
+
+        .lifestyle-info {
+            padding: 15px 15px 20px;
+            text-align: left;
+        }
+
+        .lifestyle-info h3 {
+            color: var(--logo-navy-dark);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .lifestyle-info p {
+            color: #4a5f7a;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Price container with discount (if needed) */
+        .price-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .discount-badge {
+            background: linear-gradient(145deg, #c44536, #a33f2e);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .price-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .original-price {
+            font-size: 1rem;
+            color: #8a9bb0;
+            text-decoration: line-through;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .collection-slide {
+                width: 300px;
+            }
+
+            .collection-img {
+                height: 380px;
+            }
+
+            .lifestyle-img {
+                height: 420px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Offer Bar -->
+    <div class="offer-bar">
+        <div class="offer-track">
+            AS SEEN ON SHARK TANK 🦈 | Extra 10% OFF Use Code SHARK10 | Min Cart ₹999 🛒
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom position-relative">
+        <div class="container">
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav gap-lg-4">
+                    <li class="nav-item"><a class="nav-link" href="#">WOMEN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">MEN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">ACCESSORIES</a></li>
+                </ul>
+            </div>
+            <div class="brand-center">
+                <div class="brand-text">THE TREND THEORY</div>
+            </div>
+            <div class="icon-group ms-auto">
+                <i class="bi bi-person"></i>
+                <i class="bi bi-heart"></i>
+                <i class="bi bi-bag"></i>
+                <i class="bi bi-search"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SLIDER -->
+    <section class="hero-slider-section">
+        <div class="hero-slider-container">
+            <div class="hero-header">
+                <h1>THE TREND THEORY</h1>
+                <p>curated collections · just for you</p>
+            </div>
+            <button class="hero-arrow hero-arrow-left" id="heroArrowLeft"><i class="bi bi-chevron-left"></i></button>
+            <button class="hero-arrow hero-arrow-right" id="heroArrowRight"><i class="bi bi-chevron-right"></i></button>
+            <div class="hero-slider-wrapper" id="heroSliderWrapper">
+                <div class="hero-slider-track" id="heroSliderTrack">
+                    <!-- Slides (kept concise) -->
+                    <div class="hero-slide"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b">
+                        <div class="slide-overlay">
+                            <h2>NEW ARRIVALS</h2><button class="btn-shop">SHOP NOW</button>
+                        </div>
+                    </div>
+                    <div class="hero-slide"><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b">
+                        <div class="slide-overlay">
+                            <h2>HOT SELLING</h2><button class="btn-shop">SHOP NOW</button>
+                        </div>
+                    </div>
+                    <div class="hero-slide"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d">
+                        <div class="slide-overlay">
+                            <h2>TRENDING</h2><button class="btn-shop">SHOP NOW</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GENDER SECTION -->
+    <section class="gender-section">
+        <div class="container">
+            <div class="row gender-row g-4 align-items-stretch">
+                <div class="col-md-6">
+                    <div class="gender-card">
+                        <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf" alt="Men">
+                        <div class="gender-overlay">
+                            <h2>MAN</h2><button class="btn-gender">EXPLORE COLLECTION</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="gender-card">
+                        <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03" alt="Women">
+                        <div class="gender-overlay">
+                            <h2>WOMAN</h2><button class="btn-gender">EXPLORE COLLECTION</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOST PURCHASED SLIDER -->
+    <section class="most-slider-section">
+        <div class="container-fluid position-relative px-0">
+            <div class="most-slider-header text-center">
+                <i class="bi bi-crown-fill"></i>
+                <h2> MOST PURCHASED </h2>
+                <p>customer favorites · highest units sold</p>
+            </div>
+            <div class="slider-container-most">
+                <button class="most-arrow most-arrow-left" id="mostArrowLeft"><i
+                        class="bi bi-chevron-left"></i></button>
+                <button class="most-arrow most-arrow-right" id="mostArrowRight"><i
+                        class="bi bi-chevron-right"></i></button>
+                <div class="most-slider-wrapper" id="mostSliderWrapper">
+                    <div class="most-slider-track" id="mostSliderTrack">
+                        <!-- Product cards (abbreviated) -->
+                        <div class="most-slide">
+                            <div class="most-card">
+                                <div class="most-badge">🔥 15.2k sold</div>
+                                <div class="most-img"><img
+                                        src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b">
+                                    <div class="img-hover-btn"><button class="btn-hover-add open-product-slider">ADD TO
+                                            CART</button></div>
+                                    <div class="most-overlay"><span class="most-rating"><i class="bi bi-star-fill"></i>
+                                            4.9</span></div>
+                                </div>
+                                <div class="most-info">
+                                    <h3>oversized blazer</h3>
+                                    <div class="most-price">₹3,999</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="most-slide">
+                            <div class="most-card">
+                                <div class="most-badge">🔥 12.8k sold</div>
+                                <div class="most-img"><img
+                                        src="https://images.unsplash.com/photo-1483985988355-763728e1935b">
+                                    <div class="img-hover-btn"><button class="btn-hover-add open-product-slider">ADD TO
+                                            CART</button></div>
+                                    <div class="most-overlay"><span class="most-rating"><i class="bi bi-star-fill"></i>
+                                            4.8</span></div>
+                                </div>
+                                <div class="most-info">
+                                    <h3>leather jacket</h3>
+                                    <div class="most-price">₹8,499</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MEN'S COLLECTION SLIDER ===== -->
+    <section class="collection-slider-section">
+        <div class="container-fluid position-relative px-0">
+            <div class="collection-header text-center">
+                <h2>MEN'S COLLECTION</h2>
+                <p>stylish · comfortable · modern</p>
+            </div>
+
+            <div class="slider-container-collection">
+                <button class="collection-arrow collection-arrow-left" id="menArrowLeft"><i
+                        class="bi bi-chevron-left"></i></button>
+                <button class="collection-arrow collection-arrow-right" id="menArrowRight"><i
+                        class="bi bi-chevron-right"></i></button>
+
+                <div class="collection-slider-wrapper" id="menSliderWrapper">
+                    <div class="collection-track" id="menSliderTrack">
+                        <!-- Men's Product 1 -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1617137968427-85924d800a22"
+                                        alt="Men's Jacket">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>leather biker jacket</h3>
+                                    <div class="price">₹7,999</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Men's Product 2 -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf"
+                                        alt="Men's Shirt">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>linen casual shirt</h3>
+                                    <div class="price">₹2,999</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Men's Product 3 -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1516257984-b1b4d707412e"
+                                        alt="Men's Suit">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>slim fit blazer</h3>
+                                    <div class="price">₹8,499</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Duplicates for infinite loop -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1617137968427-85924d800a22"
+                                        alt="Men's Jacket">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>leather biker jacket</h3>
+                                    <div class="price">₹7,999</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collection-footer">
+                <a href="#" class="section-btn">VIEW ALL MEN'S <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== WOMEN'S COLLECTION SLIDER ===== -->
+    <section class="collection-slider-section">
+        <div class="container-fluid position-relative px-0">
+            <div class="collection-header text-center">
+                <h2>WOMEN'S COLLECTION</h2>
+                <p>elegant · trendy · timeless</p>
+            </div>
+
+            <div class="slider-container-collection">
+                <button class="collection-arrow collection-arrow-left" id="womenArrowLeft"><i
+                        class="bi bi-chevron-left"></i></button>
+                <button class="collection-arrow collection-arrow-right" id="womenArrowRight"><i
+                        class="bi bi-chevron-right"></i></button>
+
+                <div class="collection-slider-wrapper" id="womenSliderWrapper">
+                    <div class="collection-track" id="womenSliderTrack">
+                        <!-- Women's Product 1 -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03"
+                                        alt="Women's Dress">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>floral maxi dress</h3>
+                                    <div class="price">₹4,999</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Women's Product 2 -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c"
+                                        alt="Women's Skirt">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>pleated midi skirt</h3>
+                                    <div class="price">₹3,499</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Women's Product 3 -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f"
+                                        alt="Women's Coat">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>wool blend coat</h3>
+                                    <div class="price">₹9,999</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Duplicates for infinite loop -->
+                        <div class="collection-slide">
+                            <div class="collection-card">
+                                <div class="collection-img">
+                                    <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03"
+                                        alt="Women's Dress">
+                                    <div class="collection-hover-btn">
+                                        <button class="btn-hover-add open-product-slider">ADD TO CART</button>
+                                    </div>
+                                </div>
+                                <div class="collection-info">
+                                    <h3>floral maxi dress</h3>
+                                    <div class="price">₹4,999</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collection-footer">
+                <a href="#" class="section-btn">VIEW ALL WOMEN'S <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NEW IN - LIFESTYLE SLIDER ===== -->
+    <section class="collection-slider-section">
+        <div class="container-fluid position-relative px-0">
+            <div class="collection-header text-center">
+                <h2>NEW IN</h2>
+                <p>fresh arrivals · styled on real people</p>
+            </div>
+
+            <div class="slider-container-collection">
+                <button class="collection-arrow collection-arrow-left" id="newinArrowLeft"><i
+                        class="bi bi-chevron-left"></i></button>
+                <button class="collection-arrow collection-arrow-right" id="newinArrowRight"><i
+                        class="bi bi-chevron-right"></i></button>
+
+                <div class="collection-slider-wrapper" id="newinSliderWrapper">
+                    <div class="collection-track" id="newinSliderTrack">
+                        <!-- Lifestyle 1 - Man -->
+                        <div class="collection-slide">
+                            <div class="lifestyle-card">
+                                <div class="lifestyle-img">
+                                    <img src="https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6"
+                                        alt="Man in casual wear">
+                                    <div class="lifestyle-hover-btn">
+                                        <button class="btn-hover-add">SHOP LOOK</button>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-info">
+                                    <h3>urban street</h3>
+                                    <p>oversized hoodie · cargo pants</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lifestyle 2 - Woman -->
+                        <div class="collection-slide">
+                            <div class="lifestyle-card">
+                                <div class="lifestyle-img">
+                                    <img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9"
+                                        alt="Woman in dress">
+                                    <div class="lifestyle-hover-btn">
+                                        <button class="btn-hover-add">SHOP LOOK</button>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-info">
+                                    <h3>evening elegance</h3>
+                                    <p>satin slip dress · heels</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lifestyle 3 - Couple -->
+                        <div class="collection-slide">
+                            <div class="lifestyle-card">
+                                <div class="lifestyle-img">
+                                    <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70"
+                                        alt="Couple in denim">
+                                    <div class="lifestyle-hover-btn">
+                                        <button class="btn-hover-add">SHOP LOOK</button>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-info">
+                                    <h3>denim duo</h3>
+                                    <p>jeans · jackets · for both</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lifestyle 4 - Group -->
+                        <div class="collection-slide">
+                            <div class="lifestyle-card">
+                                <div class="lifestyle-img">
+                                    <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1"
+                                        alt="Group fashion">
+                                    <div class="lifestyle-hover-btn">
+                                        <button class="btn-hover-add">SHOP LOOK</button>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-info">
+                                    <h3>weekend edit</h3>
+                                    <p>casual · chic · streetwear</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Duplicates -->
+                        <div class="collection-slide">
+                            <div class="lifestyle-card">
+                                <div class="lifestyle-img">
+                                    <img src="https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6" alt="Man">
+                                    <div class="lifestyle-hover-btn">
+                                        <button class="btn-hover-add">SHOP LOOK</button>
+                                    </div>
+                                </div>
+                                <div class="lifestyle-info">
+                                    <h3>urban street</h3>
+                                    <p>oversized hoodie · cargo pants</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collection-footer">
+                <a href="#" class="section-btn">EXPLORE NEW ARRIVALS <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+    <!-- ================= PRODUCT RIGHT SLIDER UI ================= -->
+
+    <!-- OVERLAY -->
+    <div class="product-overlay"></div>
+
+    <!-- RIGHT DRAWER SLIDER -->
+    <div class="product-slider">
+
+        <div class="slider-header">
+            <span>SELECT OPTIONS</span>
+            <span class="close-slider">✕</span>
+        </div>
+
+        <div class="slider-body">
+
+            <!-- LEFT IMAGE -->
+            <div class="slider-left">
+
+                <!-- Main Big Image -->
+                <img id="mainProductImg" src="img1.jpg" class="main-product-img">
+
+                <!-- All Product Images -->
+                <div class="product-images-wrapper" id="imageScrollArea">
+
+                    <img src="img1.jpg">
+                    <img src="img2.jpg">
+                    <img src="img3.jpg">
+                    <img src="img4.jpg">
+
+                </div>
+
+            </div>
+            <!-- RIGHT DETAILS -->
+            <div class="slider-right">
+
+                <h2 class="product-title">
+                    BATTLE GREY 6 POCKETS<br>
+                    CARGO PANT
+                </h2>
+
+                <div class="price-row">
+                    <span class="old-price">Rs. 1,599.00</span>
+                    <span class="new-price">Rs. 799.00</span>
+                    <span class="save-tag">SAVE 50%</span>
+                </div>
+
+                <p class="shipping">Shipping calculated at checkout.</p>
+
+                <!-- SIZE -->
+                <h4>SIZE</h4>
+                <div class="size-grid">
+                    <span>XS</span>
+                    <span class="active">S</span>
+                    <span>M</span>
+                    <span>L</span>
+                    <span>XL</span>
+                    <span>XXL</span>
+                </div>
+
+                <!-- COLOR -->
+                <h4>COLOR</h4>
+                <div class="color-thumbs">
+                    <img src="thumb1.jpg">
+                    <img src="thumb2.jpg" class="active">
+                    <img src="thumb3.jpg">
+                    <img src="thumb4.jpg">
+                </div>
+
+                <!-- QTY + CART -->
+                <div class="cart-row">
+                    <div class="qty-box">
+                        <button>-</button>
+                        <span>1</span>
+                        <button>+</button>
+                    </div>
+
+                    <button class="add-cart-btn">ADD TO CART</button>
+                </div>
+
+                <button class="buy-now-btn">BUY IT NOW</button>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= CSS ================= -->
+    <style>
+        .product-images-wrapper {
+            height: 100vh;
+            overflow-y: auto;
+            /* 👈 vertical scroll */
+            scroll-behavior: smooth;
+        }
+
+        .product-images-wrapper img {
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 12px;
+        }
+
+        .slider-left {
+            width: 50%;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .main-product-img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .product-thumbs {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .product-thumbs img {
+            width: 70px;
+            height: 90px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            transition: .3s;
+        }
+
+        .product-thumbs img:hover {
+            border-color: #000;
+        }
+
+        .product-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: .3s;
+            z-index: 9998;
+        }
+
+        .product-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .product-slider {
+            position: fixed;
+            top: 0;
+            right: -1000px;
+            width: 1000px;
+            height: 100%;
+            background: #fff;
+            transition: .5s ease;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-slider.active {
+            right: 0;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+
+        .close-slider {
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        .slider-body {
+            display: flex;
+            height: 100%;
+        }
+
+        .slider-left {
+            width: 50%;
+            background: #f5f5f5;
+        }
+
+        .slider-left img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slider-right {
+            width: 50%;
+            padding: 40px;
+            overflow: auto;
+        }
+
+        .product-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        .new-price {
+            color: #e60023;
+            font-weight: 600;
+        }
+
+        .save-tag {
+            background: #e60023;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .shipping {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        .size-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .size-grid span {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .size-grid .active {
+            border: 2px solid #000;
+        }
+
+        .color-thumbs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .color-thumbs img {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .color-thumbs img.active {
+            border-color: #000;
+        }
+
+        .cart-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .qty-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        .qty-box button {
+            border: none;
+            background: none;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .add-cart-btn {
+            flex: 1;
+            border: 1px solid #000;
+            background: #fff;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .buy-now-btn {
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+    </style>
+<!-- ========== FOOTER SECTION - FULLY OPTIMIZED FOR SEO & AEO ========== -->
+<footer class="footer-section" itemscope itemtype="https://schema.org/WPFooter">
+    <div class="container">
+        <!-- TOP ROW: Logo + Social (with Schema) -->
+        <div class="footer-top" itemscope itemtype="https://schema.org/Organization">
+            <div class="footer-logo" itemprop="name">THE TREND THEORY</div>
+            <div class="footer-social" itemprop="sameAs">
+                <a href="https://instagram.com/thetrendtheory" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                <a href="https://facebook.com/thetrendtheory" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                <a href="https://twitter.com/thetrendtheory" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                <a href="https://youtube.com/@thetrendtheory" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                <a href="https://pinterest.com/thetrendtheory" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><i class="bi bi-pinterest"></i></a>
+            </div>
+        </div>
+
+        <!-- LINKS GRID with Schema -->
+        <div class="footer-grid" itemscope itemtype="https://schema.org/SiteNavigationElement">
+            <!-- Column 1: Shop -->
+            <div class="footer-col">
+                <h4>SHOP</h4>
+                <ul>
+                    <li><a href="/collections/men" itemprop="url"><span itemprop="name">Men's Collection</span></a></li>
+                    <li><a href="/collections/women" itemprop="url"><span itemprop="name">Women's Collection</span></a></li>
+                    <li><a href="/collections/new-arrivals" itemprop="url"><span itemprop="name">New Arrivals</span></a></li>
+                    <li><a href="/collections/best-sellers" itemprop="url"><span itemprop="name">Best Sellers</span></a></li>
+                    <li><a href="/collections/sale" itemprop="url"><span itemprop="name">Sale</span></a></li>
+                </ul>
+            </div>
+
+            <!-- Column 2: Help -->
+            <div class="footer-col">
+                <h4>HELP</h4>
+                <ul>
+                    <li><a href="/pages/faqs" itemprop="url"><span itemprop="name">FAQs</span></a></li>
+                    <li><a href="/pages/shipping-returns" itemprop="url"><span itemprop="name">Shipping & Returns</span></a></li>
+                    <li><a href="/pages/track-order" itemprop="url"><span itemprop="name">Track Order</span></a></li>
+                    <li><a href="/pages/size-guide" itemprop="url"><span itemprop="name">Size Guide</span></a></li>
+                    <li><a href="/pages/contact" itemprop="url"><span itemprop="name">Contact Us</span></a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: About (with Person Schema for EEAT) -->
+            <div class="footer-col" itemscope itemtype="https://schema.org/Person">
+                <h4>ABOUT</h4>
+                <ul>
+                    <li><a href="/pages/our-story" itemprop="url"><span itemprop="name">Our Story</span></a></li>
+                    <li><a href="/pages/sustainability" itemprop="url"><span itemprop="name">Sustainability</span></a></li>
+                    <li><a href="/pages/careers" itemprop="url"><span itemprop="name">Careers</span></a></li>
+                    <li><a href="/pages/press" itemprop="url"><span itemprop="name">Press</span></a></li>
+                    <li><a href="/blog" itemprop="url"><span itemprop="name">Blog</span></a></li>
+                </ul>
+                <!-- Hidden Author Info for EEAT -->
+                <meta itemprop="name" content="THE TREND THEORY Team">
+                <meta itemprop="jobTitle" content="Fashion Experts & Curators">
+                <meta itemprop="knowsAbout" content="Men's Fashion, Women's Fashion, Streetwear, Sustainable Clothing">
+            </div>
+
+            <!-- Column 4: Newsletter + Trust Signals -->
+            <div class="footer-col">
+                <h4>NEWSLETTER</h4>
+                <p>Subscribe for exclusive updates & offers</p>
+                <div class="newsletter-box" itemscope itemtype="https://schema.org/SubscribeAction">
+                    <input type="email" placeholder="Your email address" aria-label="Email address" required>
+                    <button class="footer-submit" aria-label="Subscribe">→</button>
+                </div>
+                
+                <!-- Trust Badges / Payment Methods -->
+                <div class="payment-icons" itemscope itemtype="https://schema.org/Offer">
+                    <i class="bi bi-credit-card" aria-label="Visa/Mastercard"></i>
+                    <i class="bi bi-paypal" aria-label="PayPal"></i>
+                    <i class="bi bi-google" aria-label="Google Pay"></i>
+                    <i class="bi bi-apple" aria-label="Apple Pay"></i>
+                    <meta itemprop="availability" content="https://schema.org/InStock">
+                    <meta itemprop="priceCurrency" content="INR">
+                </div>
+                
+                <!-- Trust Signals: Secure Checkout -->
+                <div class="trust-badge">
+                    <i class="bi bi-shield-lock"></i> Secure Checkout
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM BAR: Copyright + Legal Links -->
+        <div class="footer-bottom" itemscope itemtype="https://schema.org/CreativeWork">
+            <p>© 2026 <span itemprop="copyrightHolder">THE TREND THEORY</span>. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="/pages/privacy-policy" itemprop="license">Privacy Policy</a>
+                <a href="/pages/terms-of-use" itemprop="termsOfService">Terms of Use</a>
+                <a href="/pages/cookie-policy" itemprop="isBasedOn">Cookie Policy</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden JSON-LD for Rich Snippets (गूगल के लिए सुपर पावर) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "THE TREND THEORY",
+        "url": "https://www.thetrendtheory.com",
+        "logo": "https://www.thetrendtheory.com/logo.png",
+        "sameAs": [
+            "https://instagram.com/thetrendtheory",
+            "https://facebook.com/thetrendtheory",
+            "https://twitter.com/thetrendtheory",
+            "https://youtube.com/@thetrendtheory",
+            "https://pinterest.com/thetrendtheory"
+        ],
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+91-XXXXXXXXXX",
+            "contactType": "customer service",
+            "areaServed": "IN",
+            "availableLanguage": ["English", "Hindi"]
+        },
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "IN"
+        }
+    }
+    </script>
+
+    <!-- EEAT: Person Schema for Founder/Team -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "THE TREND THEORY Team",
+        "jobTitle": "Fashion Curators & Industry Experts",
+        "knowsAbout": ["Men's Fashion", "Women's Fashion", "Streetwear Trends", "Sustainable Fabrics"],
+        "worksFor": {
+            "@type": "Organization",
+            "name": "THE TREND THEORY"
+        }
+    }
+    </script>
+</footer>
+
+<!-- ========== FOOTER CSS (Full Optimization ke saath) ========== -->
+<style>
+    /* Base Footer Styles */
+    .footer-section {
+        background: var(--logo-navy-dark);
+        color: #fff;
+        padding: 60px 0 30px;
+        font-family: 'Cinzel', serif;
+        border-top: 3px solid #FFD700; /* Gold accent for authority */
+        margin-top: 60px;
+        position: relative;
+        width: 100%;
+        clear: both;
+    }
+
+    .footer-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        margin-bottom: 40px;
+    }
+
+    .footer-logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .footer-social {
+        display: flex;
+        gap: 20px;
+    }
+
+    .footer-social a {
+        color: white;
+        font-size: 1.4rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .footer-social a:hover {
+        color: #FFD700;
+        transform: translateY(-5px);
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+
+    .footer-col h4 {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+        position: relative;
+        padding-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .footer-col h4::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #FFD700;
+        transition: width 0.3s ease;
+    }
+
+    .footer-col:hover h4::after {
+        width: 80px;
+    }
+
+    .footer-col ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-col ul li {
+        margin-bottom: 12px;
+    }
+
+    .footer-col ul li a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        display: inline-block;
+        position: relative;
+    }
+
+    .footer-col ul li a::before {
+        content: '›';
+        position: absolute;
+        left: -15px;
+        opacity: 0;
+        transition: 0.2s;
+        color: #FFD700;
+    }
+
+    .footer-col ul li a:hover {
+        color: #FFD700;
+        padding-left: 15px;
+    }
+
+    .footer-col ul li a:hover::before {
+        opacity: 1;
+        left: -5px;
+    }
+
+    .footer-col p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+
+    .newsletter-box {
+        display: flex;
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 50px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: border-color 0.3s;
+    }
+
+    .newsletter-box:hover,
+    .newsletter-box:focus-within {
+        border-color: #FFD700;
+    }
+
+    .newsletter-box input {
+        flex: 1;
+        padding: 14px 18px;
+        border: none;
+        background: white;
+        font-family: inherit;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    .newsletter-box input:focus {
+        box-shadow: inset 0 0 5px rgba(0, 40, 90, 0.2);
+    }
+
+    .footer-submit {
+        width: 60px;
+        background: #FFD700;
+        border: none;
+        color: #00285A;
+        font-size: 1.3rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .footer-submit:hover {
+        background: #00285A;
+        color: #FFD700;
+    }
+
+    .payment-icons {
+        display: flex;
+        gap: 15px;
+        font-size: 1.6rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 15px;
+    }
+
+    .payment-icons i {
+        transition: transform 0.3s;
+        cursor: default;
+    }
+
+    .payment-icons i:hover {
+        transform: scale(1.2);
+        color: #FFD700;
+    }
+
+    .trust-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #FFD700;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 8px 15px;
+        background: rgba(255, 215, 0, 0.1);
+        border-radius: 50px;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    .footer-bottom p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .footer-bottom-links {
+        display: flex;
+        gap: 25px;
+    }
+
+    .footer-bottom-links a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+        position: relative;
+    }
+
+    .footer-bottom-links a:not(:last-child)::after {
+        content: '|';
+        position: absolute;
+        right: -15px;
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .footer-bottom-links a:hover {
+        color: #FFD700;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1024px) {
+        .footer-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .footer-section {
+            padding: 40px 0 20px;
+        }
+        
+        .footer-top {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .footer-social {
+            justify-content: center;
+        }
+        
+        .footer-bottom {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .footer-bottom-links {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .footer-bottom-links a:not(:last-child)::after {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .footer-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .footer-col h4::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .footer-col ul li a:hover {
+            padding-left: 0;
+        }
+        
+        .footer-col ul li a::before {
+            display: none;
+        }
+        
+        .newsletter-box {
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .payment-icons {
+            justify-content: center;
+        }
+        
+        .trust-badge {
+            margin: 0 auto;
+        }
+    }
+
+    /* Performance Optimizations */
+    .footer-section {
+        contain: content;
+        content-visibility: auto;
+        contain-intrinsic-size: 500px;
+    }
+
+    /* Lazy Loading for Social Icons */
+    .footer-social i {
+        will-change: transform;
+    }
+</style>
+    <script>
+
+        function changeImage(el) {
+            document.getElementById("mainProductImg").src = el.src;
+        }
+    </script>
+    <!-- ================= JS ================= -->
+    <script>
+
+        const slider = document.querySelector('.product-slider');
+        const overlay = document.querySelector('.product-overlay');
+        const closeBtn = document.querySelector('.close-slider');
+
+        // attach this class to your ADD TO CART button
+        const openBtns = document.querySelectorAll('.open-product-slider');
+
+        openBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                slider.classList.add('active');
+                overlay.classList.add('active');
+            });
+        });
+
+        function closeSlider() {
+            slider.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        closeBtn.addEventListener('click', closeSlider);
+        overlay.addEventListener('click', closeSlider);
+
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Slider Scripts -->
+    <script>
+        // Hero Slider
+        (function () {
+            const track = document.getElementById('heroSliderTrack');
+            const wrapper = document.getElementById('heroSliderWrapper');
+            const left = document.getElementById('heroArrowLeft');
+            const right = document.getElementById('heroArrowRight');
+            if (!track) return;
+            const slides = Array.from(track.children);
+            const slideCount = slides.length;
+            const slideWidth = 532;
+            for (let i = 0; i < slideCount; i++) track.appendChild(slides[i].cloneNode(true));
+            let x = 0, interval, step = 1.2;
+            function start() { interval = setInterval(() => { x -= step; track.style.transform = `translateX(${x}px)`; if (Math.abs(x) >= slideWidth * slideCount) x += slideWidth * slideCount; }, 20); }
+            start();
+            function pause() { clearInterval(interval); }
+            function resume() { start(); }
+            wrapper.addEventListener('mouseenter', pause);
+            wrapper.addEventListener('mouseleave', resume);
+            left.addEventListener('click', () => { pause(); x += slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+            right.addEventListener('click', () => { pause(); x -= slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+        })();
+
+        // Most Purchased Slider
+        (function () {
+            const track = document.getElementById('mostSliderTrack');
+            const wrapper = document.getElementById('mostSliderWrapper');
+            const left = document.getElementById('mostArrowLeft');
+            const right = document.getElementById('mostArrowRight');
+            if (!track) return;
+            const slides = Array.from(track.children);
+            const slideCount = slides.length;
+            const slideWidth = 385;
+            for (let i = 0; i < slideCount * 3; i++) track.appendChild(slides[i % slideCount].cloneNode(true));
+            let x = 0, interval, step = 1.2;
+            function start() { interval = setInterval(() => { x -= step; track.style.transform = `translateX(${x}px)`; if (Math.abs(x) >= slideWidth * slideCount * 2) x += slideWidth * slideCount * 2; }, 20); }
+            start();
+            function pause() { clearInterval(interval); }
+            function resume() { start(); }
+            wrapper.addEventListener('mouseenter', pause);
+            wrapper.addEventListener('mouseleave', resume);
+            left.addEventListener('click', () => { pause(); x += slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+            right.addEventListener('click', () => { pause(); x -= slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+        })();
+
+        // Men's Slider
+        (function () {
+            const track = document.getElementById('menSliderTrack');
+            const wrapper = document.getElementById('menSliderWrapper');
+            const left = document.getElementById('menArrowLeft');
+            const right = document.getElementById('menArrowRight');
+            if (!track) return;
+            const slides = Array.from(track.children);
+            const slideCount = slides.length;
+            const slideWidth = 405;
+            for (let i = 0; i < slideCount * 3; i++) track.appendChild(slides[i % slideCount].cloneNode(true));
+            let x = 0, interval, step = 1.2;
+            function start() { interval = setInterval(() => { x -= step; track.style.transform = `translateX(${x}px)`; if (Math.abs(x) >= slideWidth * slideCount * 2) x += slideWidth * slideCount * 2; }, 20); }
+            start();
+            function pause() { clearInterval(interval); }
+            function resume() { start(); }
+            wrapper.addEventListener('mouseenter', pause);
+            wrapper.addEventListener('mouseleave', resume);
+            left.addEventListener('click', () => { pause(); x += slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+            right.addEventListener('click', () => { pause(); x -= slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+        })();
+
+        // Women's Slider
+        (function () {
+            const track = document.getElementById('womenSliderTrack');
+            const wrapper = document.getElementById('womenSliderWrapper');
+            const left = document.getElementById('womenArrowLeft');
+            const right = document.getElementById('womenArrowRight');
+            if (!track) return;
+            const slides = Array.from(track.children);
+            const slideCount = slides.length;
+            const slideWidth = 405;
+            for (let i = 0; i < slideCount * 3; i++) track.appendChild(slides[i % slideCount].cloneNode(true));
+            let x = 0, interval, step = 1.2;
+            function start() { interval = setInterval(() => { x -= step; track.style.transform = `translateX(${x}px)`; if (Math.abs(x) >= slideWidth * slideCount * 2) x += slideWidth * slideCount * 2; }, 20); }
+            start();
+            function pause() { clearInterval(interval); }
+            function resume() { start(); }
+            wrapper.addEventListener('mouseenter', pause);
+            wrapper.addEventListener('mouseleave', resume);
+            left.addEventListener('click', () => { pause(); x += slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+            right.addEventListener('click', () => { pause(); x -= slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+        })();
+
+        // New In Slider
+        (function () {
+            const track = document.getElementById('newinSliderTrack');
+            const wrapper = document.getElementById('newinSliderWrapper');
+            const left = document.getElementById('newinArrowLeft');
+            const right = document.getElementById('newinArrowRight');
+            if (!track) return;
+            const slides = Array.from(track.children);
+            const slideCount = slides.length;
+            const slideWidth = 405;
+            for (let i = 0; i < slideCount * 3; i++) track.appendChild(slides[i % slideCount].cloneNode(true));
+            let x = 0, interval, step = 1.2;
+            function start() { interval = setInterval(() => { x -= step; track.style.transform = `translateX(${x}px)`; if (Math.abs(x) >= slideWidth * slideCount * 2) x += slideWidth * slideCount * 2; }, 20); }
+            start();
+            function pause() { clearInterval(interval); }
+            function resume() { start(); }
+            wrapper.addEventListener('mouseenter', pause);
+            wrapper.addEventListener('mouseleave', resume);
+            left.addEventListener('click', () => { pause(); x += slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+            right.addEventListener('click', () => { pause(); x -= slideWidth; track.style.transform = `translateX(${x}px)`; setTimeout(resume, 400); });
+        })();
+    </script>
+</body>
+
+</html>
