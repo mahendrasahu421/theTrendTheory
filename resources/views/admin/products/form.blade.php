@@ -668,12 +668,32 @@
                             class="bi bi-cloud-upload"></i> ImageKit CDN</span>
                 </div>
 
+                @if ($colors->count())
+                    <span class="sl">Color-wise Images</span>
+                    <div style="padding:8px 20px 0;font-size:12px;color:#7a8fa6">
+                        Product add/update karte time yahin images select karo. Black box me black product images, White box me white product images.
+                    </div>
+                    <div class="color-upload-grid">
+                        @foreach ($colors as $color)
+                            <div class="color-upload-card">
+                                <div class="color-upload-title">
+                                    <span class="color-dot" style="background:{{ $color->hex_code }}"></span>
+                                    {{ $color->name }}
+                                </div>
+                                <input type="file"
+                                    name="color_images[{{ $color->id }}][]"
+                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                    multiple>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
                 @if (!$isEdit)
                     <div style="padding:16px 20px">
                         <div
                             style="background:#fffbe6;border:1px solid #ffd700;border-radius:10px;padding:14px;font-size:13px">
-                            <i class="bi bi-info-circle-fill"></i> <strong>Pehle Save karo</strong> — phir Edit pe images
-                            upload kar sakte ho.</div>
+                            <i class="bi bi-info-circle-fill"></i> Color-wise images product save hote hi upload ho jayengi. Extra images baad me edit page se bhi add kar sakte ho.</div>
                     </div>
                 @else
                     @if (($product->has_variants ?? false) && $colors->count())

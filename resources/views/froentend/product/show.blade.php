@@ -48,7 +48,17 @@
     $colorImages = [];
     foreach ($colorVariants as $cv) {
         $colorSpecific = $productImages
-            ->filter(fn($pi) => (int) $pi->color_id === (int) $cv['color_id'] && !empty($pi->url))
+            ->filter(function ($pi) use ($cv) {
+                if (empty($pi->url)) {
+                    return false;
+                }
+
+                if (!empty($cv['color_id']) && (int) $pi->color_id === (int) $cv['color_id']) {
+                    return true;
+                }
+
+                return strtolower($pi->color?->name ?? '') === strtolower($cv['color']);
+            })
             ->sortByDesc('is_primary')
             ->values();
 
