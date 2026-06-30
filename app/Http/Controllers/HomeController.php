@@ -1,0 +1,374 @@
+<?php
+// app/Http/Controllers/HomeController.php
+
+namespace App\Http\Controllers;
+
+use App\Models\HeroSlide;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Review;
+use App\Models\TrendingStory;
+use App\Models\SiteSetting;
+use App\Models\Media;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
+class HomeController extends Controller
+{
+    public function index()
+    {
+        $data = Cache::remember('homepage_data', 900, function () {
+
+            // Get ALL gallery media (both images and videos) for slider
+            $galleryMedia = Media::whereIn('collection', ['gallery', 'video_section'])
+                ->where('model_type', 'App\Models\Gallery')
+                ->orderBy('sort_order')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($media) {
+                    $isVideo = str_starts_with($media->mime_type, 'video/');
+                    return [
+                        'id' => $media->id,
+                        'title' => $media->alt_text ?? 'Untitled',
+                        'url' => $media->url,
+                        'thumb_url' => $media->thumb_url ?? ($isVideo ? $media->url . '?tr=iv-1' : $media->url),
+                        'type' => $isVideo ? 'video' : 'image',
+                        'mime_type' => $media->mime_type,
+                        'sort_order' => $media->sort_order
+                    ];
+                });
+
+            // Get first video for hero background (optional)
+            $heroVideo = $galleryMedia->where('type', 'video')->first();
+
+            // ─────────────────────────────────────────────────────────
+            // 1. FETCH MOST PURCHASED (BEST SELLERS)
+            // ─────────────────────────────────────────────────────────
+            $mostPurchasedRaw = Product::where('total_sold', '>', 0)
+                ->orderByDesc('total_sold')
+                ->limit(10)
+                ->get();
+
+            if ($mostPurchasedRaw->isEmpty()) {
+                $mostPurchasedRaw = Product::where('is_featured', true)
+                    ->orderByDesc('created_at')
+                    ->limit(10)
+                    ->get();
+            }
+
+            // ─────────────────────────────────────────────────────────
+            // 2. FETCH MEN'S PRODUCTS
+            // ─────────────────────────────────────────────────────────
+            $menCategory = Category::whereIn('slug', ['men', 'mens'])->first();
+            $menCategoryIds = [];
+            if ($menCategory) {
+                $menCategoryIds = Category::where('id', $menCategory->id)
+                    ->orWhere('parent_id', $menCategory->id)
+                    ->where('is_active', true)
+                    ->pluck('id')
+                    ->toArray();
+            }
+
+            $mensProductsRaw = Product::whereIn('category_id', $menCategoryIds)
+                ->active()
+                ->with('category')
+                ->orderByDesc('created_at')
+                ->limit(8)
+                ->get();
+
+            // ─────────────────────────────────────────────────────────
+            // 3. FETCH WOMEN'S PRODUCTS
+            // ─────────────────────────────────────────────────────────
+            $womenCategory = Category::whereIn('slug', ['women', 'womens', 'womes'])->first();
+            $womenCategoryIds = [];
+            if ($womenCategory) {
+                $womenCategoryIds = Category::where('id', $womenCategory->id)
+                    ->orWhere('parent_id', $womenCategory->id)
+                    ->where('is_active', true)
+                    ->pluck('id')
+                    ->toArray();
+            }
+
+            $womensProductsRaw = Product::whereIn('category_id', $womenCategoryIds)
+                ->active()
+                ->with('category')
+                ->orderByDesc('created_at')
+                ->limit(8)
+                ->get();
+
+            // ─────────────────────────────────────────────────────────
+            // 4. FETCH NEW ARRIVALS
+            // ─────────────────────────────────────────────────────────
+            $newArrivalsRaw = Product::active()
+                ->where('is_new', true)
+                ->orderByDesc('created_at')
+                ->limit(8)
+                ->get();
+
+            if ($newArrivalsRaw->isEmpty()) {
+                $newArrivalsRaw = Product::active()
+                    ->orderByDesc('created_at')
+                    ->limit(8)
+                    ->get();
+            }
+
+            // ─────────────────────────────────────────────────────────
+            // 5. LOG FOR DEBUG
+            // ─────────────────────────────────────────────────────────
+            Log::info('Homepage Products Summary', [
+                'most_purchased_count' => $mostPurchasedRaw->count(),
+                'men_products_count' => $mensProductsRaw->count(),
+                'women_products_count' => $womensProductsRaw->count(),
+                'new_arrivals_count' => $newArrivalsRaw->count(),
+                'gallery_media_count' => $galleryMedia->count()
+            ]);
+
+            // ─────────────────────────────────────────────────────────
+            // 6. RETURN DATA
+            // ─────────────────────────────────────────────────────────
+            return [
+                'settings' => SiteSetting::getAll(),
+                'galleryMedia' => $galleryMedia->toArray(),
+                'heroVideo' => $heroVideo,
+                'heroSlides' => HeroSlide::active()->ordered()->get()->map(function ($slide) {
+                    return [
+                        'id' => $slide->id,
+                        'title' => $slide->title,
+                        'subtitle' => $slide->subtitle,
+                        'image' => $slide->image_url,
+                        'mobile_image' => $slide->mobile_image_url,
+                        'alt_text' => $slide->alt_text,
+                        'button_text' => $slide->button_text,
+                        'button_link' => $slide->button_link,
+                        'sort_order' => $slide->sort_order,
+                    ];
+                })->toArray(),
+                'title' => SiteSetting::get('site_name', 'The Trend Theory'),
+                'titleContent' => SiteSetting::get('site_tagline', 'Fashion That Speaks Without Saying a Word'),
+                'categories' => Category::homeCategories()->map(function ($category) {
+                    return [
+                        'id' => $category->id,
+                        'name' => $category->name,
+                        'slug' => $category->slug,
+                        'description' => $category->description,
+                        'image' => $category->image,
+                        'image_url' => $category->image_url,
+                        'banner_image_url' => $category->banner_image_url,
+                        'sort_order' => $category->sort_order,
+                    ];
+                })->toArray(),
+
+                'mostPurchased' => $mostPurchasedRaw->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'price' => $product->price,
+                        'original_price' => $product->original_price,
+                        'has_discount' => $product->has_discount,
+                        'discount_percentage' => $product->discount_percent,
+                        'stock' => $product->stock,
+                        'stock_status' => $product->stock_status,
+                        'sold_count' => $product->total_sold,
+                        'formatted_sold' => $product->total_sold > 0 ? number_format($product->total_sold) . ' sold' : 'New',
+                        'avg_rating' => $product->avg_rating,
+                        'image' => $product->image,
+                        'image_url' => $product->card_image,
+                        'card_image_url' => $product->card_image,
+                        'is_new' => $product->is_new,
+                        'is_featured' => $product->is_featured,
+                        'is_trending' => $product->is_trending,
+                        'is_on_sale' => $product->is_on_sale,
+                    ];
+                })->toArray(),
+
+                'mensProducts' => $mensProductsRaw->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'price' => $product->price,
+                        'original_price' => $product->original_price,
+                        'has_discount' => $product->has_discount,
+                        'discount_percentage' => $product->discount_percent,
+                        'stock' => $product->stock,
+                        'stock_status' => $product->stock_status,
+                        'image' => $product->image,
+                        'image_url' => $product->card_image,
+                        'card_image_url' => $product->card_image,
+                        'is_new' => $product->is_new,
+                        'is_featured' => $product->is_featured,
+                        'is_trending' => $product->is_trending,
+                        'is_on_sale' => $product->is_on_sale,
+                        'sizes' => $product->sizes,
+                        'colors' => $product->colors,
+                        'category_name' => $product->category ? $product->category->name : null,
+                        'category_slug' => $product->category ? $product->category->slug : null,
+                    ];
+                })->toArray(),
+
+                'womensProducts' => $womensProductsRaw->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'price' => $product->price,
+                        'original_price' => $product->original_price,
+                        'has_discount' => $product->has_discount,
+                        'discount_percentage' => $product->discount_percent,
+                        'stock' => $product->stock,
+                        'stock_status' => $product->stock_status,
+                        'image' => $product->image,
+                        'image_url' => $product->card_image,
+                        'card_image_url' => $product->card_image,
+                        'is_new' => $product->is_new,
+                        'is_featured' => $product->is_featured,
+                        'is_trending' => $product->is_trending,
+                        'is_on_sale' => $product->is_on_sale,
+                        'sizes' => $product->sizes,
+                        'colors' => $product->colors,
+                        'category_name' => $product->category ? $product->category->name : null,
+                        'category_slug' => $product->category ? $product->category->slug : null,
+                    ];
+                })->toArray(),
+
+                'newArrivals' => $newArrivalsRaw->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'price' => $product->price,
+                        'original_price' => $product->original_price,
+                        'has_discount' => $product->has_discount,
+                        'discount_percentage' => $product->discount_percent,
+                        'stock' => $product->stock,
+                        'stock_status' => $product->stock_status,
+                        'image' => $product->image,
+                        'image_url' => $product->card_image,
+                        'card_image_url' => $product->card_image,
+                        'is_new' => $product->is_new,
+                        'is_featured' => $product->is_featured,
+                        'is_trending' => $product->is_trending,
+                        'is_on_sale' => $product->is_on_sale,
+                        'sizes' => $product->sizes,
+                        'colors' => $product->colors,
+                    ];
+                })->toArray(),
+
+                'trendingStories' => TrendingStory::active(3)->map(function ($story) {
+                    return [
+                        'id' => $story->id,
+                        'caption' => $story->caption,
+                        'caption_highlight' => $story->caption_highlight,
+                        'image_url' => $story->image_url,
+                        'username' => $story->username,
+                        'user_avatar_url' => $story->user_avatar_url,
+                        'badge_text' => $story->badge_text,
+                        'badge_type' => $story->badge_type,
+                        'duration' => $story->duration,
+                        'likes' => $story->likes,
+                        'formatted_likes' => $story->formatted_likes,
+                        'views' => $story->views,
+                    ];
+                })->toArray(),
+
+                'reviews' => Review::featured(3)->map(function ($review) {
+                    return [
+                        'id' => $review->id,
+                        'reviewer_name' => $review->reviewer_name,
+                        'reviewer_image_url' => $review->reviewer_image_url,
+                        'rating' => $review->rating,
+                        'title' => $review->title,
+                        'comment' => $review->comment,
+                        'product_tag' => $review->product_tag,
+                        'likes' => $review->likes,
+                        'is_verified' => $review->is_verified,
+                        'is_approved' => $review->is_approved,
+                        'is_featured' => $review->is_featured,
+                        'review_media' => $review->review_media,
+                        'created_at' => $review->created_at,
+                    ];
+                })->toArray(),
+            ];
+        });
+
+        // ─────────────────────────────────────────────────────────
+        // SCHEMA AND SEO DATA
+        // ─────────────────────────────────────────────────────────
+        $reviews = $data['reviews'];
+        $reviewSchema = null;
+
+        if (count($reviews) > 0) {
+            $schemaItems = [];
+            foreach ($reviews as $i => $review) {
+                $schemaItems[] = [
+                    '@type' => 'Review',
+                    'position' => $i + 1,
+                    'reviewRating' => [
+                        '@type' => 'Rating',
+                        'ratingValue' => (string) ($review['rating'] ?? 5),
+                        'bestRating' => '5',
+                    ],
+                    'name' => $review['title'] ?? 'Customer Review',
+                    'author' => [
+                        '@type' => 'Person',
+                        'name' => $review['reviewer_name'] ?? 'Verified Customer',
+                    ],
+                    'reviewBody' => $review['comment'] ?? '',
+                    'datePublished' => isset($review['created_at']) ? date('Y-m-d', strtotime($review['created_at'])) : date('Y-m-d'),
+                    'itemReviewed' => [
+                        '@type' => 'Product',
+                        'name' => $review['product_tag'] ?? 'Fashion Product',
+                    ],
+                ];
+            }
+
+            $reviewSchema = json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'ItemList',
+                'name' => 'Customer Reviews — The Trend Theory',
+                'itemListElement' => $schemaItems,
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
+        $seoData = [
+            'meta_title' => SiteSetting::get('meta_title', 'The Trend Theory | Premium Fashion Store India'),
+            'meta_description' => SiteSetting::get('meta_description', 'Shop latest men & women fashion.'),
+            'og_image' => SiteSetting::get('og_image', asset('images/og-default.jpg')),
+            'canonical' => url('/'),
+            'reviewSchema' => $reviewSchema,
+            'schema' => json_encode([
+                '@context' => 'https://schema.org',
+                '@graph' => [
+                    [
+                        '@type' => 'WebSite',
+                        'name' => SiteSetting::get('site_name', 'The Trend Theory'),
+                        'url' => url('/'),
+                        'potentialAction' => [
+                            '@type' => 'SearchAction',
+                            'target' => url('/search') . '?q={search_term_string}',
+                            'query-input' => 'required name=search_term_string',
+                        ],
+                    ],
+                    [
+                        '@type' => 'ClothingStore',
+                        'name' => SiteSetting::get('site_name', 'The Trend Theory'),
+                        'url' => url('/'),
+                        'logo' => asset('images/logo.png'),
+                        'sameAs' => [
+                            'https://www.instagram.com/thetrendtheory',
+                            'https://www.facebook.com/thetrendtheory',
+                        ],
+                        'address' => [
+                            '@type' => 'PostalAddress',
+                            'addressLocality' => SiteSetting::get('address', 'India'),
+                            'addressCountry' => 'IN',
+                        ],
+                    ],
+                ],
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        ];
+
+        return view('froentend.home', array_merge($data, $seoData));
+    }
+}
