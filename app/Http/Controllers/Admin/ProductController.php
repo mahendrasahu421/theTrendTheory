@@ -4,7 +4,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Product, Category, ProductVariant, ProductImage, Size, Color, Media};
+use App\Models\{Product, Category, ProductVariant, ProductImage, Size, Color, Media, Tag};
 use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -109,10 +109,15 @@ class ProductController extends Controller
     {
         $sizes = Size::where('is_active', true)->orderBy('sort_order')->get();
         $colors = Color::where('is_active', true)->orderBy('sort_order')->get();
+        $linkedProducts = Product::where('is_active', true)
+            ->whereNull('parent_product_id')
+            ->orderBy('name')
+            ->get(['id', 'name', 'color_name']);
         $categories = Category::where('is_active', true)
             ->orderBy('parent_id')->orderBy('sort_order')->orderBy('name')
             ->get();
-        return view('admin.products.form', compact('categories', 'sizes', 'colors'));
+        $tags = Tag::orderBy('name')->get();
+        return view('admin.products.form', compact('categories', 'sizes', 'colors', 'linkedProducts', 'tags'));
     }
 
     // ── Store ────────────────────────────────────────
@@ -126,9 +131,15 @@ class ProductController extends Controller
             'price' => !$hasVariants ? 'required|numeric|min:0' : 'nullable',
             'stock' => !$hasVariants ? 'required|integer|min:0' : 'nullable',
             'sku' => 'nullable|string|max:100|unique:products,sku',
+            'parent_product_id' => 'nullable|exists:products,id',
+            'color_name' => 'nullable|string|max:100',
+            'color_hex' => 'nullable|string|max:20',
             'short_description' => 'nullable|string|max:500',
             'meta_title' => 'nullable|string|max:70',
             'meta_description' => 'nullable|string|max:170',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'exists:tags,id',
+            'tag_names' => 'nullable|string|max:500',
             'color_images.*.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
@@ -146,8 +157,12 @@ class ProductController extends Controller
                 'slug' => $slug,
                 'category_id' => $request->category_id,
                 'sku' => $request->sku ?? null,
+                'parent_product_id' => $request->parent_product_id ?: null,
+                'product_type' => $request->parent_product_id ? 'color_variant' : ($request->filled('color_name') ? 'color_variant_parent' : null),
+                'color_name' => $request->color_name,
+                'color_hex' => $request->color_hex,
                 'short_description' => $request->short_description,
-                'description' => $request->description,
+                'description' => $this->cleanDescription($request->description),
                 'price' => !$hasVariants ? ($request->price ?? 0) : 0,
                 'original_price' => !$hasVariants ? ($request->original_price ?? null) : null,
                 'cost_price' => !$hasVariants ? ($request->cost_price ?? null) : null,
@@ -159,7 +174,7 @@ class ProductController extends Controller
                 'og_image' => $request->og_image ?? null,
                 'is_active' => $request->boolean('is_active', true),
                 'is_featured' => $request->boolean('is_featured'),
-                'is_new' => $request->boolean('is_new'),
+                'is_new' => $request->boolean('is_new', true),
                 'is_trending' => $request->boolean('is_trending'),
                 'is_on_sale' => $request->boolean('is_on_sale'),
                 'fabric' => $request->fabric,
@@ -178,6 +193,7 @@ class ProductController extends Controller
             }
 
             $this->storeColorImages($request, $product);
+            $this->syncTagsFromRequest($request, $product);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -195,12 +211,18 @@ class ProductController extends Controller
         $categories = Category::where('is_active', true)->orderBy('name')->get();
         $sizes = Size::where('is_active', true)->orderBy('sort_order')->get();
         $colors = Color::where('is_active', true)->orderBy('sort_order')->get();
+        $linkedProducts = Product::where('is_active', true)
+            ->whereNull('parent_product_id')
+            ->where('id', '!=', $product->id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'color_name']);
+        $tags = Tag::orderBy('name')->get();
 
-        $product->load(['variants']);
+        $product->load(['variants', 'tags']);
 
         $images = $product->images()->orderByDesc('is_primary')->orderBy('sort_order')->get();
 
-        return view('admin.products.form', compact('product', 'categories', 'sizes', 'colors', 'images'));
+        return view('admin.products.form', compact('product', 'categories', 'sizes', 'colors', 'images', 'linkedProducts', 'tags'));
     }
 
     // ── Update ───────────────────────────────────────
@@ -212,6 +234,12 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'sku' => 'nullable|string|max:100|unique:products,sku,' . $product->id,
+            'parent_product_id' => 'nullable|exists:products,id|not_in:' . $product->id,
+            'color_name' => 'nullable|string|max:100',
+            'color_hex' => 'nullable|string|max:20',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'exists:tags,id',
+            'tag_names' => 'nullable|string|max:500',
             'color_images.*.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
@@ -221,8 +249,12 @@ class ProductController extends Controller
                 'name' => $request->name,
                 'category_id' => $request->category_id,
                 'sku' => $request->sku ?? null,
+                'parent_product_id' => $request->parent_product_id ?: null,
+                'product_type' => $request->parent_product_id ? 'color_variant' : ($request->filled('color_name') ? 'color_variant_parent' : null),
+                'color_name' => $request->color_name,
+                'color_hex' => $request->color_hex,
                 'short_description' => $request->short_description,
-                'description' => $request->description,
+                'description' => $this->cleanDescription($request->description),
                 'price' => !$hasVariants ? ($request->price ?? $product->price) : $product->price,
                 'original_price' => !$hasVariants ? ($request->original_price ?? null) : $product->original_price,
                 'cost_price' => !$hasVariants ? ($request->cost_price ?? null) : $product->cost_price,
@@ -283,6 +315,7 @@ class ProductController extends Controller
             }
 
             $this->storeColorImages($request, $product);
+            $this->syncTagsFromRequest($request, $product);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -410,6 +443,54 @@ class ProductController extends Controller
                 }
             }
         }
+    }
+
+    private function cleanDescription(?string $description): ?string
+    {
+        $description = trim((string) $description);
+        if ($description === '') {
+            return null;
+        }
+
+        $description = preg_replace('#<(script|style|iframe|object|embed)\b[^>]*>.*?</\1>#is', '', $description);
+        $description = strip_tags($description, '<p><div><br><strong><b><em><i><u><h2><h3><ul><ol><li><blockquote>');
+        $description = preg_replace('/\s(?:on\w+|style|class|id)=("[^"]*"|\'[^\']*\'|[^\s>]*)/i', '', $description);
+        $description = preg_replace('/javascript\s*:/i', '', $description);
+
+        return trim($description);
+    }
+
+    private function syncTagsFromRequest(Request $request, Product $product): void
+    {
+        if (!Schema::hasTable('tags') || !Schema::hasTable('product_tags')) {
+            return;
+        }
+
+        $tagIds = collect($request->input('tag_ids', []))
+            ->filter()
+            ->map(fn($id) => (int) $id)
+            ->all();
+
+        $newTagNames = collect(explode(',', (string) $request->input('tag_names', '')))
+            ->map(fn($name) => trim($name))
+            ->filter()
+            ->unique(fn($name) => Str::lower($name));
+
+        foreach ($newTagNames as $name) {
+            $slug = Str::slug($name);
+            if ($slug === '') {
+                continue;
+            }
+
+            $tag = Tag::firstOrCreate(
+                ['slug' => $slug],
+                ['name' => $name]
+            );
+
+            $tagIds[] = $tag->id;
+        }
+
+        $product->tags()->sync(array_values(array_unique($tagIds)));
     }
 
     private function productListImage(Product $product): ?string

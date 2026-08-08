@@ -1,2 +1,0 @@
-Step 3 done: ran php artisan config:clear and php artisan cache:clear without showing errors.
-

@@ -317,7 +317,7 @@
     <div class="shop-hero {{ $shopHeroImage ? 'has-image' : '' }}"
         @if ($shopHeroImage) style="--shop-hero-image: url('{{ $shopHeroImage }}')" @endif>
         <h1>{{ $pageHeading ?? ($currentCategory ? strtoupper($currentCategory->name) : 'SHOP ALL') }}</h1>
-        <p>{{ $currentCategory->description ?? 'Discover the latest styles' }}</p>
+        <p>{{ $pageDescription ?? ($currentCategory->description ?? 'Discover the latest styles') }}</p>
     </div>
 
     @if ($currentCategory)

@@ -10,10 +10,12 @@ class HeroSlide extends Model
     protected $fillable = [
         'title',
         'subtitle',
+        'media_type',
         'image',
         'mobile_image',
         'button_text',
         'button_link',
+        'product_id',
         'alt_text',
         'sort_order',
         'is_active'
@@ -21,8 +23,19 @@ class HeroSlide extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'product_id' => 'integer',
         'sort_order' => 'integer'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function getMediaTypeAttribute($value): string
+    {
+        return $value ?: 'image';
+    }
 
     // Get full image URL from ImageKit
     public function getImageUrl()
@@ -33,6 +46,10 @@ class HeroSlide extends Model
 
         if (filter_var($this->image, FILTER_VALIDATE_URL)) {
             return $this->image;
+        }
+
+        if (str_starts_with($this->image, '/storage/') || str_starts_with($this->image, 'storage/')) {
+            return asset(ltrim($this->image, '/'));
         }
 
         return "https://ik.imagekit.io/zjhpv2mbz/" . $this->image;
@@ -47,6 +64,10 @@ class HeroSlide extends Model
 
         if (filter_var($this->mobile_image, FILTER_VALIDATE_URL)) {
             return $this->mobile_image;
+        }
+
+        if (str_starts_with($this->mobile_image, '/storage/') || str_starts_with($this->mobile_image, 'storage/')) {
+            return asset(ltrim($this->mobile_image, '/'));
         }
 
         return "https://ik.imagekit.io/zjhpv2mbz/" . $this->mobile_image;

@@ -22,6 +22,8 @@ class Media extends Model
         'size',
         'mime_type',
         'alt_text',
+        'subtitle',
+        'button_link',
         'sort_order',
         'is_primary'
     ];
@@ -107,5 +109,12 @@ class Media extends Model
         return $query->where('model_type', 'App\Models\Product')
             ->where('model_id', $productId)
             ->where('collection', 'default');
+    }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'media_product_links')
+            ->withPivot('sort_order')
+            ->orderBy('media_product_links.sort_order');
     }
 }

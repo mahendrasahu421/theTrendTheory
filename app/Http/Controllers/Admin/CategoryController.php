@@ -28,7 +28,7 @@ class CategoryController extends Controller
         $page = (int) $request->get('page', 1);
         $search = trim($request->get('search', ''));
         $type = $request->get('parent', '');
-        $status = $request->get('status', '');
+        $status = $request->get('status', '1');
 
         $q = Category::with('parent')->withCount('products');
 
@@ -98,9 +98,10 @@ class CategoryController extends Controller
             'parent_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
 
-            // Accept either existing URL/string OR a newly uploaded file.
             'image' => ['nullable'],
             'banner_image' => ['nullable'],
+            'image_file' => ['nullable', 'image', 'max:4096'],
+            'banner_image_file' => ['nullable', 'image', 'max:6144'],
 
             'meta_title' => 'nullable|string|max:70',
             'meta_description' => 'nullable|string|max:170',
@@ -115,13 +116,13 @@ class CategoryController extends Controller
         $imageUrl = $request->input('image');
         $bannerImageUrl = $request->input('banner_image');
 
-        if ($request->hasFile('image')) {
-            $uploaded = $this->cloudinary->upload($request->file('image'), 'categories');
+        if ($request->hasFile('image_file')) {
+            $uploaded = $this->cloudinary->upload($request->file('image_file'), 'categories');
             $imageUrl = $uploaded['url'] ?? null;
         }
 
-        if ($request->hasFile('banner_image')) {
-            $uploaded = $this->cloudinary->upload($request->file('banner_image'), 'categories/banners');
+        if ($request->hasFile('banner_image_file')) {
+            $uploaded = $this->cloudinary->upload($request->file('banner_image_file'), 'categories/banners');
             $bannerImageUrl = $uploaded['url'] ?? null;
         }
 
@@ -171,9 +172,10 @@ class CategoryController extends Controller
             'parent_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
 
-            // Accept either existing URL/string OR a newly uploaded file.
             'image' => ['nullable'],
             'banner_image' => ['nullable'],
+            'image_file' => ['nullable', 'image', 'max:4096'],
+            'banner_image_file' => ['nullable', 'image', 'max:6144'],
 
             'meta_title' => 'nullable|string|max:70',
             'meta_description' => 'nullable|string|max:170',
@@ -188,13 +190,13 @@ class CategoryController extends Controller
         $imageUrl = $request->input('image');
         $bannerImageUrl = $request->input('banner_image');
 
-        if ($request->hasFile('image')) {
-            $uploaded = $this->cloudinary->upload($request->file('image'), 'categories');
+        if ($request->hasFile('image_file')) {
+            $uploaded = $this->cloudinary->upload($request->file('image_file'), 'categories');
             $imageUrl = $uploaded['url'] ?? null;
         }
 
-        if ($request->hasFile('banner_image')) {
-            $uploaded = $this->cloudinary->upload($request->file('banner_image'), 'categories/banners');
+        if ($request->hasFile('banner_image_file')) {
+            $uploaded = $this->cloudinary->upload($request->file('banner_image_file'), 'categories/banners');
             $bannerImageUrl = $uploaded['url'] ?? null;
         }
 

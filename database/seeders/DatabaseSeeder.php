@@ -16,10 +16,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            CategorySeeder::class,
             SizeSeeder::class,
             ColorSeeder::class,
             SiteSettingSeeder::class,
-            DemoProductSeeder::class,
+            // DemoProductSeeder::class,
         ]);
 
         // Orders/Payments migrations are handled separately via artisan migrate.

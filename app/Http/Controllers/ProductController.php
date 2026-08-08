@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function show(string $slug)
+    public function show(Request $request, string $slug, ?string $colorSlug = null)
     {
         $product = Product::with([
             'category.parent',
@@ -19,6 +21,8 @@ class ProductController extends Controller
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
+
+        $selectedColor = $this->selectedColorName($product, $colorSlug ?: $request->query('color'));
 
         $recentlyViewedIds = collect(session()->get('recently_viewed_products', []))
             ->reject(fn ($id) => (int) $id === (int) $product->id)
@@ -44,6 +48,34 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
-        return view('froentend.product.show', compact('product', 'relatedProducts', 'recentlyViewedProducts'));
+        $colorGroupId = $product->parent_product_id ?: $product->id;
+        $linkedColorProducts = Product::with(['images', 'media', 'productImages'])
+            ->where('is_active', true)
+            ->where(function ($query) use ($colorGroupId) {
+                $query->where('id', $colorGroupId)
+                    ->orWhere('parent_product_id', $colorGroupId);
+            })
+            ->orderBy('id')
+            ->get();
+
+        return view('froentend.product.show', compact('product', 'relatedProducts', 'recentlyViewedProducts', 'linkedColorProducts', 'selectedColor'));
+    }
+
+    private function selectedColorName(Product $product, ?string $colorSlug): ?string
+    {
+        if (!$colorSlug) {
+            return null;
+        }
+
+        $colors = $product->variants
+            ->pluck('color')
+            ->merge($product->productImages->pluck('color.name'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $normalizedColorSlug = Str::slug($colorSlug);
+
+        return $colors->first(fn ($color) => Str::slug($color) === $normalizedColorSlug) ?: null;
     }
 }

@@ -6,6 +6,10 @@
     <meta name="robots" content="noindex, nofollow">
 @endpush
 
+@push('styles')
+    <link href="{{ asset('frontend/checkout-pop.css') }}" rel="stylesheet">
+@endpush
+
 @section('main')
 <style>
 .cart-wrap { max-width:1100px; margin:40px auto; padding:0 20px 60px; }
@@ -183,9 +187,7 @@
                     <div id="availableCouponsList"></div>
                 </div>
 
-                <a href="{{ route('checkout.index') }}">
-                    <button class="checkout-btn">PROCEED TO CHECKOUT →</button>
-                </a>
+                <button type="button" class="checkout-btn" onclick="openCartCheckoutPopup()">PROCEED TO CHECKOUT →</button>
                 <a href="{{ route('shop.index') }}" class="continue-btn">← Continue Shopping</a>
             </div>
 
@@ -199,6 +201,164 @@
         </div>
     @endif
 </div>
+
+@if(count($cart) > 0)
+@php $checkoutUser = auth()->user(); @endphp
+<div class="checkout-pop" id="checkoutPop" aria-hidden="true">
+    <div class="checkout-pop__shade" onclick="closeCheckoutPop()"></div>
+    <aside class="checkout-pop__panel cart-drawer-panel" role="dialog" aria-modal="true" aria-label="Checkout">
+        <div class="checkout-pop__top">
+            <div class="cart-drawer-title">
+                <span class="checkout-step-brand">THE TREND<br>THEORY</span>
+                <span class="checkout-step-secure">100% Secured Payment <i class="bi bi-lock-fill"></i></span>
+            </div>
+            <button type="button" class="checkout-pop__back" onclick="closeCheckoutPop()" aria-label="Close checkout">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="cart-reward-code">Inclusive of All Taxes</div>
+        <div class="cart-reward">
+            <div id="coRewardText">Add more to unlock rewards!</div>
+            <div class="cart-reward-scale"><span>₹500.00</span><span>₹5,999.00</span><span>₹9,999.00</span></div>
+            <div class="cart-reward-line"><i></i></div>
+            <div class="cart-reward-labels"><span>10% Off</span><span>15% Off</span><span>20% Off</span></div>
+        </div>
+
+        <div class="checkout-pop__body">
+            <section class="checkout-block">
+                <div class="checkout-title">DELIVERY DETAILS</div>
+                <div class="checkout-card checkout-summary-card" onclick="toggleCheckoutSection('order')" role="button" tabindex="0">
+                    <div class="checkout-icon"><i class="bi bi-cart3"></i></div>
+                    <div>
+                        <div class="checkout-card-title">Order Summary</div>
+                        <div class="checkout-save" id="coSavings">₹0 saved so far</div>
+                    </div>
+                    <div class="checkout-summary-price">
+                        <span id="coItemCount">0 items</span>
+                        <strong id="coTotalTop">₹0</strong>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="checkout-order-items" id="coOrderItems" hidden></div>
+
+                <div class="checkout-card checkout-address-card">
+                    <div class="checkout-icon"><i class="bi bi-geo-alt"></i></div>
+                    <div class="checkout-address-copy">
+                        <div class="checkout-card-title">Deliver To {{ $checkoutUser->name ?? 'Customer' }}</div>
+                        <p>{{ $checkoutUser->address ?? 'Add your delivery address' }}</p>
+                        <p>{{ $checkoutUser->phone ?? '' }}{{ $checkoutUser?->email ? ' | ' . $checkoutUser->email : '' }}</p>
+                        <div class="checkout-ship">
+                            <span>Standard Shipping</span>
+                            <b id="coShipping">{{ $shipping == 0 ? 'FREE' : '₹'.$shipping }}</b>
+                        </div>
+                    </div>
+                    <button type="button" class="checkout-change" onclick="showAddressEditor()">Change</button>
+                </div>
+
+                <div class="checkout-address-form" id="coAddressForm" hidden>
+                    <div class="checkout-form-head">
+                        <button type="button" onclick="showCheckoutMain()"><i class="bi bi-chevron-left"></i></button>
+                        <b>Change Address</b>
+                    </div>
+                    <label>Pincode</label>
+                    <div class="checkout-pin-row">
+                        <input type="text" id="coPin" maxlength="10" placeholder="Enter pincode" value="{{ $checkoutUser->pincode ?? '' }}">
+                        <button type="button" onclick="unlockAddressFields()">Check</button>
+                    </div>
+                    <div class="checkout-address-fields" id="coAddressFields" hidden>
+                        <label>Name</label>
+                        <input type="text" id="coName" value="{{ $checkoutUser->name ?? '' }}" placeholder="Full name">
+                        <label>Phone</label>
+                        <input type="text" id="coPhone" value="{{ $checkoutUser->phone ?? '' }}" placeholder="Mobile number">
+                        <label>Address</label>
+                        <textarea id="coAddress" rows="3" placeholder="House no, street, area">{{ $checkoutUser->address ?? '' }}</textarea>
+                        <div class="checkout-field-grid">
+                            <div>
+                                <label>City</label>
+                                <input type="text" id="coCity" value="{{ $checkoutUser->city ?? '' }}" placeholder="City">
+                            </div>
+                            <div>
+                                <label>State</label>
+                                <input type="text" id="coState" value="{{ $checkoutUser->state ?? '' }}" placeholder="State">
+                            </div>
+                        </div>
+                        <button type="button" class="checkout-save-address" onclick="saveCheckoutAddress()">Save Address</button>
+                    </div>
+                    <div class="checkout-address-msg" id="coAddressMsg"></div>
+                </div>
+            </section>
+
+            <section class="checkout-block">
+                <div class="checkout-title">OFFERS & REWARDS</div>
+                <div class="checkout-card checkout-offers">
+                    <div class="checkout-coupon">
+                        <i class="bi bi-patch-percent-fill"></i>
+                        <input type="text" placeholder="Enter Coupon Code" value="{{ session('coupon_code', '') }}">
+                    </div>
+                    <div class="checkout-offer-row">
+                        <span><i class="bi bi-patch-check"></i> 14 coupons available <b class="checkout-offer-badge">Specially For You</b></span>
+                        <button type="button">View All Offers <i class="bi bi-chevron-right"></i></button>
+                    </div>
+                    <div class="checkout-loyalty">
+                        <i class="bi bi-star"></i>
+                        You're earning <b id="coPoints">0 loyalty points</b> on this order
+                    </div>
+                </div>
+            </section>
+
+            <section class="checkout-block">
+                <div class="checkout-title">PAYMENT OPTIONS</div>
+                <div class="checkout-pay-note">Additional 5 Discount on Prepaid Orders</div>
+            </section>
+        </div>
+
+        <div class="checkout-pop__footer">
+            <div class="checkout-cashback">Get 5% off + cashback</div>
+            <div class="checkout-total-row" onclick="toggleTotalBreakdown()" role="button" tabindex="0">
+                <div>
+                    <span><i class="bi bi-receipt-cutoff"></i> Estimated Total <i class="bi bi-chevron-up" id="coTotalChevron"></i></span>
+                    <small id="coDiscountLine">Best price applied</small>
+                </div>
+                <strong id="coTotalBottom">₹0</strong>
+            </div>
+            <div class="checkout-total-breakdown" id="coTotalBreakdown" hidden>
+                <div class="checkout-break-head"><b>Order Summary</b><span id="coBreakSaved">₹0 saved so far</span></div>
+                <div class="checkout-break-row"><span>MRP total</span><b id="coMrpTotal">₹0</b></div>
+                <div class="checkout-break-row green"><span>Discount on MRP</span><b id="coMrpDiscount">₹0</b></div>
+                <div class="checkout-break-row"><span>Cart Subtotal</span><b id="coCartSubtotal">₹0</b></div>
+                <div class="checkout-break-row green"><span>Total discount</span><b id="coTotalDiscount">₹0</b></div>
+                <div class="checkout-break-row green"><span>Prepaid Discount</span><b id="coPrepaidDiscount">₹0</b></div>
+                <div class="checkout-break-row"><span>Shipping Charges</span><b id="coBreakShipping">₹0</b></div>
+                <div class="checkout-break-row green"><span>Total savings</span><b id="coTotalSavings">₹0</b></div>
+                <div class="checkout-break-final"><span>Estimated Total</span><b id="coBreakTotal">₹0</b></div>
+            </div>
+            <form action="{{ route('checkout.place') }}" method="POST" id="checkoutPlaceForm">
+                @csrf
+                <input type="hidden" name="name" id="placeName" value="{{ $checkoutUser->name ?? '' }}">
+                <input type="hidden" name="phone" id="placePhone" value="{{ $checkoutUser->phone ?? '' }}">
+                <input type="hidden" name="address" id="placeAddress" value="{{ $checkoutUser->address ?? '' }}">
+                <input type="hidden" name="city" id="placeCity" value="{{ $checkoutUser->city ?? '' }}">
+                <input type="hidden" name="state" id="placeState" value="{{ $checkoutUser->state ?? '' }}">
+                <input type="hidden" name="pincode" id="placePincode" value="{{ $checkoutUser->pincode ?? '' }}">
+                <input type="hidden" name="payment" value="cod">
+                <button type="submit" class="checkout-main-btn">
+                    <span class="checkout-main-copy">
+                        <b>PLACE ORDER</b>
+                        <small>5% OFF ON PREPAID ORDERS</small>
+                    </span>
+                    <span class="checkout-pay-icons" aria-hidden="true">
+                        <i>paytm</i>
+                        <i>pe</i>
+                        <i>G</i>
+                    </span>
+                </button>
+            </form>
+            <div class="checkout-powered">Powered by <b>The Trend Theory</b></div>
+        </div>
+    </aside>
+</div>
+@endif
 
 @push('scripts')
 <script>
@@ -544,5 +704,39 @@ window.applyCoupon = applyCoupon;
 window.removeCoupon = removeCoupon;
 window.applySpecificCoupon = applySpecificCoupon;
 </script>
+@if(count($cart) > 0)
+@php
+    $checkoutCartItems = collect($cart)->map(function ($item, $key) {
+        $item['key'] = $key;
+        return $item;
+    })->values();
+@endphp
+<script>
+window.TTT_CART_CHECKOUT = {
+    csrf: '{{ csrf_token() }}',
+    addressUpdateUrl: '{{ route('profile.update') }}',
+    cartUpdateBaseUrl: '{{ url('/cart/update') }}',
+    cart: {
+        items: @json($checkoutCartItems),
+        count: {{ collect($cart)->sum('quantity') }},
+        subtotal: {{ (float) $subtotal }},
+        shipping: {{ (float) $shipping }},
+        discount: {{ (float) ($couponDiscount ?? 0) }},
+        savings: {{ (float) ($couponDiscount ?? 0) }},
+        total: {{ (float) $total }}
+    },
+    user: {
+        name: @json($checkoutUser->name ?? ''),
+        email: @json($checkoutUser->email ?? ''),
+        phone: @json($checkoutUser->phone ?? ''),
+        address: @json($checkoutUser->address ?? ''),
+        city: @json($checkoutUser->city ?? ''),
+        state: @json($checkoutUser->state ?? ''),
+        pincode: @json($checkoutUser->pincode ?? '')
+    }
+};
+</script>
+<script src="{{ asset('frontend/cart-checkout.js') }}" defer></script>
+@endif
 @endpush
 @endsection

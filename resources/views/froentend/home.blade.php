@@ -15,21 +15,60 @@
 
 @section('main')
 
-    {{-- ══ SECTION 1: VIDEO HERO ═══════════════════════ --}}
-    {{-- <section class="video-hero">
-        <video class="hero-video" autoplay muted loop playsinline preload="metadata">
-            <source src="{{ asset('videos/fashion.mp4') }}" type="video/mp4">
-        </video>
-        <div class="video-overlay"></div>
-        <div class="video-content">
-            <h1>NEW FASHION COLLECTION</h1>
-            <p>Unleash Your Inner Style</p>
-            <div class="hero-buttons">
-                <a href="{{ route('shop.index') }}" class="btn-primary" target="_blank">SHOP NOW</a>
-                <a href="{{ route('shop.new-arrivals') }}" class="btn-outline" target="_blank">NEW ARRIVALS</a>
+    {{-- SECTION 1: GALLERY HERO MEDIA SLIDER --}}
+    @php
+        $topHeroSlides = !empty($heroMediaSlides) ? $heroMediaSlides : (!empty($heroPrimary) ? [$heroPrimary] : []);
+    @endphp
+    @if (count($topHeroSlides))
+        <section class="video-hero hero-media-slider" data-hero-media-slider>
+            <div class="hero-media-track">
+                @foreach ($topHeroSlides as $slide)
+                    <article class="hero-media-slide {{ $loop->first ? 'active' : '' }}"
+                        aria-hidden="{{ $loop->first ? 'false' : 'true' }}">
+                        @if (($slide['media_type'] ?? 'image') === 'video')
+                            <video class="hero-video" src="{{ $slide['image'] }}" muted loop playsinline preload="metadata"></video>
+                        @else
+                            <picture>
+                                <source media="(max-width: 768px)" srcset="{{ $slide['mobile_image'] ?? $slide['image'] }}">
+                                <img class="hero-video" src="{{ $slide['image'] }}"
+                                    alt="{{ $slide['alt_text'] ?? ($slide['title'] ?? 'Hero media') }}"
+                                    loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                                    onerror="this.src='{{ asset('images/placeholder-slide.jpg') }}'">
+                            </picture>
+                        @endif
+                        <div class="video-overlay"></div>
+                        <div class="video-content">
+                            @if (!empty($slide['subtitle']))
+                                <p>{{ $slide['subtitle'] }}</p>
+                            @endif
+                            <h1>{{ $slide['title'] ?? 'NEW FASHION COLLECTION' }}</h1>
+                            <div class="hero-buttons">
+                                <a href="{{ $slide['button_link'] ?? route('shop.index') }}" class="btn-primary" target="_blank">
+                                    {{ $slide['button_text'] ?? 'SHOP NOW' }}
+                                </a>
+                                {{-- <a href="{{ route('shop.new-arrivals') }}" class="btn-outline" target="_blank">NEW ARRIVALS</a> --}}
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
             </div>
-        </div>
-    </section> --}}
+
+            @if (count($topHeroSlides) > 1)
+                <button class="top-hero-arrow top-hero-arrow-left" type="button" data-hero-prev aria-label="Previous hero slide">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="top-hero-arrow top-hero-arrow-right" type="button" data-hero-next aria-label="Next hero slide">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <div class="top-hero-dots" aria-label="Hero slide navigation">
+                    @foreach ($topHeroSlides as $slide)
+                        <button class="top-hero-dot {{ $loop->first ? 'active' : '' }}" type="button"
+                            data-hero-dot="{{ $loop->index }}" aria-label="Go to hero slide {{ $loop->iteration }}"></button>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+    @endif
 
     {{-- ══ SECTION 2: HERO IMAGE SLIDER ════════════════ --}}
     <section class="hero-slider-section" aria-label="Featured Collections">
@@ -48,14 +87,18 @@
                 <div class="hero-slider-track" id="heroSliderTrack">
                     @forelse($heroSlides as $slide)
                         <div class="hero-slide">
-                            <picture>
-                                {{-- Mobile image (max-width 768px) --}}
-                                <source media="(max-width: 768px)" srcset="{{ $slide['mobile_image'] ?? $slide['image'] }}">
-                                {{-- Desktop image --}}
-                                <img src="{{ $slide['image'] }}" alt="{{ $slide['alt_text'] ?? $slide['title'] }}"
-                                    loading="{{ $loop->first ? 'eager' : 'lazy' }}" width="1200" height="600"
-                                    onerror="this.src='{{ asset('images/placeholder-slide.jpg') }}'">
-                            </picture>
+                            @if (($slide['media_type'] ?? 'image') === 'video')
+                                <video src="{{ $slide['image'] }}" muted loop playsinline preload="metadata"></video>
+                            @else
+                                <picture>
+                                    {{-- Mobile image (max-width 768px) --}}
+                                    <source media="(max-width: 768px)" srcset="{{ $slide['mobile_image'] ?? $slide['image'] }}">
+                                    {{-- Desktop image --}}
+                                    <img src="{{ $slide['image'] }}" alt="{{ $slide['alt_text'] ?? $slide['title'] }}"
+                                        loading="{{ $loop->first ? 'eager' : 'lazy' }}" width="1200" height="600"
+                                        onerror="this.src='{{ asset('images/placeholder-slide.jpg') }}'">
+                                </picture>
+                            @endif
                             <div class="slide-overlay">
                                 <h3>{{ $slide['title'] }}</h3>
                                 @if (!empty($slide['subtitle']))
@@ -98,7 +141,7 @@
                                 @endif
                                 <a href="{{ route('shop.category', $category['slug']) }}" class="btn-gender"
                                     target="_blank" aria-label="Explore {{ $category['name'] }} Collection">
-                                    EXPLORE 
+                                    EXPLORE
                                 </a>
                             </div>
                         </div>
@@ -483,6 +526,80 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+
+                // Top gallery hero slider
+                var heroSlider = document.querySelector('[data-hero-media-slider]');
+                if (heroSlider) {
+                    var heroSlides = Array.prototype.slice.call(heroSlider.querySelectorAll('.hero-media-slide'));
+                    var heroDots = Array.prototype.slice.call(heroSlider.querySelectorAll('[data-hero-dot]'));
+                    var heroPrev = heroSlider.querySelector('[data-hero-prev]');
+                    var heroNext = heroSlider.querySelector('[data-hero-next]');
+                    var heroIndex = 0;
+                    var heroTimer = null;
+
+                    function syncHeroVideos() {
+                        heroSlides.forEach(function(slide, index) {
+                            var video = slide.querySelector('video');
+                            if (!video) return;
+
+                            if (index === heroIndex) {
+                                video.play().catch(function() {});
+                            } else {
+                                video.pause();
+                                video.currentTime = 0;
+                            }
+                        });
+                    }
+
+                    function showHeroSlide(nextIndex) {
+                        if (!heroSlides.length) return;
+                        heroIndex = (nextIndex + heroSlides.length) % heroSlides.length;
+
+                        heroSlides.forEach(function(slide, index) {
+                            var isActive = index === heroIndex;
+                            slide.classList.toggle('active', isActive);
+                            slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+                        });
+
+                        heroDots.forEach(function(dot, index) {
+                            dot.classList.toggle('active', index === heroIndex);
+                        });
+
+                        syncHeroVideos();
+                    }
+
+                    function startHeroAuto() {
+                        if (heroSlides.length < 2) return;
+                        clearInterval(heroTimer);
+                        heroTimer = setInterval(function() {
+                            showHeroSlide(heroIndex + 1);
+                        }, 9000);
+                    }
+
+                    if (heroPrev) {
+                        heroPrev.addEventListener('click', function() {
+                            showHeroSlide(heroIndex - 1);
+                            startHeroAuto();
+                        });
+                    }
+
+                    if (heroNext) {
+                        heroNext.addEventListener('click', function() {
+                            showHeroSlide(heroIndex + 1);
+                            startHeroAuto();
+                        });
+                    }
+
+                    heroDots.forEach(function(dot) {
+                        dot.addEventListener('click', function() {
+                            showHeroSlide(parseInt(dot.dataset.heroDot, 10) || 0);
+                            startHeroAuto();
+                        });
+                    });
+
+                    showHeroSlide(0);
+                    startHeroAuto();
+                }
 
                 // Add to cart functionality
                 document.querySelectorAll('.add-to-cart-btn:not(.open-product-slider)').forEach(function(btn) {

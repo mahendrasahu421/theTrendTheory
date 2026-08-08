@@ -1,2 +1,0 @@
-Step 5 completed: Removed ImageKit auth route and cleaned category create view leftovers; cleared caches.
-

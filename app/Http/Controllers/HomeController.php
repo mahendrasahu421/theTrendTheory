@@ -10,14 +10,13 @@ use App\Models\Review;
 use App\Models\TrendingStory;
 use App\Models\SiteSetting;
 use App\Models\Media;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $data = Cache::remember('homepage_data', 900, function () {
+        $data = (function () {
 
             // Get ALL gallery media (both images and videos) for slider
             $galleryMedia = Media::whereIn('collection', ['gallery', 'video_section'])
@@ -30,27 +29,32 @@ class HomeController extends Controller
                     return [
                         'id' => $media->id,
                         'title' => $media->alt_text ?? 'Untitled',
+                        'subtitle' => $media->subtitle,
+                        'button_link' => $media->button_link,
                         'url' => $media->url,
                         'thumb_url' => $media->thumb_url ?? ($isVideo ? $media->url . '?tr=iv-1' : $media->url),
                         'type' => $isVideo ? 'video' : 'image',
                         'mime_type' => $media->mime_type,
-                        'sort_order' => $media->sort_order
+                        'sort_order' => $media->sort_order,
+                        'is_primary' => $media->is_primary,
                     ];
                 });
 
-            // Get first video for hero background (optional)
+            // Gallery media drives the top homepage hero.
             $heroVideo = $galleryMedia->where('type', 'video')->first();
 
             // ─────────────────────────────────────────────────────────
             // 1. FETCH MOST PURCHASED (BEST SELLERS)
             // ─────────────────────────────────────────────────────────
-            $mostPurchasedRaw = Product::where('total_sold', '>', 0)
+            $mostPurchasedRaw = Product::active()
+                ->where('total_sold', '>', 0)
                 ->orderByDesc('total_sold')
                 ->limit(10)
                 ->get();
 
             if ($mostPurchasedRaw->isEmpty()) {
-                $mostPurchasedRaw = Product::where('is_featured', true)
+                $mostPurchasedRaw = Product::active()
+                    ->where('is_featured', true)
                     ->orderByDesc('created_at')
                     ->limit(10)
                     ->get();
@@ -59,7 +63,14 @@ class HomeController extends Controller
             // ─────────────────────────────────────────────────────────
             // 2. FETCH MEN'S PRODUCTS
             // ─────────────────────────────────────────────────────────
-            $menCategory = Category::whereIn('slug', ['men', 'mens'])->first();
+            $menCategory = Category::active()
+                ->where(function ($q) {
+                    $q->whereIn('slug', ['men', 'mens'])
+                        ->orWhereIn(\DB::raw('LOWER(name)'), ['men', "men's", 'mens', "men collection", "men's collection"]);
+                })
+                ->orderByRaw("CASE WHEN slug IN ('men', 'mens') THEN 0 ELSE 1 END")
+                ->orderBy('sort_order')
+                ->first();
             $menCategoryIds = [];
             if ($menCategory) {
                 $menCategoryIds = Category::where('id', $menCategory->id)
@@ -79,7 +90,14 @@ class HomeController extends Controller
             // ─────────────────────────────────────────────────────────
             // 3. FETCH WOMEN'S PRODUCTS
             // ─────────────────────────────────────────────────────────
-            $womenCategory = Category::whereIn('slug', ['women', 'womens', 'womes'])->first();
+            $womenCategory = Category::active()
+                ->where(function ($q) {
+                    $q->whereIn('slug', ['women', 'womens', 'womes'])
+                        ->orWhereIn(\DB::raw('LOWER(name)'), ['women', "women's", 'womens', "women collection", "women's collection"]);
+                })
+                ->orderByRaw("CASE WHEN slug IN ('women', 'womens', 'womes') THEN 0 ELSE 1 END")
+                ->orderBy('sort_order')
+                ->first();
             $womenCategoryIds = [];
             if ($womenCategory) {
                 $womenCategoryIds = Category::where('id', $womenCategory->id)
@@ -105,13 +123,6 @@ class HomeController extends Controller
                 ->limit(8)
                 ->get();
 
-            if ($newArrivalsRaw->isEmpty()) {
-                $newArrivalsRaw = Product::active()
-                    ->orderByDesc('created_at')
-                    ->limit(8)
-                    ->get();
-            }
-
             // ─────────────────────────────────────────────────────────
             // 5. LOG FOR DEBUG
             // ─────────────────────────────────────────────────────────
@@ -123,6 +134,60 @@ class HomeController extends Controller
                 'gallery_media_count' => $galleryMedia->count()
             ]);
 
+            $heroSlides = HeroSlide::active()->ordered()->get()->map(function ($slide) {
+                return [
+                    'id' => $slide->id,
+                    'title' => $slide->title,
+                    'subtitle' => $slide->subtitle,
+                    'media_type' => $slide->media_type,
+                    'image' => $slide->image_url,
+                    'mobile_image' => $slide->mobile_image_url,
+                    'alt_text' => $slide->alt_text,
+                    'button_text' => $slide->button_text,
+                    'button_link' => $slide->button_link,
+                    'sort_order' => $slide->sort_order,
+                ];
+            });
+
+            $heroMediaSlides = $galleryMedia
+                ->sortByDesc('is_primary')
+                ->values()
+                ->map(function ($media) {
+                    return [
+                        'id' => $media['id'] ?? null,
+                        'title' => $media['title'] ?? 'NEW FASHION COLLECTION',
+                        'subtitle' => $media['subtitle'] ?: SiteSetting::get('site_tagline', 'Unleash Your Inner Style'),
+                        'media_type' => $media['type'] ?? 'image',
+                        'image' => $media['url'],
+                        'mobile_image' => $media['url'],
+                        'alt_text' => $media['title'] ?? 'Hero media',
+                        'button_text' => 'SHOP NOW',
+                        'button_link' => $media['button_link'] ?: route('shop.index'),
+                        'sort_order' => $media['sort_order'] ?? 0,
+                    ];
+                });
+
+            if ($heroMediaSlides->isEmpty() && $heroSlides->isNotEmpty()) {
+                $heroMediaSlides = $heroSlides->values();
+            }
+
+            if ($heroMediaSlides->isEmpty()) {
+                $heroMediaSlides = collect([[
+                    'id' => null,
+                    'title' => 'NEW FASHION COLLECTION',
+                    'subtitle' => SiteSetting::get('site_tagline', 'Unleash Your Inner Style'),
+                    'media_type' => 'image',
+                    'image' => asset('images/placeholder-slide.jpg'),
+                    'mobile_image' => asset('images/placeholder-slide.jpg'),
+                    'alt_text' => 'Hero media',
+                    'button_text' => 'SHOP NOW',
+                    'button_link' => route('shop.index'),
+                    'sort_order' => 0,
+                ]]);
+            }
+
+            $heroPrimary = $heroMediaSlides->first();
+
             // ─────────────────────────────────────────────────────────
             // 6. RETURN DATA
             // ─────────────────────────────────────────────────────────
@@ -130,19 +195,9 @@ class HomeController extends Controller
                 'settings' => SiteSetting::getAll(),
                 'galleryMedia' => $galleryMedia->toArray(),
                 'heroVideo' => $heroVideo,
-                'heroSlides' => HeroSlide::active()->ordered()->get()->map(function ($slide) {
-                    return [
-                        'id' => $slide->id,
-                        'title' => $slide->title,
-                        'subtitle' => $slide->subtitle,
-                        'image' => $slide->image_url,
-                        'mobile_image' => $slide->mobile_image_url,
-                        'alt_text' => $slide->alt_text,
-                        'button_text' => $slide->button_text,
-                        'button_link' => $slide->button_link,
-                        'sort_order' => $slide->sort_order,
-                    ];
-                })->toArray(),
+                'heroPrimary' => $heroPrimary,
+                'heroMediaSlides' => $heroMediaSlides->toArray(),
+                'heroSlides' => $heroSlides->toArray(),
                 'title' => SiteSetting::get('site_name', 'The Trend Theory'),
                 'titleContent' => SiteSetting::get('site_tagline', 'Fashion That Speaks Without Saying a Word'),
                 'categories' => Category::homeCategories()->map(function ($category) {
@@ -157,6 +212,8 @@ class HomeController extends Controller
                         'sort_order' => $category->sort_order,
                     ];
                 })->toArray(),
+                'menCategory' => $menCategory ? $menCategory->toArrayForCache() : null,
+                'womenCategory' => $womenCategory ? $womenCategory->toArrayForCache() : null,
 
                 'mostPurchased' => $mostPurchasedRaw->map(function ($product) {
                     return [
@@ -290,7 +347,7 @@ class HomeController extends Controller
                     ];
                 })->toArray(),
             ];
-        });
+        })();
 
         // ─────────────────────────────────────────────────────────
         // SCHEMA AND SEO DATA

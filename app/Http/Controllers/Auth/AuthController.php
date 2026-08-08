@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -53,6 +54,76 @@ class AuthController extends Controller
     }
 
     // ── REGISTER ───────────────────────────────────────────
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required|string|max:150',
+        ]);
+
+        $identifier = trim($request->identifier);
+        $request->session()->put('otp_login_identifier', $identifier);
+        $request->session()->put('otp_login_code', '123456');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP sent. Use 123456 for now.',
+            'otp' => '123456',
+        ]);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required|string|max:150',
+            'otp' => 'required|string|max:6',
+        ]);
+
+        $identifier = trim($request->identifier);
+        $expectedOtp = $request->session()->get('otp_login_code', '123456');
+
+        if ($request->otp !== $expectedOtp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP. Please use 123456.',
+            ], 422);
+        }
+
+        $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
+        $user = $isEmail
+            ? User::where('email', $identifier)->first()
+            : User::where('phone', $identifier)->first();
+
+        if (!$user) {
+            $email = $isEmail
+                ? $identifier
+                : 'customer-' . preg_replace('/\D+/', '', $identifier) . '-' . Str::lower(Str::random(6)) . '@thetrend.local';
+
+            $user = User::create([
+                'name' => $isEmail ? Str::before($identifier, '@') : 'Customer',
+                'email' => $email,
+                'phone' => $isEmail ? null : $identifier,
+                'password' => Hash::make(Str::random(32)),
+                'role' => 'customer',
+                'is_active' => true,
+            ]);
+        }
+
+        Auth::login($user, true);
+        $request->session()->regenerate();
+        $request->session()->forget(['otp_login_identifier', 'otp_login_code']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged in successfully.',
+            'csrf' => csrf_token(),
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+            ],
+        ]);
+    }
+
     public function registerForm()
     {
         return view('froentend.auth.register');

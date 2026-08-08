@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
 use App\Models\HeroSlide;
 use App\Models\Media;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
@@ -31,17 +32,21 @@ class SettingController extends Controller
     public function index()
     {
         $settings = SiteSetting::getAll();
-        $heroSlides = HeroSlide::orderBy('sort_order')->get();
+        $heroSlides = HeroSlide::with('product:id,name,slug,sku')->orderBy('sort_order')->get();
         $lastBackup = Cache::get('last_backup', 'No backup yet');
         
         // Get media for gallery section
-        $media = Media::where('collection', 'gallery')
-            ->orWhere('collection', 'video_section')
+        $media = Media::where('model_type', 'App\Models\Gallery')
+            ->whereIn('collection', ['gallery', 'video_section'])
+            ->with('products:id,name,sku')
             ->orderBy('sort_order')
             ->orderBy('created_at', 'desc')
             ->get();
+        $products = Product::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'sku', 'price', 'image']);
 
-        return view('admin.settings.index', compact('settings', 'heroSlides', 'lastBackup', 'media'));
+        return view('admin.settings.index', compact('settings', 'heroSlides', 'lastBackup', 'media', 'products'));
     }
 
     public function update(Request $request)
@@ -143,20 +148,33 @@ $upload = $this->cloudinary->upload(
         $request->validate([
             'title' => 'required|string|max:200',
             'subtitle' => 'nullable|string|max:255',
-            'image_file' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
+            'media_type' => 'required|in:image,video',
+            'image_file' => 'required_if:media_type,image|nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
+            'video_file' => 'required_if:media_type,video|nullable|file|mimes:mp4,mov,webm,quicktime|max:51200',
             'mobile_image_file' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
+            'mobile_video_file' => 'nullable|file|mimes:mp4,mov,webm,quicktime|max:51200',
             'button_text' => 'nullable|string|max:100',
             'button_link' => 'nullable|string|max:255',
+            'product_id' => 'nullable|exists:products,id',
             'sort_order' => 'integer|min:0',
             'is_active' => 'boolean',
         ]);
 
         try {
+            $mediaType = $request->input('media_type', 'image');
             $imageUrl = null;
             $mobileImageUrl = null;
 
-// Upload desktop image to Cloudinary
-            if ($request->hasFile('image_file')) {
+// Upload desktop media to Cloudinary/local storage
+            if ($mediaType === 'video' && $request->hasFile('video_file')) {
+                $upload = $this->cloudinary->upload(
+
+                    $request->file('video_file'),
+                    'hero-slides/videos',
+                    'slide_video_' . time()
+                );
+                $imageUrl = $upload['url'];
+            } elseif ($request->hasFile('image_file')) {
                 $upload = $this->cloudinary->upload(
 
                     $request->file('image_file'),
@@ -166,8 +184,16 @@ $upload = $this->cloudinary->upload(
                 $imageUrl = $upload['url'];
             }
 
-// Upload mobile image if provided
-            if ($request->hasFile('mobile_image_file')) {
+// Upload mobile media if provided
+            if ($mediaType === 'video' && $request->hasFile('mobile_video_file')) {
+                $upload = $this->cloudinary->upload(
+
+                    $request->file('mobile_video_file'),
+                    'hero-slides/mobile-videos',
+                    'slide_mobile_video_' . time()
+                );
+                $mobileImageUrl = $upload['url'];
+            } elseif ($request->hasFile('mobile_image_file')) {
                 $upload = $this->cloudinary->upload(
 
                     $request->file('mobile_image_file'),
@@ -177,13 +203,19 @@ $upload = $this->cloudinary->upload(
                 $mobileImageUrl = $upload['url'];
             }
 
+            $product = $request->filled('product_id')
+                ? Product::find($request->integer('product_id'))
+                : null;
+
             HeroSlide::create([
                 'title' => $request->title,
                 'subtitle' => $request->subtitle,
+                'media_type' => $mediaType,
                 'image' => $imageUrl,
                 'mobile_image' => $mobileImageUrl,
                 'button_text' => $request->button_text ?? 'SHOP NOW',
-                'button_link' => $request->button_link ?? '/shop',
+                'button_link' => $product ? route('product.show', $product->slug, false) : ($request->button_link ?: '/shop'),
+                'product_id' => $product?->id,
                 'alt_text' => $request->alt_text ?? $request->title,
                 'sort_order' => $request->sort_order ?? 0,
                 'is_active' => $request->boolean('is_active', true),
@@ -206,19 +238,42 @@ $upload = $this->cloudinary->upload(
             $request->validate([
                 'title' => 'required|string|max:200',
                 'subtitle' => 'nullable|string|max:255',
+                'media_type' => 'required|in:image,video',
                 'image_file' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
+                'video_file' => 'nullable|file|mimes:mp4,mov,webm,quicktime|max:51200',
                 'mobile_image_file' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
+                'mobile_video_file' => 'nullable|file|mimes:mp4,mov,webm,quicktime|max:51200',
                 'button_text' => 'nullable|string|max:100',
                 'button_link' => 'nullable|string|max:255',
+                'product_id' => 'nullable|exists:products,id',
                 'sort_order' => 'integer|min:0',
                 'is_active' => 'boolean',
             ]);
 
-            $imageUrl = $slide->image;
-            $mobileImageUrl = $slide->mobile_image;
+            $mediaType = $request->input('media_type', 'image');
+            $mediaChanged = $mediaType !== $slide->media_type;
 
-// Upload new desktop image if provided
-            if ($request->hasFile('image_file')) {
+            if ($mediaChanged && $mediaType === 'video' && !$request->hasFile('video_file')) {
+                return back()->withErrors(['video_file' => 'Please upload a video when switching this slide to video.'])->withInput();
+            }
+
+            if ($mediaChanged && $mediaType === 'image' && !$request->hasFile('image_file')) {
+                return back()->withErrors(['image_file' => 'Please upload an image when switching this slide to image.'])->withInput();
+            }
+
+            $imageUrl = $mediaChanged ? null : $slide->image;
+            $mobileImageUrl = $mediaChanged ? null : $slide->mobile_image;
+
+// Upload new desktop media if provided
+            if ($mediaType === 'video' && $request->hasFile('video_file')) {
+                $upload = $this->cloudinary->upload(
+
+                    $request->file('video_file'),
+                    'hero-slides/videos',
+                    'slide_video_' . time()
+                );
+                $imageUrl = $upload['url'];
+            } elseif ($mediaType === 'image' && $request->hasFile('image_file')) {
                 $upload = $this->cloudinary->upload(
 
                     $request->file('image_file'),
@@ -228,8 +283,16 @@ $upload = $this->cloudinary->upload(
                 $imageUrl = $upload['url'];
             }
 
-// Upload new mobile image if provided
-            if ($request->hasFile('mobile_image_file')) {
+// Upload new mobile media if provided
+            if ($mediaType === 'video' && $request->hasFile('mobile_video_file')) {
+                $upload = $this->cloudinary->upload(
+
+                    $request->file('mobile_video_file'),
+                    'hero-slides/mobile-videos',
+                    'slide_mobile_video_' . time()
+                );
+                $mobileImageUrl = $upload['url'];
+            } elseif ($mediaType === 'image' && $request->hasFile('mobile_image_file')) {
                 $upload = $this->cloudinary->upload(
 
                     $request->file('mobile_image_file'),
@@ -239,13 +302,19 @@ $upload = $this->cloudinary->upload(
                 $mobileImageUrl = $upload['url'];
             }
 
+            $product = $request->filled('product_id')
+                ? Product::find($request->integer('product_id'))
+                : null;
+
             $slide->update([
                 'title' => $request->title,
                 'subtitle' => $request->subtitle,
+                'media_type' => $mediaType,
                 'image' => $imageUrl,
                 'mobile_image' => $mobileImageUrl,
                 'button_text' => $request->button_text ?? 'SHOP NOW',
-                'button_link' => $request->button_link ?? '/shop',
+                'button_link' => $product ? route('product.show', $product->slug, false) : ($request->button_link ?: '/shop'),
+                'product_id' => $product?->id,
                 'alt_text' => $request->alt_text ?? $request->title,
                 'sort_order' => $request->sort_order ?? 0,
                 'is_active' => $request->boolean('is_active', true),

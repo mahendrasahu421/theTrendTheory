@@ -8,6 +8,7 @@ use App\Models\Media;
 use App\Models\ProductImage;
 use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 class MediaController extends Controller
 {
@@ -122,10 +123,17 @@ class MediaController extends Controller
 
     public function setPrimary(Media $media)
     {
-        Media::where('model_type', $media->model_type)
-            ->where('model_id', $media->model_id)
-            ->where('collection', $media->collection)
-            ->update(['is_primary' => false]);
+        if ($media->model_type === 'App\Models\Gallery') {
+            Media::where('model_type', 'App\Models\Gallery')
+                ->whereIn('collection', ['gallery', 'video_section'])
+                ->update(['is_primary' => false]);
+        } else {
+            Media::where('model_type', $media->model_type)
+                ->where('model_id', $media->model_id)
+                ->where('collection', $media->collection)
+                ->update(['is_primary' => false]);
+        }
+
         $media->update(['is_primary' => true]);
 
         $productImage = ProductImage::where('file_id', $media->file_id)
@@ -150,6 +158,10 @@ class MediaController extends Controller
 {
     $validator = Validator::make($request->all(), [
         'title' => 'required|string|max:255',
+        'subtitle' => 'nullable|string|max:255',
+        'button_link' => 'nullable|string|max:1000',
+        'product_ids' => 'nullable|array',
+        'product_ids.*' => 'integer|exists:products,id',
         'file' => 'required|file|max:51200',
         'sort_order' => 'nullable|integer',
         'section' => 'nullable|string'
@@ -169,6 +181,9 @@ class MediaController extends Controller
         
         // Determine folder based on file type
         $folder = str_starts_with($file->getMimeType(), 'video/') ? 'gallery/videos' : 'gallery/images';
+        $isFirstGalleryMedia = !Media::where('model_type', 'App\Models\Gallery')
+            ->whereIn('collection', ['gallery', 'video_section'])
+            ->exists();
         
         // Upload to Cloudinary
         $upload = $this->cloudinary->upload($file, $folder);
@@ -206,9 +221,12 @@ class MediaController extends Controller
             'size' => $file->getSize(),
             'mime_type' => $file->getMimeType(),
             'alt_text' => $request->title,
+            'subtitle' => $request->subtitle,
+            'button_link' => $this->normalizeGalleryLink($request->button_link, $request->title),
             'sort_order' => $request->sort_order ?? 0,
-            'is_primary' => false
+            'is_primary' => $isFirstGalleryMedia
         ]);
+        $this->syncGalleryProducts($media, $request->input('product_ids', []));
 
         return response()->json([
             'success' => true,
@@ -216,10 +234,14 @@ class MediaController extends Controller
             'media' => [
                 'id' => $media->id,
                 'title' => $media->alt_text,
+                'subtitle' => $media->subtitle,
+                'button_link' => $media->button_link,
+                'product_ids' => $media->products()->pluck('products.id')->values(),
                 'url' => $media->url,
                 'thumb_url' => $media->thumb_url,
                 'type' => str_starts_with($media->mime_type, 'video/') ? 'video' : 'image',
-                'sort_order' => $media->sort_order
+                'sort_order' => $media->sort_order,
+                'is_primary' => $media->is_primary
             ]
         ]);
 
@@ -254,11 +276,15 @@ class MediaController extends Controller
                 return [
                     'id' => $item->id,
                     'title' => $item->alt_text,
+                    'subtitle' => $item->subtitle,
+                    'button_link' => $item->button_link,
+                    'product_ids' => $item->products()->pluck('products.id')->values(),
                     'url' => $item->url,
                     'thumb_url' => $item->thumb_url ?? $item->url,
                     'type' => str_starts_with($item->mime_type, 'video/') ? 'video' : 'image',
                     'mime_type' => $item->mime_type,
                     'sort_order' => $item->sort_order,
+                    'is_primary' => $item->is_primary,
                     'created_at' => $item->created_at ? $item->created_at->format('Y-m-d') : null
                 ];
             });
@@ -273,6 +299,10 @@ class MediaController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
+            'button_link' => 'nullable|string|max:1000',
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'integer|exists:products,id',
             'sort_order' => 'nullable|integer'
         ]);
 
@@ -285,8 +315,11 @@ class MediaController extends Controller
 
         $media->update([
             'alt_text' => $request->title,
+            'subtitle' => $request->subtitle,
+            'button_link' => $this->normalizeGalleryLink($request->button_link, $request->title),
             'sort_order' => $request->sort_order ?? $media->sort_order
         ]);
+        $this->syncGalleryProducts($media, $request->input('product_ids', []));
 
         return response()->json([
             'success' => true,
@@ -294,6 +327,9 @@ class MediaController extends Controller
             'media' => [
                 'id' => $media->id,
                 'title' => $media->alt_text,
+                'subtitle' => $media->subtitle,
+                'button_link' => $media->button_link,
+                'product_ids' => $media->products()->pluck('products.id')->values(),
                 'sort_order' => $media->sort_order
             ]
         ]);
@@ -315,7 +351,8 @@ class MediaController extends Controller
         if ($media->file_id) {
             $this->cloudinary->delete($media->file_id);
         }
-        
+
+        $media->products()->sync([]);
         $media->delete();
         
         return response()->json([
@@ -361,9 +398,13 @@ class MediaController extends Controller
         return response()->json([
             'id' => $media->id,
             'title' => $media->alt_text,
+            'subtitle' => $media->subtitle,
+            'button_link' => $media->button_link,
+            'product_ids' => $media->products()->pluck('products.id')->values(),
             'sort_order' => $media->sort_order,
             'url' => $media->url,
             'thumb_url' => $media->thumb_url,
+            'mime_type' => $media->mime_type,
             'type' => str_starts_with($media->mime_type, 'video/') ? 'video' : 'image'
         ]);
     }
@@ -383,10 +424,51 @@ class MediaController extends Controller
             return response()->json([
                 'url' => $video->url,
                 'thumbnail' => $video->thumb_url ?? $video->url,
-                'title' => $video->alt_text
+                'title' => $video->alt_text,
+                'subtitle' => $video->subtitle,
+                'button_link' => $video->button_link
             ]);
         }
         
         return response()->json(null);
+    }
+
+    private function normalizeGalleryLink(?string $link, string $title): string
+    {
+        $link = trim((string) $link);
+
+        if ($link !== '') {
+            if (filter_var($link, FILTER_VALIDATE_URL)) {
+                return $link;
+            }
+
+            $link = ltrim($link, '/');
+
+            if (str_starts_with($link, 'collection/') || str_starts_with($link, 'collections/') || str_starts_with($link, 'shop/')) {
+                return '/' . $link;
+            }
+
+            if (str_starts_with($link, 'collection') || str_starts_with($link, 'collections') || $link === 'shop') {
+                return '/' . $link;
+            }
+
+            return '/collection/' . Str::slug($link);
+        }
+
+        $slug = Str::slug($title);
+        $slug = preg_replace('/-(collection|collections)$/', '', $slug);
+
+        return '/collection/' . ($slug ?: 'shop');
+    }
+
+    private function syncGalleryProducts(Media $media, array $productIds): void
+    {
+        $syncData = [];
+
+        foreach (array_values(array_unique(array_filter($productIds))) as $index => $productId) {
+            $syncData[(int) $productId] = ['sort_order' => $index];
+        }
+
+        $media->products()->sync($syncData);
     }
 }

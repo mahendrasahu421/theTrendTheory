@@ -31,9 +31,20 @@ class ProfileController extends Controller
             'name'  => 'required|string|max:150',
             'phone' => 'nullable|string|max:20',
             'city'  => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'address' => 'nullable|string|max:255',
+            'pincode' => 'nullable|string|max:10',
         ]);
 
-        $user->update($request->only('name', 'phone', 'city'));
+        $user->update($request->only('name', 'phone', 'city', 'state', 'address', 'pincode'));
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Address updated successfully!',
+                'user' => $user->only('name', 'email', 'phone', 'city', 'state', 'address', 'pincode'),
+            ]);
+        }
 
         return back()->with('success', 'Profile updated successfully!');
     }

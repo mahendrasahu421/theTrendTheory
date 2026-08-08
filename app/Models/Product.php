@@ -13,6 +13,10 @@ class Product extends Model
         'name',
         'slug',
         'sku',
+        'parent_product_id',
+        'product_type',
+        'color_name',
+        'color_hex',
         'short_description',
         'description',
         'price',
@@ -330,6 +334,11 @@ class Product extends Model
     public function childVariants()
     {
         return $this->hasMany(Product::class, 'parent_product_id');
+    }
+
+    public function parentProduct()
+    {
+        return $this->belongsTo(Product::class, 'parent_product_id');
     }
     
     public function getPrimaryImageUrl($width = null, $height = null)

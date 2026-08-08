@@ -312,7 +312,7 @@
                 </select>
                 <select id="statusFilter" class="fsel">
                     <option value="">All Status</option>
-                    <option value="1">Active</option>
+                    <option value="1" selected>Active</option>
                     <option value="0">Inactive</option>
                 </select>
                 <select id="perPage" class="fsel">
@@ -367,7 +367,7 @@
                 perPage: 10,
                 search: '',
                 type: '',
-                status: ''
+                status: '1'
             };
             var timer;
 

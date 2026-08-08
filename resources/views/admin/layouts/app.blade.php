@@ -507,6 +507,19 @@
         </div>
     </main>
 
+    <script>
+        document.addEventListener('submit', function(e) {
+            if (e.defaultPrevented) return;
+            var form = e.target;
+            if (!form || form.dataset.submitLock === '1') return;
+            form.dataset.submitLock = '1';
+            form.querySelectorAll('button[type="submit"]').forEach(function(btn) {
+                btn.disabled = true;
+                if (!btn.dataset.originalHtml) btn.dataset.originalHtml = btn.innerHTML;
+                if (!btn.dataset.keepLabel) btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 

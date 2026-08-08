@@ -1,3 +1,0 @@
-Step 2 done: removed ImageKit config key from config/services.php, removed config/imagekit.php and app/Services/ImageKitService.php.
-Search: no remaining references found for ImageKitService, imagekit, or IMAGEKIT_ in PHP/Blade/JS/CSS.
-

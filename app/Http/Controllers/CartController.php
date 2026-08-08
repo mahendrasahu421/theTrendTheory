@@ -91,10 +91,11 @@ class CartController extends Controller
 
         $qty = max(1, (int) $request->input('quantity', 1));
         $size = $request->input('size', '');
+        $color = $request->input('color', '');
         $cart = session()->get('cart', []);
 
-        // Same product + same size = same cart item
-        $key = $product->id . ($size ? '_' . $size : '');
+        // Same product + same size + same color = same cart item
+        $key = implode('_', array_filter([$product->id, $size, $color], fn ($value) => $value !== null && $value !== ''));
 
         if (isset($cart[$key])) {
             $cart[$key]['quantity'] += $qty;
@@ -106,6 +107,7 @@ class CartController extends Controller
                 'price' => (float) $product->price,
                 'image' => $product->image_url ?? asset('images/placeholder-product.jpg'),
                 'size' => $size,
+                'color' => $color,
                 'quantity' => $qty,
             ];
         }
@@ -118,16 +120,39 @@ class CartController extends Controller
             'success' => true,
             'message' => $product->name . ' added to cart!',
             'cart_count' => $cartCount,
+            'cart' => $this->cartSummary($cart),
         ]);
     }
 
+    private function cartSummary(array $cart): array
+    {
+        $subtotal = collect($cart)->sum(fn ($item) => ((float) $item['price']) * ((int) $item['quantity']));
+        $shipping = $subtotal >= 999 ? 0 : 50;
+        $discount = 0;
+        $total = max(0, $subtotal + $shipping - $discount);
+
+        return [
+            'items' => collect($cart)->map(function ($item, $key) {
+                $item['key'] = $key;
+                return $item;
+            })->values()->all(),
+            'count' => collect($cart)->sum('quantity'),
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'discount' => $discount,
+            'total' => $total,
+            'savings' => $discount,
+        ];
+    }
+
     // ── PATCH /cart/update/{key} ───────────────────────────
-    public function update(Request $request, $key)
+    public function update(Request $request, $key = null)
     {
         $cart = session()->get('cart', []);
         $qty = max(1, (int) $request->input('quantity', 1));
+        $key = $key ?? $request->input('key');
 
-        if (isset($cart[$key])) {
+        if ($key && isset($cart[$key])) {
             $cart[$key]['quantity'] = $qty;
             session()->put('cart', $cart);
         }

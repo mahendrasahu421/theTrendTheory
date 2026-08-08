@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Media;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 
@@ -68,7 +69,7 @@ class ShopController extends Controller
                 'featuredProducts' => $featuredProducts,
                 'meta_title' => $category->seo_title,
                 'meta_description' => $category->seo_description,
-                'canonical' => url('/shop/' . $slug),
+                'canonical' => url(($request->is('collection/*') ? '/collection/' : '/shop/') . $slug),
                 'og_image' => $category->image_url ?? null,
             ]);
         }
@@ -100,7 +101,7 @@ class ShopController extends Controller
             'subCategories' => $siblings,
             'meta_title' => $category->seo_title,
             'meta_description' => $category->seo_description,
-            'canonical' => url('/shop/' . $slug),
+            'canonical' => url(($request->is('collection/*') ? '/collection/' : '/shop/') . $slug),
         ]);
     }
 
@@ -113,7 +114,7 @@ class ShopController extends Controller
             'new-arrivals' => $this->newArrivals($request),
             'sale' => $this->sale($request),
             'best-sellers' => $this->bestSellers($request),
-            default => $this->categoryOrFallbackCollection($request, $slug),
+            default => $this->customMediaCollection($request, $slug) ?? $this->categoryOrFallbackCollection($request, $slug),
         };
     }
 
@@ -165,7 +166,12 @@ class ShopController extends Controller
 
     public function bestSellers(Request $request)
     {
-        $query = Product::where('is_active', true)->with('category');
+        $query = Product::where('is_active', true)
+            ->where(function ($q) {
+                $q->where('total_sold', '>', 0)
+                    ->orWhere('is_featured', true);
+            })
+            ->with('category');
 
         if ($request->filled('q')) {
             $q = $request->q;
@@ -232,8 +238,56 @@ class ShopController extends Controller
             'pageHeading' => $heading,
             'meta_title' => $heading . ' - ' . SiteSetting::get('site_name', 'The Trend Theory'),
             'meta_description' => 'Shop ' . $heading . ' at The Trend Theory.',
-            'canonical' => url('/collections/' . $slug),
+            'canonical' => url(($request->is('collection/*') ? '/collection/' : '/collections/') . $slug),
         ], 200);
+    }
+
+    private function customMediaCollection(Request $request, string $slug)
+    {
+        $collectionMedia = Media::where('model_type', 'App\Models\Gallery')
+            ->whereIn('collection', ['gallery', 'video_section'])
+            ->with('products')
+            ->get()
+            ->first(fn ($media) => $this->galleryMediaSlug($media) === $slug);
+
+        if (!$collectionMedia || $collectionMedia->products->isEmpty()) {
+            return null;
+        }
+
+        $query = $collectionMedia->products()
+            ->where('is_active', true)
+            ->with('category');
+
+        $this->applyFilters($query, $request);
+        $products = $query->paginate(12)->withQueryString();
+        $heading = $collectionMedia->alt_text ?: str($slug)->replace('-', ' ')->title()->toString();
+
+        return response()->view('froentend.shop.index', [
+            'products' => $products,
+            'categories' => Category::active()->whereNull('parent_id')->orderBy('sort_order')->get(),
+            'currentCategory' => null,
+            'subCategories' => collect(),
+            'pageHeading' => $heading,
+            'pageDescription' => $collectionMedia->subtitle ?: 'Discover the latest styles',
+            'meta_title' => $heading . ' - ' . SiteSetting::get('site_name', 'The Trend Theory'),
+            'meta_description' => $collectionMedia->subtitle ?: 'Shop ' . $heading . ' at The Trend Theory.',
+            'canonical' => url('/collection/' . $slug),
+        ], 200);
+    }
+
+    private function galleryMediaSlug(Media $media): string
+    {
+        $path = trim((string) parse_url($media->button_link ?? '', PHP_URL_PATH), '/');
+
+        if ($path !== '') {
+            $parts = explode('/', $path);
+            return $this->normalizeCollectionSlug(end($parts));
+        }
+
+        $slug = str($media->alt_text ?? '')->slug()->toString();
+        $slug = preg_replace('/-(collection|collections)$/', '', $slug);
+
+        return $this->normalizeCollectionSlug($slug ?: '');
     }
 
     public function search(Request $request)
@@ -269,22 +323,22 @@ class ShopController extends Controller
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sq) use ($q) {
-                $sq->where('name', 'like', '%' . $q . '%')
-                    ->orWhere('description', 'like', '%' . $q . '%');
+                $sq->where('products.name', 'like', '%' . $q . '%')
+                    ->orWhere('products.description', 'like', '%' . $q . '%');
             });
         }
         switch ($request->get('sort', 'latest')) {
             case 'price_low':
-                $query->orderBy('price', 'asc');
+                $query->orderBy('products.price', 'asc');
                 break;
             case 'price_high':
-                $query->orderBy('price', 'desc');
+                $query->orderBy('products.price', 'desc');
                 break;
             case 'popular':
-                $query->orderByDesc('total_sold');
+                $query->orderByDesc('products.total_sold');
                 break;
             default:
-                $query->latest();
+                $query->orderByDesc('products.created_at');
                 break;
         }
     }

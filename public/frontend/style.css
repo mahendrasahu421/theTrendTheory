@@ -97,12 +97,34 @@ body {
     width: 100%;
     overflow: hidden;
 }
+.hero-media-track,
+.hero-media-slide {
+    position: absolute;
+    inset: 0;
+}
+.hero-media-slide {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+.hero-media-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+.video-hero picture {
+    position: absolute;
+    inset: 0;
+    display: block;
+}
 .hero-video {
     position: absolute;
     top: 50%;
     left: 50%;
     min-width: 100%;
     min-height: 100%;
+    width: 100%;
+    height: 100%;
     transform: translate(-50%, -50%);
     object-fit: cover;
 }
@@ -166,6 +188,53 @@ body {
     background: #fff;
     color: #000;
 }
+.top-hero-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 4;
+    width: 46px;
+    height: 46px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.24);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    transform: translateY(-50%);
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+.top-hero-arrow:hover {
+    background: rgba(0, 0, 0, 0.45);
+    transform: translateY(-50%) scale(1.04);
+}
+.top-hero-arrow-left {
+    left: 26px;
+}
+.top-hero-arrow-right {
+    right: 26px;
+}
+.top-hero-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 28px;
+    z-index: 4;
+    display: flex;
+    gap: 10px;
+    transform: translateX(-50%);
+}
+.top-hero-dot {
+    width: 10px;
+    height: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+.top-hero-dot.active {
+    background: #fff;
+}
 
 @media (max-width: 768px) {
     .video-content h1 {
@@ -177,6 +246,16 @@ body {
     .hero-buttons {
         flex-direction: column;
         align-items: center;
+    }
+    .top-hero-arrow {
+        width: 38px;
+        height: 38px;
+    }
+    .top-hero-arrow-left {
+        left: 12px;
+    }
+    .top-hero-arrow-right {
+        right: 12px;
     }
 }
 
@@ -333,14 +412,16 @@ body {
     overflow: hidden;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
-.hero-slide img {
+.hero-slide img,
+.hero-slide video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
     transition: transform 0.6s;
 }
-.hero-slide:hover img {
+.hero-slide:hover img,
+.hero-slide:hover video {
     transform: scale(1.05);
 }
 .slide-overlay {

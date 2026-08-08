@@ -7,13 +7,42 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC ROUTES
 // ═══════════════════════════════════════════════════
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/images/{filename}', function (string $filename) {
+    $label = ucwords(str_replace(['-', '_'], ' ', pathinfo($filename, PATHINFO_FILENAME)));
+    $label = htmlspecialchars($label ?: 'Image Placeholder', ENT_QUOTES, 'UTF-8');
+
+    $svg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="{$label}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f2ef"/>
+      <stop offset="0.55" stop-color="#d9e7e2"/>
+      <stop offset="1" stop-color="#efe1ea"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+  <rect x="48" y="48" width="1104" height="604" rx="18" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.85"/>
+  <text x="600" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#222222">The Trend Theory</text>
+  <text x="600" y="388" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#555555">{$label}</text>
+</svg>
+SVG;
+
+    return response($svg, 200)
+        ->header('Content-Type', 'image/svg+xml')
+        ->header('Cache-Control', 'public, max-age=86400');
+})->where('filename', '[A-Za-z0-9._-]+')->name('images.placeholder');
 Route::get('/shop', [App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
+Route::get('/search', [App\Http\Controllers\ShopController::class, 'search'])->name('search');
 Route::get('/shop/new-arrivals', [App\Http\Controllers\ShopController::class, 'newArrivals'])->name('shop.new-arrivals');
 Route::get('/shop/search', [App\Http\Controllers\ShopController::class, 'search'])->name('shop.search');
 Route::get('/shop/{slug}', [App\Http\Controllers\ShopController::class, 'category'])->name('shop.category');
+Route::get('/collection/{slug}', [App\Http\Controllers\ShopController::class, 'collection'])->name('collection.show');
 Route::get('/collections', [App\Http\Controllers\ShopController::class, 'index'])->name('collections.index');
 Route::get('/collections/{slug}', [App\Http\Controllers\ShopController::class, 'collection'])->name('collections.show');
+Route::get('/product/{slug}/color/{colorSlug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show.color');
 Route::get('/product/{slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show');
+Route::get('/page/{slug}', [App\Http\Controllers\PageController::class, 'show'])->name('page.show');
+Route::get('/pages/{slug}', [App\Http\Controllers\PageController::class, 'show'])->name('pages.show');
 
 // ═══════════════════════════════════════════════════
 // FRONTEND API ROUTES (Public - No Auth)
@@ -39,7 +68,9 @@ Route::middleware('auth')->group(function () {
     // Cart
     Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/add/{id}', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add.item');
     Route::patch('/cart/update', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+    Route::patch('/cart/update/{key}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update.item');
     Route::delete('/cart/remove', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
     Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('checkout.index');
     Route::post('/checkout/place', [App\Http\Controllers\CartController::class, 'placeOrder'])->name('checkout.place');
