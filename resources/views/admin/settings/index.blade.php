@@ -907,7 +907,7 @@
                                     </div>
                                     @if (!empty($settings['logo']))
                                         <div style="margin-top:8px; display:flex; align-items:center; gap:10px;">
-                                            <img src="https://ik.imagekit.io/zjhpv2mbz/{{ $settings['logo'] }}" alt="Current Logo" style="height:36px; border-radius:6px;">
+                                            <img src="{{ $settings['logo'] }}" alt="Current Logo" style="height:36px; border-radius:6px;" onerror="this.style.display='none'">
                                             <span style="font-size:12px; color:#64748b; font-weight:600;">Current Logo</span>
                                         </div>
                                     @endif
@@ -1162,17 +1162,17 @@
                                                     data-id="{{ $product->id }}"
                                                     data-name="{{ $product->name }}"
                                                     data-sku="{{ $product->sku }}"
-                                                    data-price="{{ number_format($product->price, 2) }}"
+                                                    data-price="{{ number_format(round($product->price)) }}"
                                                     data-url="{{ route('product.show', $product->slug, false) }}"
-                                                    data-image="{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}"
-                                                    onclick="selectSingleProduct('heroProductPicker', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ route('product.show', $product->slug, false) }}', '{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}')">
-                                                    <img src="{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}" class="product-picker-thumb">
+                                                    data-image="{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}"
+                                                    onclick="selectSingleProduct('heroProductPicker', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ route('product.show', $product->slug, false) }}', '{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}')">
+                                                    <img src="{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}" class="product-picker-thumb">
                                                     <div class="product-picker-info">
                                                         <div class="product-picker-name">{{ $product->name }}</div>
                                                         <div class="product-picker-meta">
                                                             <span>SKU: {{ $product->sku ?: 'N/A' }}</span>
                                                             <span>•</span>
-                                                            <span>₹{{ number_format($product->price, 2) }}</span>
+                                                            <span>₹{{ number_format(round($product->price)) }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1484,17 +1484,17 @@
                                             data-id="{{ $product->id }}"
                                             data-name="{{ $product->name }}"
                                             data-sku="{{ $product->sku }}"
-                                            data-price="{{ number_format($product->price, 2) }}"
-                                            data-image="{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}"
-                                            onclick="toggleMultiProduct('uploadProductPicker', 'media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}')">
-                                            <input type="checkbox" class="product-option-checkbox" value="{{ $product->id }}" onclick="event.stopPropagation(); toggleMultiProduct('uploadProductPicker', 'media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}')">
-                                            <img src="{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}" class="product-picker-thumb">
+                                            data-price="{{ number_format(round($product->price)) }}"
+                                            data-image="{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}"
+                                            onclick="toggleMultiProduct('uploadProductPicker', 'media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}')">
+                                            <input type="checkbox" class="product-option-checkbox" value="{{ $product->id }}" onclick="event.stopPropagation(); toggleMultiProduct('uploadProductPicker', 'media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}')">
+                                            <img src="{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}" class="product-picker-thumb">
                                             <div class="product-picker-info">
                                                 <div class="product-picker-name">{{ $product->name }}</div>
                                                 <div class="product-picker-meta">
                                                     <span>SKU: {{ $product->sku ?: 'N/A' }}</span>
                                                     <span>•</span>
-                                                    <span>₹{{ number_format($product->price, 2) }}</span>
+                                                    <span>₹{{ number_format(round($product->price)) }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1527,12 +1527,18 @@
                         <div class="form-grp">
                             <label>Media File *</label>
                             <div class="file-upload-area">
-                                <label class="file-upload-label" id="media_file_label">
-                                    <i class="bi bi-cloud-arrow-up" style="font-size:22px"></i> Click or Drag & Drop File
+                                <label class="file-upload-label" id="media_file_label" for="media_file">
+                                    <span id="media_file_text" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%">
+                                        <i class="bi bi-cloud-arrow-up" style="font-size:22px"></i> Click or Drag & Drop File
+                                    </span>
                                     <input type="file" name="file" id="media_file" class="file-upload-input" accept="image/*,video/*" required>
                                 </label>
                             </div>
                             <div class="hint">Max size: 50MB (Videos) | 5MB (Images)</div>
+                            <div id="media_upload_preview" class="image-preview" style="display:none;margin-top:10px;text-align:center;">
+                                <img id="media_upload_preview_img" src="" style="max-height:140px;border-radius:10px;display:none;margin:0 auto;">
+                                <video id="media_upload_preview_video" src="" controls style="max-height:140px;border-radius:10px;display:none;margin:0 auto;"></video>
+                            </div>
                         </div>
 
                         <input type="hidden" name="section" value="gallery">
@@ -1591,17 +1597,17 @@
                                             data-id="{{ $product->id }}"
                                             data-name="{{ $product->name }}"
                                             data-sku="{{ $product->sku }}"
-                                            data-price="{{ number_format($product->price, 2) }}"
-                                            data-image="{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}"
-                                            onclick="toggleMultiProduct('editProductPicker', 'edit_media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}')">
-                                            <input type="checkbox" class="product-option-checkbox" value="{{ $product->id }}" onclick="event.stopPropagation(); toggleMultiProduct('editProductPicker', 'edit_media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}')">
-                                            <img src="{{ $product->image ? (str_starts_with($product->image, 'http') ? $product->image : 'https://ik.imagekit.io/zjhpv2mbz/' . $product->image) : asset('images/placeholder-product.jpg') }}" class="product-picker-thumb">
+                                            data-price="{{ number_format(round($product->price)) }}"
+                                            data-image="{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}"
+                                            onclick="toggleMultiProduct('editProductPicker', 'edit_media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}')">
+                                            <input type="checkbox" class="product-option-checkbox" value="{{ $product->id }}" onclick="event.stopPropagation(); toggleMultiProduct('editProductPicker', 'edit_media_product_ids', '{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}')">
+                                            <img src="{{ ($product->image_url ?? asset('images/placeholder-product.jpg')) }}" class="product-picker-thumb">
                                             <div class="product-picker-info">
                                                 <div class="product-picker-name">{{ $product->name }}</div>
                                                 <div class="product-picker-meta">
                                                     <span>SKU: {{ $product->sku ?: 'N/A' }}</span>
                                                     <span>•</span>
-                                                    <span>₹{{ number_format($product->price, 2) }}</span>
+                                                    <span>₹{{ number_format(round($product->price)) }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1889,12 +1895,18 @@
                 }
                 syncMultiProductUI('uploadProductPicker', 'media_product_ids');
 
-                const uploadLabel = document.getElementById('media_file_label');
-                if (uploadLabel) {
-                    uploadLabel.innerHTML = `<i class="bi bi-cloud-arrow-up" style="font-size: 22px;"></i> Click or Drag & Drop File`;
+                const uploadText = document.getElementById('media_file_text');
+                if (uploadText) {
+                    uploadText.innerHTML = `<i class="bi bi-cloud-arrow-up" style="font-size: 22px;"></i> Click or Drag & Drop File`;
                 }
                 const fileInput = document.getElementById('media_file');
                 if (fileInput) fileInput.value = '';
+                const previewDiv = document.getElementById('media_upload_preview');
+                if (previewDiv) previewDiv.style.display = 'none';
+                const prevImg = document.getElementById('media_upload_preview_img');
+                if (prevImg) { prevImg.src = ''; prevImg.style.display = 'none'; }
+                const prevVid = document.getElementById('media_upload_preview_video');
+                if (prevVid) { prevVid.src = ''; prevVid.style.display = 'none'; }
             }
 
             function collectionUrlFromTitle(title) {
@@ -1942,9 +1954,27 @@
             document.getElementById('media_file')?.addEventListener('change', function(e) {
                 if (e.target.files && e.target.files[0]) {
                     const file = e.target.files[0];
-                    const uploadLabel = document.getElementById('media_file_label');
-                    if (uploadLabel) {
-                        uploadLabel.innerHTML = `<i class="bi bi-file-earmark-check-fill" style="font-size: 22px; color:#10b981"></i> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                    const uploadText = document.getElementById('media_file_text');
+                    if (uploadText) {
+                        uploadText.innerHTML = `<i class="bi bi-file-earmark-check-fill" style="font-size: 22px; color:#10b981"></i> <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                    }
+
+                    const previewDiv = document.getElementById('media_upload_preview');
+                    const prevImg = document.getElementById('media_upload_preview_img');
+                    const prevVid = document.getElementById('media_upload_preview_video');
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            if (prevImg) { prevImg.src = ev.target.result; prevImg.style.display = 'inline-block'; }
+                            if (prevVid) { prevVid.style.display = 'none'; }
+                            if (previewDiv) previewDiv.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type.startsWith('video/')) {
+                        const url = URL.createObjectURL(file);
+                        if (prevVid) { prevVid.src = url; prevVid.style.display = 'inline-block'; }
+                        if (prevImg) { prevImg.style.display = 'none'; }
+                        if (previewDiv) previewDiv.style.display = 'block';
                     }
                 }
             });

@@ -38,6 +38,11 @@ class ProductImage extends Model
         return asset('images/placeholder-product.jpg');
     }
 
+    public function getUrl($width = null, $height = null)
+    {
+        return $this->getImageUrl($width, $height);
+    }
+
     public function getThumbUrlAttribute()
     {
         return $this->getImageUrl(100, 120);

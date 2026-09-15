@@ -39,19 +39,19 @@ class CloudinaryService
         try {
             if (str_starts_with((string) $file->getMimeType(), 'video/')) {
                 $params = [
-                    'folder' => $folder,
+                    'folder'    => $folder,
                     'public_id' => $publicId,
                     'timestamp' => $timestamp,
                 ];
 
                 $response = Http::asMultipart()
-                    ->connectTimeout(3)
-                    ->timeout(30)
+                    ->connectTimeout(15)
+                    ->timeout(120)
                     ->attach('file', fopen($file->getRealPath(), 'r'), $file->getClientOriginalName())
                     ->post($this->apiUrl('video/upload'), [
-                        'api_key' => $this->apiKey,
+                        'api_key'   => $this->apiKey,
                         'timestamp' => (string) $timestamp,
-                        'folder' => $folder,
+                        'folder'    => $folder,
                         'public_id' => $publicId,
                         'signature' => $this->signature($params),
                     ]);
@@ -63,29 +63,38 @@ class CloudinaryService
                 $payload = $response->json();
 
                 return [
-                    'url' => $payload['secure_url'] ?? $payload['url'] ?? null,
+                    'url'       => $payload['secure_url'] ?? $payload['url'] ?? null,
                     'public_id' => $payload['public_id'] ?? $publicId,
                 ];
             }
 
-            // Convert to WebP before upload
-            $processed = $this->imageWebp->process($file);
-            $webp = $processed['file']; // UploadedFile with .webp temp path
+            // Prefer WebP, but still upload to Cloudinary when GD/WebP support is unavailable.
+            $uploadFile = $file;
+            try {
+                $processed  = $this->imageWebp->process($file);
+                $webp       = $processed['file']; // UploadedFile with .webp temp path
+                $uploadFile = $webp;
+            } catch (\Throwable $e) {
+                Log::warning('Image WebP conversion failed, uploading original image to Cloudinary.', [
+                    'folder' => $folder,
+                    'error'  => $e->getMessage(),
+                ]);
+            }
 
             $params = [
-                'folder' => $folder,
+                'folder'    => $folder,
                 'public_id' => $publicId,
                 'timestamp' => $timestamp,
             ];
 
             $response = Http::asMultipart()
-                ->connectTimeout(3)
-                ->timeout(10)
-                ->attach('file', fopen($webp->getRealPath(), 'r'), $webp->getClientOriginalName())
+                ->connectTimeout(15)
+                ->timeout(60)
+                ->attach('file', fopen($uploadFile->getRealPath(), 'r'), $uploadFile->getClientOriginalName())
                 ->post($this->apiUrl('image/upload'), [
-                    'api_key' => $this->apiKey,
+                    'api_key'   => $this->apiKey,
                     'timestamp' => (string) $timestamp,
-                    'folder' => $folder,
+                    'folder'    => $folder,
                     'public_id' => $publicId,
                     'signature' => $this->signature($params),
                 ]);
@@ -97,16 +106,26 @@ class CloudinaryService
             $payload = $response->json();
 
             return [
-                'url' => $payload['secure_url'] ?? $payload['url'] ?? null,
+                'url'       => $payload['secure_url'] ?? $payload['url'] ?? null,
                 'public_id' => $payload['public_id'] ?? $publicId,
             ];
+
         } catch (\Throwable $e) {
-            Log::warning('Cloudinary upload failed, using local storage fallback.', [
+            Log::error('Cloudinary upload failed — falling back to local storage.', [
                 'folder' => $folder,
-                'error' => $e->getMessage(),
+                'error'  => $e->getMessage(),
             ]);
 
-            return $this->storeLocal($file, $folder, $publicId);
+            // ── Automatic fallback: save to local public storage ──────
+            try {
+                return $this->storeLocal($file, $folder, $publicId);
+            } catch (\Throwable $localEx) {
+                Log::error('Local storage fallback also failed.', ['error' => $localEx->getMessage()]);
+                throw new \RuntimeException(
+                    'Upload failed (Cloudinary unreachable & local fallback failed): '.$e->getMessage(),
+                    0, $e
+                );
+            }
         } finally {
             // Cleanup temp webp file
             if ($webp) {

@@ -22,7 +22,7 @@ Route::get('/images/{filename}', function (string $filename) {
   </defs>
   <rect width="1200" height="700" fill="url(#bg)"/>
   <rect x="48" y="48" width="1104" height="604" rx="18" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.85"/>
-  <text x="600" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#222222">The Trend Theory</text>
+  <text x="600" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#222222">VAYU</text>
   <text x="600" y="388" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#555555">{$label}</text>
 </svg>
 SVG;
@@ -39,10 +39,43 @@ Route::get('/shop/{slug}', [App\Http\Controllers\ShopController::class, 'categor
 Route::get('/collection/{slug}', [App\Http\Controllers\ShopController::class, 'collection'])->name('collection.show');
 Route::get('/collections', [App\Http\Controllers\ShopController::class, 'index'])->name('collections.index');
 Route::get('/collections/{slug}', [App\Http\Controllers\ShopController::class, 'collection'])->name('collections.show');
+Route::get('/api/v1/products/{product}', [App\Http\Controllers\ProductController::class, 'quickView'])->name('api.products.quick-view');
 Route::get('/product/{slug}/color/{colorSlug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show.color');
 Route::get('/product/{slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show');
+// ═══════════════════════════════════════════════════
+// LEGAL & POLICY PAGES (Terms & Privacy Policy)
+// ═══════════════════════════════════════════════════
+Route::get('/terms', function () { return view('froentend.pages.terms'); })->name('terms');
+Route::get('/terms-of-use', function () { return view('froentend.pages.terms'); })->name('terms.use');
+Route::get('/terms-and-conditions', function () { return view('froentend.pages.terms'); })->name('terms.conditions');
+Route::get('/privacy-policy', function () { return view('froentend.pages.privacy'); })->name('privacy.policy');
+Route::get('/privacy', function () { return view('froentend.pages.privacy'); })->name('privacy');
+
+Route::get('/pages/terms-of-use', function () { return view('froentend.pages.terms'); });
+Route::get('/pages/terms-and-conditions', function () { return view('froentend.pages.terms'); });
+Route::get('/pages/privacy-policy', function () { return view('froentend.pages.privacy'); });
+
+Route::get('/page/terms-of-use', function () { return view('froentend.pages.terms'); });
+Route::get('/page/terms-and-conditions', function () { return view('froentend.pages.terms'); });
+Route::get('/page/privacy-policy', function () { return view('froentend.pages.privacy'); });
+
 Route::get('/page/{slug}', [App\Http\Controllers\PageController::class, 'show'])->name('page.show');
 Route::get('/pages/{slug}', [App\Http\Controllers\PageController::class, 'show'])->name('pages.show');
+
+// Blogs & News (Public)
+Route::get('/blogs', [App\Http\Controllers\BlogController::class, 'index'])->name('blogs.index');
+Route::get('/news', [App\Http\Controllers\BlogController::class, 'index'])->name('news.index');
+Route::get('/blog/{slug}', [App\Http\Controllers\BlogController::class, 'show'])->name('blogs.show');
+Route::get('/news/{slug}', [App\Http\Controllers\BlogController::class, 'show'])->name('news.show');
+
+// ── Live Order Tracking (Public)
+Route::get('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'index'])->name('order.track');
+Route::get('/track-order/{orderNumber}', [App\Http\Controllers\OrderTrackingController::class, 'track'])->name('order.track.detail');
+Route::post('/track-order/search', [App\Http\Controllers\OrderTrackingController::class, 'search'])->name('order.track.search');
+Route::get('/api/track-order/{orderNumber}', [App\Http\Controllers\OrderTrackingController::class, 'apiTrack'])->name('api.order.track');
+
+// ── Pincode Delivery & Risk Checker (Public API)
+Route::get('/api/pincode/check', [App\Http\Controllers\PincodeController::class, 'check'])->name('pincode.check');
 
 // ═══════════════════════════════════════════════════
 // FRONTEND API ROUTES (Public - No Auth)
@@ -51,6 +84,11 @@ Route::prefix('api')->group(function () {
     // Gallery API for frontend display
     Route::get('gallery/media', [App\Http\Controllers\Admin\MediaController::class, 'getGalleryMedia'])->name('api.gallery.media');
     Route::get('gallery/hero-video', [App\Http\Controllers\Admin\MediaController::class, 'getHeroVideo'])->name('api.gallery.hero-video');
+
+    // Web Push Notification Subscription Endpoints
+    Route::post('push/subscribe', [App\Http\Controllers\PushNotificationController::class, 'subscribe'])->name('api.push.subscribe');
+    Route::post('push/unsubscribe', [App\Http\Controllers\PushNotificationController::class, 'unsubscribe'])->name('api.push.unsubscribe');
+    Route::post('push/test', [App\Http\Controllers\PushNotificationController::class, 'sendTest'])->name('api.push.test');
 });
 
 // ═══════════════════════════════════════════════════
@@ -69,12 +107,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/add/{id}', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add.item');
-    Route::patch('/cart/update', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
-    Route::patch('/cart/update/{key}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update.item');
-    Route::delete('/cart/remove', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
+    Route::match(['patch', 'post'], '/cart/update', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+    Route::match(['patch', 'post'], '/cart/update/{key}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update.item');
+    Route::match(['delete', 'post'], '/cart/remove', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
+    Route::match(['delete', 'post'], '/cart/remove/{key}', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove.item');
     Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('checkout.index');
     Route::post('/checkout/place', [App\Http\Controllers\CartController::class, 'placeOrder'])->name('checkout.place');
     Route::get('/order/success/{order}', [App\Http\Controllers\CartController::class, 'success'])->name('order.success');
+
+    // Razorpay payment
+    Route::post('/payment/razorpay/create', [App\Http\Controllers\CartController::class, 'razorpayCreate'])->name('payment.razorpay.create');
+    Route::post('/payment/razorpay/verify', [App\Http\Controllers\CartController::class, 'razorpayVerify'])->name('payment.razorpay.verify');
+    Route::post('/payment/razorpay/failure', [App\Http\Controllers\CartController::class, 'razorpayFailure'])->name('payment.razorpay.failure');
+
+    // PhonePe payment gateway
+    Route::post('/payment/phonepe/initiate', [App\Http\Controllers\CartController::class, 'phonepeInitiate'])->name('payment.phonepe.initiate');
+    Route::match(['get', 'post'], '/payment/phonepe/callback', [App\Http\Controllers\CartController::class, 'phonepeCallback'])->name('payment.phonepe.callback');
+    Route::get('/payment/phonepe/simulator', [App\Http\Controllers\CartController::class, 'phonepeSimulator'])->name('payment.phonepe.simulator');
 
     // Wishlist
     Route::get('/wishlist', [App\Http\Controllers\WishlistController::class, 'index'])->name('wishlist.index');
@@ -84,7 +133,18 @@ Route::middleware('auth')->group(function () {
     // Profile
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
     Route::patch('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/addresses', [App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
+    Route::patch('/profile/addresses/{address}/default', [App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('profile.addresses.default');
     Route::patch('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Order Cancel (Customer)
+    Route::post('/orders/{order}/cancel', [App\Http\Controllers\OrderController::class, 'cancel'])->name('order.cancel');
+
+    // Return / Exchange / Refund (Customer)
+    Route::get('/orders/{order}/return', [App\Http\Controllers\ReturnController::class, 'create'])->name('order.return.create');
+    Route::post('/orders/{order}/return', [App\Http\Controllers\ReturnController::class, 'store'])->name('order.return.store');
+    Route::get('/my-returns', [App\Http\Controllers\ReturnController::class, 'index'])->name('order.returns');
+    Route::get('/my-returns/{return}', [App\Http\Controllers\ReturnController::class, 'show'])->name('order.return.show');
 
     // Newsletter
     Route::post('/newsletter/subscribe', [App\Http\Controllers\HomeController::class, 'subscribe'])->name('newsletter.subscribe');
@@ -109,7 +169,24 @@ Route::middleware(['auth', 'admin'])
         Route::get('/dashboard/products', [App\Http\Controllers\Admin\ProductEditorDashboardController::class, 'index'])
             ->middleware('role:super_admin,admin,product_manager,product_editor')->name('dashboard.product_editor');
 
+        // ── Visitor Tracking & Traffic Analytics (super_admin, admin)
+        Route::middleware('role:super_admin,admin')->group(function () {
+            Route::get('sales-analytics', [App\Http\Controllers\Admin\SalesAnalyticsController::class, 'index'])->name('sales.analytics');
+            Route::get('analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
+            Route::get('analytics/activities', [App\Http\Controllers\Admin\AnalyticsController::class, 'activities'])->name('analytics.activities');
+            Route::post('analytics/send-notification', [App\Http\Controllers\Admin\AnalyticsController::class, 'sendNotification'])->name('analytics.notify');
+            Route::get('analytics/export', [App\Http\Controllers\Admin\AnalyticsController::class, 'export'])->name('analytics.export');
+            Route::post('analytics/clear', [App\Http\Controllers\Admin\AnalyticsController::class, 'clearOldLogs'])->name('analytics.clear');
+        });
 
+        // ── Automated & Broadcast Notifications (super_admin, admin)
+        Route::middleware('role:super_admin,admin')->group(function () {
+            Route::get('notifications', [App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+            Route::post('notifications', [App\Http\Controllers\Admin\NotificationController::class, 'store'])->name('notifications.store');
+            Route::post('notifications/settings', [App\Http\Controllers\Admin\NotificationController::class, 'updateSettings'])->name('notifications.settings');
+            Route::post('notifications/trigger', [App\Http\Controllers\Admin\NotificationController::class, 'triggerAutomation'])->name('notifications.trigger');
+            Route::delete('notifications/{notification}', [App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('notifications.destroy');
+        });
 
         // ── Shipping (super_admin, admin)
         Route::middleware('role:super_admin,admin')->group(function () {
@@ -124,6 +201,20 @@ Route::middleware(['auth', 'admin'])
             Route::put('announcements/{announcement}', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcements.update');
             Route::delete('announcements/{announcement}', [App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
             Route::post('announcements/{announcement}/toggle', [App\Http\Controllers\Admin\AnnouncementController::class, 'toggle'])->name('announcements.toggle');
+        });
+
+        // ── Blogs (super_admin, admin, product_manager, product_editor)
+        Route::middleware('role:super_admin,admin,product_manager,product_editor')->group(function () {
+            Route::post('blogs/{blog}/toggle-status', [App\Http\Controllers\Admin\BlogController::class, 'toggleStatus'])->name('blogs.toggle-status');
+            Route::post('blogs/{blog}/toggle-featured', [App\Http\Controllers\Admin\BlogController::class, 'toggleFeatured'])->name('blogs.toggle-featured');
+            Route::resource('blogs', App\Http\Controllers\Admin\BlogController::class);
+        });
+
+        // ── News & Press (super_admin, admin, product_manager, product_editor)
+        Route::middleware('role:super_admin,admin,product_manager,product_editor')->group(function () {
+            Route::post('news/{news}/toggle-status', [App\Http\Controllers\Admin\NewsController::class, 'toggleStatus'])->name('news.toggle-status');
+            Route::post('news/{news}/toggle-featured', [App\Http\Controllers\Admin\NewsController::class, 'toggleFeatured'])->name('news.toggle-featured');
+            Route::resource('news', App\Http\Controllers\Admin\NewsController::class);
         });
 
         // ── Pages
@@ -148,9 +239,15 @@ Route::middleware(['auth', 'admin'])
 
         // ── Products & Media (super_admin, admin, product_manager)
         Route::middleware('role:super_admin,admin,product_manager,product_editor')->group(function () {
-            // Products
+            // Products & Inventory
+            Route::get('inventory', [App\Http\Controllers\Admin\InventoryController::class, 'index'])->name('inventory.index');
+            Route::post('inventory/{product}/stock', [App\Http\Controllers\Admin\InventoryController::class, 'updateStock'])->name('inventory.update-stock');
+            Route::post('inventory/{product}/threshold', [App\Http\Controllers\Admin\InventoryController::class, 'updateThreshold'])->name('inventory.update-threshold');
             Route::get('products/ajax', [App\Http\Controllers\Admin\ProductController::class, 'ajax'])->name('products.ajax');
-            Route::post('products/{product}/toggle', [App\Http\Controllers\Admin\ProductController::class, 'toggle'])->name('products.toggle');
+            Route::get('products/generate-sku', [App\Http\Controllers\Admin\ProductController::class, 'generateSku'])->name('products.generate-sku');
+            Route::get('products/check-sku', [App\Http\Controllers\Admin\ProductController::class, 'checkSku'])->name('products.check-sku');
+            Route::post('products/{product}/set-main-image', [App\Http\Controllers\Admin\ProductController::class, 'setMainImage'])->name('products.set-main-image');
+            Route::post('products/{product}/delete-image', [App\Http\Controllers\Admin\ProductController::class, 'deleteImage'])->name('products.delete-image');
             Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
 
             // Product Variants
@@ -167,6 +264,16 @@ Route::middleware(['auth', 'admin'])
             Route::post('media/upload', [App\Http\Controllers\Admin\MediaController::class, 'upload'])->name('media.upload');
             Route::delete('media/{media}', [App\Http\Controllers\Admin\MediaController::class, 'destroy'])->name('media.destroy');
             Route::post('media/{media}/primary', [App\Http\Controllers\Admin\MediaController::class, 'setPrimary'])->name('media.primary');
+
+            // Colors Master
+            Route::get('colors/ajax', [App\Http\Controllers\Admin\ColorController::class, 'ajax'])->name('colors.ajax');
+            Route::post('colors/{color}/toggle', [App\Http\Controllers\Admin\ColorController::class, 'toggle'])->name('colors.toggle');
+            Route::resource('colors', App\Http\Controllers\Admin\ColorController::class);
+
+            // Sizes Master
+            Route::get('sizes/ajax', [App\Http\Controllers\Admin\SizeController::class, 'ajax'])->name('sizes.ajax');
+            Route::post('sizes/{size}/toggle', [App\Http\Controllers\Admin\SizeController::class, 'toggle'])->name('sizes.toggle');
+            Route::resource('sizes', App\Http\Controllers\Admin\SizeController::class);
         });
 
         // ── Categories (super_admin, admin)
@@ -185,12 +292,42 @@ Route::middleware(['auth', 'admin'])
 
         // ── Orders (super_admin, admin)
         Route::middleware('role:super_admin,admin')->group(function () {
+            Route::get('orders/ajax', [App\Http\Controllers\Admin\OrderController::class, 'ajax'])->name('orders.ajax');
+            Route::post('orders/bulk-status', [App\Http\Controllers\Admin\OrderController::class, 'bulkStatus'])->name('orders.bulk-status');
+            Route::get('orders/shipping-labels', [App\Http\Controllers\Admin\OrderController::class, 'bulkShippingLabels'])->name('orders.shipping-labels');
+            Route::post('orders/{order}/quick-status', [App\Http\Controllers\Admin\OrderController::class, 'quickStatus'])->name('orders.quick-status');
+            Route::get('orders/{order}/invoice', function (\App\Models\Order $order) {
+                return app(\App\Services\InvoicePdfService::class)->streamPdf($order);
+            })->name('orders.invoice');
+            Route::get('orders/{order}/shipping-label', function (\App\Models\Order $order) {
+                $order->loadMissing(['items.product', 'user']);
+                return view('invoices.shipping_label', compact('order'));
+            })->name('orders.shipping-label');
             Route::resource('orders', App\Http\Controllers\Admin\OrderController::class)->only(['index', 'show', 'update']);
+        });
+
+        // ── Returns & Refunds (super_admin, admin)
+        Route::middleware('role:super_admin,admin')->group(function () {
+            Route::get('returns', [App\Http\Controllers\Admin\ReturnController::class, 'index'])->name('returns.index');
+            Route::get('returns/{return}', [App\Http\Controllers\Admin\ReturnController::class, 'show'])->name('returns.show');
+            Route::patch('returns/{return}/status', [App\Http\Controllers\Admin\ReturnController::class, 'updateStatus'])->name('returns.update-status');
+            Route::patch('returns/{return}/refund', [App\Http\Controllers\Admin\ReturnController::class, 'updateRefund'])->name('returns.update-refund');
+        });
+
+        // ── Pincodes & Risk Rules (super_admin, admin)
+        Route::middleware('role:super_admin,admin')->group(function () {
+            Route::get('pincodes', [App\Http\Controllers\Admin\PincodeController::class, 'index'])->name('pincodes.index');
+            Route::post('pincodes', [App\Http\Controllers\Admin\PincodeController::class, 'store'])->name('pincodes.store');
+            Route::post('pincodes/auto-analyze', [App\Http\Controllers\Admin\PincodeController::class, 'autoAnalyze'])->name('pincodes.auto-analyze');
+            Route::patch('pincodes/{pincodeRule}/toggle-cod', [App\Http\Controllers\Admin\PincodeController::class, 'toggleCod'])->name('pincodes.toggle-cod');
+            Route::patch('pincodes/{pincodeRule}/toggle-exchange', [App\Http\Controllers\Admin\PincodeController::class, 'toggleExchange'])->name('pincodes.toggle-exchange');
+            Route::delete('pincodes/{pincodeRule}', [App\Http\Controllers\Admin\PincodeController::class, 'destroy'])->name('pincodes.destroy');
         });
 
         // ── Customers (super_admin, admin)
         Route::middleware('role:super_admin,admin')->group(function () {
             Route::get('customers', [App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers.index');
+            Route::get('customers/ajax', [App\Http\Controllers\Admin\CustomerController::class, 'ajax'])->name('customers.ajax');
             Route::get('customers/{user}', [App\Http\Controllers\Admin\CustomerController::class, 'show'])->name('customers.show');
             Route::patch('customers/{user}/toggle', [App\Http\Controllers\Admin\CustomerController::class, 'toggle'])->name('customers.toggle');
         });
@@ -200,6 +337,12 @@ Route::middleware(['auth', 'admin'])
             Route::resource('employees', App\Http\Controllers\Admin\EmployeeController::class);
             Route::get('attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'index'])->name('attendance.index');
             Route::post('attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'store'])->name('attendance.store');
+        });
+
+        // ── Staff & Role Permissions Management (super_admin, admin)
+        Route::middleware('role:super_admin,admin')->group(function () {
+            Route::post('staff/{staff}/toggle-status', [App\Http\Controllers\Admin\StaffPermissionController::class, 'toggleStatus'])->name('staff.toggle-status');
+            Route::resource('staff', App\Http\Controllers\Admin\StaffPermissionController::class);
         });
 
         // ── Coupons (super_admin, admin)
@@ -213,6 +356,24 @@ Route::middleware(['auth', 'admin'])
         Route::middleware('role:super_admin,admin')->group(function () {
             Route::get('settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
             Route::post('settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+
+            // Payment Gateways Settings
+            Route::get('settings/payment', [App\Http\Controllers\Admin\SettingController::class, 'paymentSettings'])->name('settings.payment');
+            Route::post('settings/payment', [App\Http\Controllers\Admin\SettingController::class, 'updatePaymentSettings'])->name('settings.payment.update');
+
+            // Shipping & Courier Settings
+            Route::get('settings/shipping', [App\Http\Controllers\Admin\SettingController::class, 'shippingSettings'])->name('settings.shipping');
+            Route::post('settings/shipping', [App\Http\Controllers\Admin\SettingController::class, 'updateShippingSettings'])->name('settings.shipping.update');
+
+            // Email Templates & SMTP Settings
+            Route::get('settings/email-templates', [App\Http\Controllers\Admin\SettingController::class, 'emailTemplates'])->name('settings.email-templates');
+            Route::post('settings/email-templates', [App\Http\Controllers\Admin\SettingController::class, 'updateEmailTemplates'])->name('settings.email-templates.update');
+            Route::post('settings/email-templates/test', [App\Http\Controllers\Admin\SettingController::class, 'sendTestEmail'])->name('settings.email-templates.test');
+
+            // SMS & WhatsApp Gateway Settings
+            Route::get('settings/sms', [App\Http\Controllers\Admin\SettingController::class, 'smsSettings'])->name('settings.sms');
+            Route::post('settings/sms', [App\Http\Controllers\Admin\SettingController::class, 'updateSmsSettings'])->name('settings.sms.update');
+            Route::post('settings/sms/test', [App\Http\Controllers\Admin\SettingController::class, 'sendTestSms'])->name('settings.sms.test');
 
             // Hero Slides Routes
             Route::post('settings/slides', [App\Http\Controllers\Admin\SettingController::class, 'storeSlide'])->name('settings.storeSlide');
@@ -256,6 +417,21 @@ Route::middleware(['auth', 'admin'])
         // ── Media Reorder (existing - keep for backward compatibility)
         Route::post('media/reorder', [App\Http\Controllers\Admin\MediaController::class, 'reorder'])->name('media.reorder');
     });
+
+// ═══════════════════════════════════════════════════
+// IN-APP NOTIFICATIONS (FRONTEND)
+// ═══════════════════════════════════════════════════
+Route::get('/notifications/feed', [App\Http\Controllers\NotificationApiController::class, 'feed'])->name('notifications.feed');
+Route::post('/notifications/{notification}/read', [App\Http\Controllers\NotificationApiController::class, 'markRead'])->name('notifications.read');
+Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationApiController::class, 'markAllRead'])->name('notifications.markAllRead');
+
+// ═══════════════════════════════════════════════════
+// PUBLIC / CUSTOMER TAX INVOICE DOWNLOAD (FLIPKART / AMAZON PDF STYLE)
+// ═══════════════════════════════════════════════════
+Route::get('/invoice/{orderNumber}', function ($orderNumber) {
+    $order = \App\Models\Order::where('order_number', $orderNumber)->orWhere('id', $orderNumber)->firstOrFail();
+    return app(\App\Services\InvoicePdfService::class)->streamPdf($order);
+})->name('invoice.download');
 
 // ═══════════════════════════════════════════════════
 // SEO

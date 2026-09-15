@@ -9,7 +9,7 @@
         if (el) el.textContent = text;
     }
     function money(value) {
-        return '\u20b9' + Number(value || 0).toLocaleString('en-IN');
+        return '\u20b9' + Math.round(Number(value || 0)).toLocaleString('en-IN');
     }
     function escapeHtml(value) {
         return String(value || '').replace(/[&<>"']/g, function (m) {

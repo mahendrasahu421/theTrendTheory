@@ -75,7 +75,7 @@
                             </div>
                             <div class="collection-info">
                                 <h3>{{ ucwords(str_replace('-', ' ', $product->product_name)) }}</h3>
-                                <p class="product-price">${{ number_format($product->price, 2) }}</p>
+                                <p class="product-price">${{ number_format(round($product->price)) }}</p>
                             </div>
                         </div>
                     </div>
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 <div class="collection-info">
                                     <h3>${product.product_name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
-                                    <p class="product-price">$${parseFloat(product.price).toFixed(2)}</p>
+                                    <p class="product-price">$${Math.round(parseFloat(product.price || 0)).toLocaleString('en-US')}</p>
                                 </div>
                             </div>
                         </div>

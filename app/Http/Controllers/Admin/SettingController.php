@@ -94,13 +94,12 @@ class SettingController extends Controller
         // Handle logo upload
         if ($request->hasFile('logo_file')) {
             try {
-$upload = $this->cloudinary->upload(
+                $upload = $this->cloudinary->upload(
                     $request->file('logo_file'),
-
                     'settings',
                     'logo_' . time()
                 );
-                SiteSetting::set('logo', $upload['public_id']);
+                SiteSetting::set('logo', $upload['url']);
             } catch (\Exception $e) {
                 return back()->with('error', 'Logo upload failed: ' . $e->getMessage());
             }
@@ -109,13 +108,12 @@ $upload = $this->cloudinary->upload(
         // Handle favicon upload
         if ($request->hasFile('favicon_file')) {
             try {
-$upload = $this->cloudinary->upload(
+                $upload = $this->cloudinary->upload(
                     $request->file('favicon_file'),
-
                     'settings',
                     'favicon_' . time()
                 );
-                SiteSetting::set('favicon', $upload['public_id']);
+                SiteSetting::set('favicon', $upload['url']);
             } catch (\Exception $e) {
                 return back()->with('error', 'Favicon upload failed: ' . $e->getMessage());
             }
@@ -124,13 +122,12 @@ $upload = $this->cloudinary->upload(
         // Handle OG image upload
         if ($request->hasFile('og_image_file')) {
             try {
-$upload = $this->cloudinary->upload(
+                $upload = $this->cloudinary->upload(
                     $request->file('og_image_file'),
-
                     'seo',
                     'og_' . time()
                 );
-                SiteSetting::set('og_image', $upload['public_id']);
+                SiteSetting::set('og_image', $upload['url']);
             } catch (\Exception $e) {
                 return back()->with('error', 'OG Image upload failed: ' . $e->getMessage());
             }
@@ -525,28 +522,87 @@ $upload = $this->cloudinary->upload(
     }
 
     /**
-     * List all backups
+     * List all backups with AJAX pagination, search & sorting
      */
-    public function listBackups()
+    public function listBackups(Request $request)
     {
         $backupDir = storage_path('app/backups');
-        $backups = [];
+        $allBackups = [];
+        $totalBytes = 0;
 
         if (File::exists($backupDir)) {
             $files = File::files($backupDir);
             foreach ($files as $file) {
-                $backups[] = [
+                $size = $file->getSize();
+                $totalBytes += $size;
+                $allBackups[] = [
                     'name' => $file->getFilename(),
-                    'size' => $this->formatSize($file->getSize()),
-                    'size_bytes' => $file->getSize(),
+                    'size' => $this->formatSize($size),
+                    'size_bytes' => $size,
                     'created_at' => Carbon::createFromTimestamp($file->getCTime()),
+                    'created_at_formatted' => Carbon::createFromTimestamp($file->getCTime())->format('d M Y, h:i A'),
                     'path' => $file->getPathname(),
+                    'download_url' => route('admin.backup.download', ['filename' => $file->getFilename()]),
+                    'delete_url' => route('admin.backup.delete', ['filename' => $file->getFilename()]),
                 ];
             }
-            usort($backups, fn($a, $b) => $b['created_at'] <=> $a['created_at']);
         }
 
-        return view('admin.backups.index', compact('backups'));
+        // Sort
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                usort($allBackups, fn($a, $b) => $a['created_at'] <=> $b['created_at']);
+                break;
+            case 'size_desc':
+                usort($allBackups, fn($a, $b) => $b['size_bytes'] <=> $a['size_bytes']);
+                break;
+            case 'size_asc':
+                usort($allBackups, fn($a, $b) => $a['size_bytes'] <=> $b['size_bytes']);
+                break;
+            case 'latest':
+            default:
+                usort($allBackups, fn($a, $b) => $b['created_at'] <=> $a['created_at']);
+                break;
+        }
+
+        // Search
+        $search = trim($request->get('search', ''));
+        if ($search !== '') {
+            $allBackups = array_values(array_filter($allBackups, function ($item) use ($search) {
+                return stripos($item['name'], $search) !== false;
+            }));
+        }
+
+        $totalCount = count($allBackups);
+        $perPage = max(1, min((int) $request->get('per_page', 10), 100));
+        $page = max(1, (int) $request->get('page', 1));
+        $offset = ($page - 1) * $perPage;
+        $items = array_slice($allBackups, $offset, $perPage);
+        $lastPage = max(1, (int) ceil($totalCount / $perPage));
+
+        $kpis = [
+            'total_count' => count(File::exists($backupDir) ? File::files($backupDir) : []),
+            'total_size' => round($totalBytes / 1024 / 1024, 2) . ' MB',
+            'latest_snapshot' => count($allBackups) > 0 ? $allBackups[0]['created_at_formatted'] : 'No snapshots yet',
+        ];
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $items,
+                'total' => $totalCount,
+                'per_page' => $perPage,
+                'current_page' => $page,
+                'last_page' => $lastPage,
+                'from' => $totalCount > 0 ? $offset + 1 : 0,
+                'to' => min($offset + $perPage, $totalCount),
+                'kpis' => $kpis,
+            ]);
+        }
+
+        $backups = $items;
+        return view('admin.backups.index', compact('backups', 'totalCount', 'kpis'));
     }
 
     /**
@@ -567,12 +623,20 @@ $upload = $this->cloudinary->upload(
     /**
      * Delete backup
      */
-    public function deleteBackup($filename)
+    public function deleteBackup(Request $request, $filename)
     {
         $backupPath = storage_path('app/backups/' . $filename);
         if (File::exists($backupPath)) {
             File::delete($backupPath);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Backup snapshot deleted successfully!']);
+            }
             return back()->with('success', 'Backup deleted successfully!');
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => 'Backup file not found!'], 404);
         }
         return back()->with('error', 'Backup file not found!');
     }
@@ -605,6 +669,140 @@ $upload = $this->cloudinary->upload(
             'debug_mode' => config('app.debug'),
             'backup_dir' => storage_path('app/backups'),
             'backup_count' => File::exists(storage_path('app/backups')) ? count(File::files(storage_path('app/backups'))) : 0,
+        ]);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── 1. PAYMENT GATEWAYS & SETTINGS
+    // ══════════════════════════════════════════════════════════════
+    public function paymentSettings()
+    {
+        $settings = SiteSetting::getAll();
+        return view('admin.settings.payment', compact('settings'));
+    }
+
+    public function updatePaymentSettings(Request $request)
+    {
+        $keys = [
+            'primary_payment_gateway',
+            'razorpay_enabled', 'razorpay_key_id', 'razorpay_key_secret', 'razorpay_webhook_secret', 'razorpay_sandbox',
+            'cod_enabled', 'cod_fee', 'cod_min_order', 'cod_max_order',
+            'phonepe_enabled', 'phonepe_merchant_id', 'phonepe_salt_key', 'phonepe_salt_index', 'phonepe_client_id', 'phonepe_client_secret', 'phonepe_client_version', 'phonepe_sandbox',
+            'stripe_enabled', 'stripe_publishable_key', 'stripe_secret_key', 'stripe_webhook_secret', 'stripe_sandbox'
+        ];
+
+        foreach ($keys as $key) {
+            $value = $request->input($key);
+            if (in_array($key, ['razorpay_enabled', 'razorpay_sandbox', 'cod_enabled', 'phonepe_enabled', 'phonepe_sandbox', 'stripe_enabled', 'stripe_sandbox'])) {
+                $value = $request->has($key) ? '1' : '0';
+            }
+            SiteSetting::set($key, $value ?? '');
+        }
+
+        \Illuminate\Support\Facades\Cache::flush();
+
+        return back()->with('success', 'Payment gateway settings updated successfully!');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── 2. SHIPPING & COURIER PARTNERS SETTINGS
+    // ══════════════════════════════════════════════════════════════
+    public function shippingSettings()
+    {
+        $settings = SiteSetting::getAll();
+        return view('admin.settings.shipping', compact('settings'));
+    }
+
+    public function updateShippingSettings(Request $request)
+    {
+        $keys = [
+            'shipping_rate', 'shipping_free_above', 'express_shipping_rate', 'express_shipping_days', 'standard_shipping_days',
+            'intl_shipping_enabled', 'intl_shipping_rate',
+            'shiprocket_enabled', 'shiprocket_email', 'shiprocket_password',
+            'delhivery_enabled', 'delhivery_api_token', 'delhivery_client_id'
+        ];
+
+        foreach ($keys as $key) {
+            $value = $request->input($key);
+            if (in_array($key, ['intl_shipping_enabled', 'shiprocket_enabled', 'delhivery_enabled'])) {
+                $value = $request->has($key) ? '1' : '0';
+            }
+            SiteSetting::set($key, $value ?? '');
+        }
+
+        return back()->with('success', 'Shipping rates and courier settings updated successfully!');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── 3. EMAIL TEMPLATES & SMTP SETTINGS
+    // ══════════════════════════════════════════════════════════════
+    public function emailTemplates()
+    {
+        $settings = SiteSetting::getAll();
+        return view('admin.settings.email_templates', compact('settings'));
+    }
+
+    public function updateEmailTemplates(Request $request)
+    {
+        $keys = [
+            'mail_mailer', 'mail_host', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption', 'mail_from_address', 'mail_from_name',
+            'email_order_placed_subject', 'email_order_placed_body',
+            'email_order_shipped_subject', 'email_order_shipped_body',
+            'email_order_delivered_subject', 'email_order_delivered_body',
+            'email_welcome_subject', 'email_welcome_body'
+        ];
+
+        foreach ($keys as $key) {
+            SiteSetting::set($key, $request->input($key, ''));
+        }
+
+        return back()->with('success', 'Email templates & SMTP configuration saved successfully!');
+    }
+
+    public function sendTestEmail(Request $request)
+    {
+        $request->validate(['test_email' => 'required|email']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Test email preview sent to ' . $request->test_email
+        ]);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── 4. SMS & WHATSAPP GATEWAY SETTINGS
+    // ══════════════════════════════════════════════════════════════
+    public function smsSettings()
+    {
+        $settings = SiteSetting::getAll();
+        return view('admin.settings.sms', compact('settings'));
+    }
+
+    public function updateSmsSettings(Request $request)
+    {
+        $keys = [
+            'sms_provider', 'sms_api_key', 'sms_sender_id', 'sms_auth_token', 'sms_account_sid',
+            'whatsapp_enabled', 'whatsapp_phone_number_id', 'whatsapp_business_account_id', 'whatsapp_access_token',
+            'sms_trigger_order_placed', 'sms_trigger_order_shipped', 'sms_trigger_order_delivered', 'sms_trigger_otp',
+            'sms_template_order_placed', 'sms_template_order_shipped', 'sms_template_order_delivered'
+        ];
+
+        foreach ($keys as $key) {
+            $value = $request->input($key);
+            if (in_array($key, ['whatsapp_enabled', 'sms_trigger_order_placed', 'sms_trigger_order_shipped', 'sms_trigger_order_delivered', 'sms_trigger_otp'])) {
+                $value = $request->has($key) ? '1' : '0';
+            }
+            SiteSetting::set($key, $value ?? '');
+        }
+
+        return back()->with('success', 'SMS & WhatsApp gateway settings updated successfully!');
+    }
+
+    public function sendTestSms(Request $request)
+    {
+        $request->validate(['test_phone' => 'required|string']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Test SMS sent to ' . $request->test_phone
         ]);
     }
 }

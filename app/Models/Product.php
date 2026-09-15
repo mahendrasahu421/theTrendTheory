@@ -23,6 +23,9 @@ class Product extends Model
         'original_price',
         'cost_price',
         'image', // ✅ Make sure image is in fillable
+        'front_image',
+        'back_image',
+        'available_print_sides',
         'stock',
         'has_variants',
         'low_stock_alert',
@@ -128,6 +131,16 @@ class Product extends Model
 
     public function getMainImageAttribute(): string
     {
+        if (!empty($this->image) && $this->image) {
+            if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+                return $this->image;
+            }
+            if (!str_starts_with($this->image, '/') && !str_starts_with($this->image, 'http')) {
+                return url('/storage/' . $this->image);
+            }
+            return $this->image;
+        }
+
         $primaryImage = $this->productImages()->where('is_primary', true)->first();
         if ($primaryImage && $primaryImage->url) {
             return $primaryImage->getImageUrl(400, 500);
@@ -148,6 +161,16 @@ class Product extends Model
 
     public function getCardImageAttribute(): string
     {
+        if (!empty($this->image) && $this->image) {
+            if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+                return $this->image;
+            }
+            if (!str_starts_with($this->image, '/') && !str_starts_with($this->image, 'http')) {
+                return url('/storage/' . $this->image);
+            }
+            return $this->image;
+        }
+
         $primaryImage = $this->productImages()->where('is_primary', true)->first();
         if ($primaryImage && $primaryImage->url) {
             return $primaryImage->getImageUrl(300, 380);
@@ -169,6 +192,16 @@ class Product extends Model
     // ✅ FIX: Add this method for image_url
     public function getImageUrlAttribute(): string
     {
+        if (!empty($this->image) && $this->image) {
+            if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+                return $this->image;
+            }
+            if (!str_starts_with($this->image, '/') && !str_starts_with($this->image, 'http')) {
+                return url('/storage/' . $this->image);
+            }
+            return $this->image;
+        }
+
         // First try: card_image
         $cardImage = $this->card_image;
         if ($cardImage && !str_contains($cardImage, 'placeholder')) {
@@ -181,18 +214,6 @@ class Product extends Model
             return $mainImage;
         }
         
-        // Third try: direct image field
-        if (!empty($this->image) && $this->image) {
-            if (filter_var($this->image, FILTER_VALIDATE_URL)) {
-                return $this->image;
-            }
-            // Check if it's an ImageKit path
-            if (!str_starts_with($this->image, '/') && !str_starts_with($this->image, 'http')) {
-                return "https://ik.imagekit.io/zjhpv2mbz/" . $this->image;
-            }
-            return $this->image;
-        }
-        
         // Fourth try: media relationship
         if ($this->relationLoaded('media') && $this->media && $this->media->count() > 0) {
             $primary = $this->media->where('is_primary', true)->first();
@@ -203,6 +224,41 @@ class Product extends Model
         }
         
         return asset('images/placeholder-product.jpg');
+    }
+
+    public function getAllImagesListAttribute(): array
+    {
+        $list = [];
+
+        // 1. Base image from product table
+        if (!empty($this->image)) {
+            $url = filter_var($this->image, FILTER_VALIDATE_URL) ? $this->image : (str_starts_with($this->image, '/') ? $this->image : url('/storage/' . $this->image));
+            $list[] = $url;
+        }
+
+        // 2. ProductImage records
+        $pImages = $this->relationLoaded('productImages') ? $this->productImages : $this->productImages()->orderByDesc('is_primary')->orderBy('sort_order')->get();
+        foreach ($pImages as $pi) {
+            if (!empty($pi->url) && !in_array($pi->url, $list)) {
+                $list[] = $pi->url;
+            }
+        }
+
+        // 3. Media records
+        $mediaItems = $this->relationLoaded('media') ? $this->media : $this->media()->orderByDesc('is_primary')->orderBy('sort_order')->get();
+        foreach ($mediaItems as $m) {
+            $mUrl = $m->getUrl();
+            if (!empty($mUrl) && !in_array($mUrl, $list)) {
+                $list[] = $mUrl;
+            }
+        }
+
+        // 4. Fallback if empty
+        if (empty($list)) {
+            $list[] = asset('images/placeholder-product.jpg');
+        }
+
+        return array_values(array_unique($list));
     }
 
     public function getHasDiscountAttribute(): bool

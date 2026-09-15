@@ -2,7 +2,7 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>My Wishlist | The Trend Theory</title>
+    <title>My Wishlist | Vayu</title>
     <meta name="robots" content="noindex, nofollow">
 @endpush
 
@@ -12,18 +12,13 @@
 .wishlist-title { font-family:'Cinzel',serif; font-size:1.6rem; font-weight:700; color:#00285a; letter-spacing:2px; margin-bottom:28px; }
 .wishlist-grid  { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
 .wish-card      { background:white; border-radius:18px; border:1px solid #eef2f6; overflow:hidden; position:relative; transition:all .25s; }
-.wish-card:hover { transform:translateY(-5px); box-shadow:0 16px 32px rgba(0,40,90,.1); }
 .wish-card-img  { height:280px; overflow:hidden; position:relative; }
 .wish-card-img img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
-.wish-card:hover .wish-card-img img { transform:scale(1.06); }
 .wish-remove    { position:absolute; top:10px; right:10px; width:32px; height:32px; background:white; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.1); font-size:16px; color:#aaa; transition:.2s; z-index:2; }
-.wish-remove:hover { color:#ff3f6c; transform:scale(1.1); }
 .wish-card-info { padding:12px 14px 16px; }
 .wish-card-name { font-size:13px; font-weight:700; color:#00285a; margin-bottom:6px; text-decoration:none; display:block; }
-.wish-card-name:hover { color:#ff3f6c; }
 .wish-card-price { font-size:15px; font-weight:800; color:#c44536; margin-bottom:10px; }
 .wish-add-btn   { width:100%; padding:9px; background:#00285a; color:white; border:none; border-radius:30px; font-size:12px; font-weight:700; letter-spacing:.5px; cursor:pointer; transition:.2s; }
-.wish-add-btn:hover { background:#ff3f6c; }
 
 /* Empty */
 .wishlist-empty { text-align:center; padding:60px 20px; background:white; border-radius:16px; border:1px solid #eef2f6; }

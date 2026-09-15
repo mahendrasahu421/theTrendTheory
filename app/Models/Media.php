@@ -39,7 +39,7 @@ class Media extends Model
     // Get file type (image/video) from mime_type
     public function getFileTypeAttribute()
     {
-        if (str_starts_with($this->mime_type, 'video/')) {
+        if (str_starts_with($this->mime_type ?? '', 'video/')) {
             return 'video';
         }
         return 'image';
@@ -51,7 +51,7 @@ class Media extends Model
         return $this->alt_text ?? 'Untitled';
     }
 
-    // FIX: Add getImageUrl method with optional dimensions
+    // Direct getImageUrl method with optional dimensions
     public function getImageUrl($width = null, $height = null)
     {
         if (!$this->url) return null;
@@ -61,6 +61,12 @@ class Media extends Model
         }
         
         return $this->url;
+    }
+
+    // Direct getUrl helper for universal compatibility
+    public function getUrl($width = null, $height = null)
+    {
+        return $this->getImageUrl($width, $height) ?: $this->url;
     }
 
     // Get thumbnail URL

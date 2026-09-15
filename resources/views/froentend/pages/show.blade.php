@@ -1,6 +1,6 @@
 @extends('froentend.layouts.app')
 
-@section('title', $meta_title ?? $page->title . ' | The Trend Theory')
+@section('title', $meta_title ?? $page->title . ' | Vayu')
 
 @push('seo')
     <meta name="description" content="{{ $meta_description ?? '' }}">

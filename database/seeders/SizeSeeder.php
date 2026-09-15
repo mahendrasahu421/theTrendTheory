@@ -9,20 +9,11 @@ class SizeSeeder extends Seeder
 {
     public function run(): void
     {
-        // Minimal default seed values for admin forms.
-        // Adjust list as per your business needs.
         $sizes = [
-            ['name' => 'XS', 'label' => 'XS', 'value' => 'XS', 'type' => 'clothing', 'is_active' => 1, 'sort_order' => 10],
-            ['name' => 'S',  'label' => 'S',  'value' => 'S',  'type' => 'clothing', 'is_active' => 1, 'sort_order' => 20],
-            ['name' => 'M',  'label' => 'M',  'value' => 'M',  'type' => 'clothing', 'is_active' => 1, 'sort_order' => 30],
-            ['name' => 'L',  'label' => 'L',  'value' => 'L',  'type' => 'clothing', 'is_active' => 1, 'sort_order' => 40],
-            ['name' => 'XL', 'label' => 'XL', 'value' => 'XL', 'type' => 'clothing', 'is_active' => 1, 'sort_order' => 50],
-            ['name' => 'XXL', 'label' => 'XXL', 'value' => 'XXL', 'type' => 'clothing', 'is_active' => 1, 'sort_order' => 60],
-            ['name' => '28', 'label' => 'Waist 28', 'value' => '28', 'type' => 'bottomwear', 'is_active' => 1, 'sort_order' => 110],
-            ['name' => '30', 'label' => 'Waist 30', 'value' => '30', 'type' => 'bottomwear', 'is_active' => 1, 'sort_order' => 120],
-            ['name' => '32', 'label' => 'Waist 32', 'value' => '32', 'type' => 'bottomwear', 'is_active' => 1, 'sort_order' => 130],
-            ['name' => '34', 'label' => 'Waist 34', 'value' => '34', 'type' => 'bottomwear', 'is_active' => 1, 'sort_order' => 140],
-            ['name' => '36', 'label' => 'Waist 36', 'value' => '36', 'type' => 'bottomwear', 'is_active' => 1, 'sort_order' => 150],
+            ['name' => 'M', 'label' => 'M', 'value' => 'M', 'type' => 'clothing', 'chest' => '42 inches', 'waist' => '40 inches', 'length' => '28 inches', 'is_active' => 1, 'sort_order' => 20],
+            ['name' => 'L', 'label' => 'L', 'value' => 'L', 'type' => 'clothing', 'chest' => '44 inches', 'waist' => '42 inches', 'length' => '29 inches', 'is_active' => 1, 'sort_order' => 30],
+            ['name' => 'XL', 'label' => 'XL', 'value' => 'XL', 'type' => 'clothing', 'chest' => '46 inches', 'waist' => '44 inches', 'length' => '30 inches', 'is_active' => 1, 'sort_order' => 40],
+            ['name' => 'Oversized Tshirt', 'label' => 'Oversized Tshirt', 'value' => 'Oversized Tshirt', 'type' => 'clothing', 'chest' => '38 inches', 'waist' => '32 inches', 'length' => null, 'is_active' => 1, 'sort_order' => 10],
         ];
 
         foreach ($sizes as $row) {
@@ -32,6 +23,9 @@ class SizeSeeder extends Seeder
                     'label' => $row['label'],
                     'value' => $row['value'],
                     'type' => $row['type'],
+                    'chest' => $row['chest'],
+                    'waist' => $row['waist'],
+                    'length' => $row['length'],
                     'is_active' => $row['is_active'],
                     'sort_order' => $row['sort_order'],
                     'updated_at' => now(),

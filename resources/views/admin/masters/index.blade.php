@@ -465,6 +465,7 @@
                             <th>Name</th>
                             @if ($cfg['has_hex'])
                                 <th>Color</th>
+                                <th>T-Shirt</th>
                             @endif
                             @if ($cfg['has_type'])
                                 <th>Type</th>
@@ -515,6 +516,28 @@
                             oninput="document.getElementById('fHex').value=this.value">
                         <input type="text" id="fHex" placeholder="#000000"
                             oninput="if(this.value.length>=4){document.getElementById('fHexPicker').value=this.value}">
+                    </div>
+                </div>
+            @endif
+
+            @if ($type === 'colors')
+                <div class="fgrp">
+                    <label>T-Shirt Mockup / Photo <span style="font-weight:400;color:#7a8fa6">(Optional)</span></label>
+                    <div style="display:flex;gap:12px;align-items:center">
+                        <div id="fImgPreviewBox" style="width:52px;height:52px;border-radius:8px;border:1.5px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;background:#f8fafc;overflow:hidden;flex-shrink:0">
+                            <img id="fImgPreview" src="" alt="Preview" style="display:none;width:100%;height:100%;object-fit:cover">
+                            <i id="fImgPlaceholder" class="bi bi-image" style="font-size:20px;color:#94a3b8"></i>
+                        </div>
+                        <div style="flex:1">
+                            <input type="file" id="fImage" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewMasterImage(this)">
+                            <button type="button" class="btn-cancel-sm" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('fImage').click()">
+                                <i class="bi bi-upload"></i> Choose Photo
+                            </button>
+                            <button type="button" id="fImgRemoveBtn" class="btn-cancel-sm" style="padding:6px 12px;font-size:12px;color:#c62828;border-color:#fecaca;margin-left:6px;display:none" onclick="removeMasterImage()">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                            <div style="font-size:11px;color:#94a3b8;margin-top:4px">Upload a mockup or sample photo for this t-shirt color (Max 5MB).</div>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -590,6 +613,35 @@
             };
             var timer;
             var editId = null;
+            var removeImage = false;
+
+            function previewMasterImage(input) {
+                if (input.files && input.files[0]) {
+                    removeImage = false;
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var p = document.getElementById('fImgPreview');
+                        var ph = document.getElementById('fImgPlaceholder');
+                        var rb = document.getElementById('fImgRemoveBtn');
+                        if (p) { p.src = e.target.result; p.style.display = 'block'; }
+                        if (ph) ph.style.display = 'none';
+                        if (rb) rb.style.display = 'inline-block';
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            function removeMasterImage() {
+                removeImage = true;
+                var fImg = document.getElementById('fImage');
+                if (fImg) fImg.value = '';
+                var p = document.getElementById('fImgPreview');
+                var ph = document.getElementById('fImgPlaceholder');
+                var rb = document.getElementById('fImgRemoveBtn');
+                if (p) { p.src = ''; p.style.display = 'none'; }
+                if (ph) ph.style.display = 'block';
+                if (rb) rb.style.display = 'none';
+            }
 
             // ── DATATABLE ──────────────────────────────────────
             function load() {
@@ -620,7 +672,7 @@
 
             function renderRows(rows) {
                 var tb = document.getElementById('tBody');
-                var cols = 4 + (HAS_HEX ? 1 : 0) + (HAS_TYPE ? 1 : 0) + (HAS_MEASUREMENTS ? 3 : 0);
+                var cols = 4 + (HAS_HEX ? 2 : 0) + (HAS_TYPE ? 1 : 0) + (HAS_MEASUREMENTS ? 3 : 0);
                 if (!rows.length) {
                     tb.innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:50px;color:#7a8fa6">
             <i class="bi bi-inbox" style="font-size:32px;display:block;margin-bottom:10px"></i>
@@ -639,12 +691,17 @@
 
                     var extraCols = '';
                     if (HAS_HEX) {
+                        var hexVal = esc(item.hex || item.hex_code || '#cccccc');
+                        var imgHtml = item.image
+                            ? `<a href="${esc(item.image)}" target="_blank" title="View Mockup"><img src="${esc(item.image)}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0" alt="T-Shirt"></a>`
+                            : `<span style="font-size:11px;color:#94a3b8;font-style:italic">No Mockup</span>`;
                         extraCols += `<td>
                 <div style="display:flex;align-items:center;gap:8px">
-                    <span class="color-dot" style="background:${esc(item.hex)}"></span>
-                    <span style="font-size:12px;color:#7a8fa6;font-family:monospace">${esc(item.hex)}</span>
+                    <span class="color-dot" style="background:${hexVal}"></span>
+                    <span style="font-size:12px;color:#7a8fa6;font-family:monospace">${hexVal}</span>
                 </div>
-            </td>`;
+            </td>
+            <td>${imgHtml}</td>`;
                     }
                     if (HAS_TYPE) {
                         extraCols += `<td><span class="bdg bdg-b">${esc(item.type||'—')}</span></td>`;
@@ -774,6 +831,23 @@
                     document.getElementById('fChest').value = item.chest || '';
                     document.getElementById('fLength').value = item.length || '';
                 }
+                removeImage = false;
+                if (TYPE === 'colors') {
+                    var fImg = document.getElementById('fImage');
+                    if (fImg) fImg.value = '';
+                    var p = document.getElementById('fImgPreview');
+                    var ph = document.getElementById('fImgPlaceholder');
+                    var rb = document.getElementById('fImgRemoveBtn');
+                    if (item.image) {
+                        if (p) { p.src = item.image; p.style.display = 'block'; }
+                        if (ph) ph.style.display = 'none';
+                        if (rb) rb.style.display = 'inline-block';
+                    } else {
+                        if (p) { p.src = ''; p.style.display = 'none'; }
+                        if (ph) ph.style.display = 'block';
+                        if (rb) rb.style.display = 'none';
+                    }
+                }
                 hideErr();
                 document.getElementById('modalBg').classList.add('open');
                 setTimeout(() => document.getElementById('fName').focus(), 100);
@@ -785,6 +859,8 @@
             }
 
             function clearForm() {
+                removeMasterImage();
+                removeImage = false;
                 document.getElementById('fName').value = '';
                 document.getElementById('fSort').value = '0';
                 document.getElementById('fActive').checked = true;
@@ -811,34 +887,45 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
 
-                var body = {
-                    name: name,
-                    sort_order: parseInt(document.getElementById('fSort').value) || 0,
-                    is_active: document.getElementById('fActive').checked ? 1 : 0,
-                };
+                var fd = new FormData();
+                fd.append('name', name);
+                fd.append('sort_order', parseInt(document.getElementById('fSort').value) || 0);
+                fd.append('is_active', document.getElementById('fActive').checked ? '1' : '0');
 
-                if (HAS_HEX) body.hex = document.getElementById('fHex').value || '#000000';
+                if (HAS_HEX) {
+                    fd.append('hex', document.getElementById('fHex').value || '#000000');
+                }
                 if (HAS_MEASUREMENTS) {
-                    body.label = document.getElementById('fLabel').value;
-                    body.chest = document.getElementById('fChest').value;
-                    body.length = document.getElementById('fLength').value;
+                    fd.append('label', document.getElementById('fLabel').value || '');
+                    fd.append('chest', document.getElementById('fChest').value || '');
+                    fd.append('length', document.getElementById('fLength').value || '');
                 }
                 if (HAS_TYPE && document.getElementById('fType')) {
-                    body.type = document.getElementById('fType').value;
+                    fd.append('type', document.getElementById('fType').value);
+                }
+                if (TYPE === 'colors') {
+                    var fImg = document.getElementById('fImage');
+                    if (fImg && fImg.files && fImg.files[0]) {
+                        fd.append('image', fImg.files[0]);
+                    }
+                    if (removeImage) {
+                        fd.append('remove_image', '1');
+                    }
                 }
 
                 var url = editId ? `${BASE}/${TYPE}/${editId}` : `${BASE}/${TYPE}`;
-                var method = editId ? 'PUT' : 'POST';
+                if (editId) {
+                    fd.append('_method', 'PUT');
+                }
 
                 try {
                     var res = await fetch(url, {
-                        method: method,
+                        method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': CSRF,
                             'Accept': 'application/json'
                         },
-                        body: JSON.stringify(body),
+                        body: fd,
                     });
                     var data = await res.json();
                     if (data.success) {
@@ -867,7 +954,7 @@
             }
 
             async function deleteItem(id, name) {
-                if (!confirm(`Delete "${name}"?\nYeh action undo nahi ho sakta.`)) return;
+                if (!confirm(`Delete "${name}"?\nThis action cannot be undone.`)) return;
                 var res = await fetch(`${BASE}/${TYPE}/${id}`, {
                     method: 'DELETE',
                     headers: {

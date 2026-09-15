@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
 
     <!-- Primary Meta Tags - SEO ke liye sabse important -->
-    <title>The Trend Theory: Men's & Women's Streetwear | India's Fashion Brand</title>
+    <title>Vayu: Men's & Women's Streetwear | India's Fashion Brand</title>
     <meta name="description"
-        content="THE TREND THEORY - India's premium streetwear brand for men and women. Shop oversized t-shirts, cargo pants, printed boxers, co-ords, and more. ✓COD ✓Free Shipping ✓Easy Returns" />
+        content="Vayu - India's premium streetwear brand for men and women. Shop oversized t-shirts, cargo pants, printed boxers, co-ords, and more. ✓COD ✓Free Shipping ✓Easy Returns" />
     <meta name="keywords"
         content="streetwear india, oversized t-shirts, cargo pants, printed t-shirts, men's fashion, women's fashion, indian streetwear brand, printed boxers, co-ords set, hoodies india" />
-    <meta name="author" content="THE TREND THEORY" />
+    <meta name="author" content="Vayu" />
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
     <meta name="language" content="English" />
@@ -27,7 +27,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Open Graph Tags - Facebook, LinkedIn, WhatsApp ke liye -->
-    <meta property="og:title" content="THE TREND THEORY - Premium Streetwear for Men & Women" />
+    <meta property="og:title" content="Vayu - Premium Streetwear for Men & Women" />
     <meta property="og:description"
         content="India's fastest growing streetwear brand. Shop oversized t-shirts, cargo pants, co-ords & more. ✓COD ✓Free Shipping" />
     <meta property="og:image" content="https://www.thetrendtheory.com/og-image.jpg" />
@@ -35,12 +35,12 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="https://www.thetrendtheory.com" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="THE TREND THEORY" />
+    <meta property="og:site_name" content="Vayu" />
     <meta property="og:locale" content="en_IN" />
 
     <!-- Twitter Cards - Twitter pe share karne ke liye -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="THE TREND THEORY - Streetwear Brand India" />
+    <meta name="twitter:title" content="Vayu - Streetwear Brand India" />
     <meta name="twitter:description"
         content="Shop the latest streetwear collection for men & women. Oversized tees, cargos & more." />
     <meta name="twitter:image" content="https://www.thetrendtheory.com/twitter-image.jpg" />
@@ -62,7 +62,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="preconnect" href="https://images.unsplash.com" />
 
-    <!-- Preload Critical Resources - Important files pehle load karo -->
+    <!-- Preload Critical Resources - Load critical files first -->
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link rel="preload" as="style"
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" />
@@ -90,7 +90,7 @@
     {
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "THE TREND THEORY",
+        "name": "Vayu",
         "url": "https://www.thetrendtheory.com",
         "logo": "https://www.thetrendtheory.com/logo.png",
         "sameAs": [
@@ -114,7 +114,7 @@
     <link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.thetrendtheory.com" />
 
     <!-- RSS Feed (if you have blog) -->
-    <link rel="alternate" type="application/rss+xml" title="THE TREND THEORY Blog" href="/blog/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Vayu Blog" href="/blog/feed.xml" />
 </head>
 
 <body>

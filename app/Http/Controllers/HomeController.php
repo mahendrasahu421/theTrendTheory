@@ -47,6 +47,7 @@ class HomeController extends Controller
             // 1. FETCH MOST PURCHASED (BEST SELLERS)
             // ─────────────────────────────────────────────────────────
             $mostPurchasedRaw = Product::active()
+                ->with(['productImages', 'media'])
                 ->where('total_sold', '>', 0)
                 ->orderByDesc('total_sold')
                 ->limit(10)
@@ -54,6 +55,7 @@ class HomeController extends Controller
 
             if ($mostPurchasedRaw->isEmpty()) {
                 $mostPurchasedRaw = Product::active()
+                    ->with(['productImages', 'media'])
                     ->where('is_featured', true)
                     ->orderByDesc('created_at')
                     ->limit(10)
@@ -82,7 +84,7 @@ class HomeController extends Controller
 
             $mensProductsRaw = Product::whereIn('category_id', $menCategoryIds)
                 ->active()
-                ->with('category')
+                ->with(['category', 'productImages', 'media'])
                 ->orderByDesc('created_at')
                 ->limit(8)
                 ->get();
@@ -109,7 +111,7 @@ class HomeController extends Controller
 
             $womensProductsRaw = Product::whereIn('category_id', $womenCategoryIds)
                 ->active()
-                ->with('category')
+                ->with(['category', 'productImages', 'media'])
                 ->orderByDesc('created_at')
                 ->limit(8)
                 ->get();
@@ -118,6 +120,7 @@ class HomeController extends Controller
             // 4. FETCH NEW ARRIVALS
             // ─────────────────────────────────────────────────────────
             $newArrivalsRaw = Product::active()
+                ->with(['productImages', 'media'])
                 ->where('is_new', true)
                 ->orderByDesc('created_at')
                 ->limit(8)
@@ -154,37 +157,22 @@ class HomeController extends Controller
                 ->values()
                 ->map(function ($media) {
                     return [
-                        'id' => $media['id'] ?? null,
-                        'title' => $media['title'] ?? 'NEW FASHION COLLECTION',
-                        'subtitle' => $media['subtitle'] ?: SiteSetting::get('site_tagline', 'Unleash Your Inner Style'),
+                        'id'         => $media['id'] ?? null,
+                        'title'      => $media['title'] ?? 'NEW FASHION COLLECTION',
+                        'subtitle'   => $media['subtitle'] ?: SiteSetting::get('site_tagline', 'Unleash Your Inner Style'),
                         'media_type' => $media['type'] ?? 'image',
-                        'image' => $media['url'],
+                        'image'      => $media['url'],
                         'mobile_image' => $media['url'],
-                        'alt_text' => $media['title'] ?? 'Hero media',
-                        'button_text' => 'SHOP NOW',
-                        'button_link' => $media['button_link'] ?: route('shop.index'),
+                        'alt_text'   => $media['title'] ?? 'Hero media',
+                        'button_text'=> 'SHOP NOW',
+                        'button_link'=> $media['button_link'] ?: route('shop.index'),
                         'sort_order' => $media['sort_order'] ?? 0,
                     ];
                 });
 
-            if ($heroMediaSlides->isEmpty() && $heroSlides->isNotEmpty()) {
-                $heroMediaSlides = $heroSlides->values();
-            }
-
-            if ($heroMediaSlides->isEmpty()) {
-                $heroMediaSlides = collect([[
-                    'id' => null,
-                    'title' => 'NEW FASHION COLLECTION',
-                    'subtitle' => SiteSetting::get('site_tagline', 'Unleash Your Inner Style'),
-                    'media_type' => 'image',
-                    'image' => asset('images/placeholder-slide.jpg'),
-                    'mobile_image' => asset('images/placeholder-slide.jpg'),
-                    'alt_text' => 'Hero media',
-                    'button_text' => 'SHOP NOW',
-                    'button_link' => route('shop.index'),
-                    'sort_order' => 0,
-                ]]);
-            }
+            // NOTE: Section 1 (full-screen gallery hero) = Gallery Media only.
+            //       Section 2 (card slider)              = Hero Slides only.
+            // These two are intentionally kept separate — no fallback between them.
 
             $heroPrimary = $heroMediaSlides->first();
 
@@ -198,7 +186,7 @@ class HomeController extends Controller
                 'heroPrimary' => $heroPrimary,
                 'heroMediaSlides' => $heroMediaSlides->toArray(),
                 'heroSlides' => $heroSlides->toArray(),
-                'title' => SiteSetting::get('site_name', 'The Trend Theory'),
+                'title' => SiteSetting::get('site_name', 'Vayu'),
                 'titleContent' => SiteSetting::get('site_tagline', 'Fashion That Speaks Without Saying a Word'),
                 'categories' => Category::homeCategories()->map(function ($category) {
                     return [
@@ -232,6 +220,7 @@ class HomeController extends Controller
                         'image' => $product->image,
                         'image_url' => $product->card_image,
                         'card_image_url' => $product->card_image,
+                        'all_images_list' => $product->all_images_list,
                         'is_new' => $product->is_new,
                         'is_featured' => $product->is_featured,
                         'is_trending' => $product->is_trending,
@@ -253,6 +242,7 @@ class HomeController extends Controller
                         'image' => $product->image,
                         'image_url' => $product->card_image,
                         'card_image_url' => $product->card_image,
+                        'all_images_list' => $product->all_images_list,
                         'is_new' => $product->is_new,
                         'is_featured' => $product->is_featured,
                         'is_trending' => $product->is_trending,
@@ -278,6 +268,7 @@ class HomeController extends Controller
                         'image' => $product->image,
                         'image_url' => $product->card_image,
                         'card_image_url' => $product->card_image,
+                        'all_images_list' => $product->all_images_list,
                         'is_new' => $product->is_new,
                         'is_featured' => $product->is_featured,
                         'is_trending' => $product->is_trending,
@@ -303,6 +294,7 @@ class HomeController extends Controller
                         'image' => $product->image,
                         'image_url' => $product->card_image,
                         'card_image_url' => $product->card_image,
+                        'all_images_list' => $product->all_images_list,
                         'is_new' => $product->is_new,
                         'is_featured' => $product->is_featured,
                         'is_trending' => $product->is_trending,
@@ -383,13 +375,13 @@ class HomeController extends Controller
             $reviewSchema = json_encode([
                 '@context' => 'https://schema.org',
                 '@type' => 'ItemList',
-                'name' => 'Customer Reviews — The Trend Theory',
+                'name' => 'Customer Reviews — Vayu',
                 'itemListElement' => $schemaItems,
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
 
         $seoData = [
-            'meta_title' => SiteSetting::get('meta_title', 'The Trend Theory | Premium Fashion Store India'),
+            'meta_title' => SiteSetting::get('meta_title', 'Vayu | Premium Fashion Store India'),
             'meta_description' => SiteSetting::get('meta_description', 'Shop latest men & women fashion.'),
             'og_image' => SiteSetting::get('og_image', asset('images/og-default.jpg')),
             'canonical' => url('/'),
@@ -399,7 +391,7 @@ class HomeController extends Controller
                 '@graph' => [
                     [
                         '@type' => 'WebSite',
-                        'name' => SiteSetting::get('site_name', 'The Trend Theory'),
+                        'name' => SiteSetting::get('site_name', 'Vayu'),
                         'url' => url('/'),
                         'potentialAction' => [
                             '@type' => 'SearchAction',
@@ -409,7 +401,7 @@ class HomeController extends Controller
                     ],
                     [
                         '@type' => 'ClothingStore',
-                        'name' => SiteSetting::get('site_name', 'The Trend Theory'),
+                        'name' => SiteSetting::get('site_name', 'Vayu'),
                         'url' => url('/'),
                         'logo' => asset('images/logo.png'),
                         'sameAs' => [

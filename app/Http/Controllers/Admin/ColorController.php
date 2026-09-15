@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Color;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 
 class ColorController extends Controller
 {
+    public function __construct(
+        protected CloudinaryService $cloudinary
+    ) {}
+
     public function index() { return view('admin.variants.colors'); }
 
     public function ajax(Request $request)
@@ -31,6 +36,7 @@ class ColorController extends Controller
                     'id'            => $c->id,
                     'name'          => $c->name,
                     'hex_code'      => $c->hex_code,
+                    'image'         => $c->image,
                     'sort_order'    => $c->sort_order,
                     'is_active'     => (bool) $c->is_active,
                     'variants_count'=> $c->variants_count,
@@ -54,7 +60,14 @@ class ColorController extends Controller
             'hex_code'   => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
             'sort_order' => 'nullable|integer|min:0',
             'is_active'  => 'boolean',
+            'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
+
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $upload = $this->cloudinary->upload($request->file('image'), 'colors');
+            $validated['image'] = $upload['url'] ?? null;
+        }
+
         $color = Color::create($validated);
         return response()->json(['success' => true, 'color' => $color]);
     }
@@ -66,7 +79,16 @@ class ColorController extends Controller
             'hex_code'   => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
             'sort_order' => 'nullable|integer|min:0',
             'is_active'  => 'boolean',
+            'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
+
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $upload = $this->cloudinary->upload($request->file('image'), 'colors');
+            $validated['image'] = $upload['url'] ?? null;
+        } elseif ($request->boolean('remove_image')) {
+            $validated['image'] = null;
+        }
+
         $color->update($validated);
         return response()->json(['success' => true, 'color' => $color]);
     }

@@ -59,7 +59,7 @@ class ProductVariant extends Model
             if (filter_var($this->image, FILTER_VALIDATE_URL)) {
                 return $this->image;
             }
-            return "https://ik.imagekit.io/zjhpv2mbz/" . $this->image;
+            return url('/storage/' . ltrim($this->image, '/'));
         }
         return $this->product->main_image;
     }

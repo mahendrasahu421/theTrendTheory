@@ -133,7 +133,8 @@ class CouponService
 
         $discount = 0;
 
-        if ($coupon->type === 'percent') {
+        $type = strtolower((string) $coupon->type);
+        if (in_array($type, ['percent', 'percentage'], true)) {
             $discount = ($coupon->value / 100) * $discountBase;
 
             // Apply max discount cap if exists

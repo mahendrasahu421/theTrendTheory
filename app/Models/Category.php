@@ -101,24 +101,28 @@ class Category extends Model
 
     private function resolveImageUrl(string $path): string
     {
+        // Already a full URL (Cloudinary https://res.cloudinary.com/..., or /storage/...)
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
         }
 
-        if (str_starts_with($path, '/')) {
-            return asset(ltrim($path, '/'));
+        // Absolute path starting with /storage/ or / — prefix with app URL
+        if (str_starts_with($path, '/storage/') || str_starts_with($path, '/')) {
+            return url($path);
         }
 
+        // Relative storage path: 'categories/file.jpg' → /storage/categories/file.jpg
         if (str_starts_with($path, 'categories/') || str_starts_with($path, 'storage/')) {
-            return asset($path);
+            return url('/storage/' . ltrim($path, '/'));
         }
 
-        return "https://ik.imagekit.io/zjhpv2mbz/" . $path;
+        // Legacy path — serve from local storage
+        return url('/storage/' . $path);
     }
 
     public function getSeoTitleAttribute(): string
     {
-        return $this->meta_title ?? $this->name . ' Online India | The Trend Theory';
+        return $this->meta_title ?? $this->name . ' Online India | Vayu';
     }
 
     public function getSeoDescriptionAttribute(): string

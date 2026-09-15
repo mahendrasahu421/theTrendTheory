@@ -40,21 +40,85 @@ class ProductImageController extends Controller
         return response()->json(['success' => true, 'image' => $productImage]);
     }
 
-    public function setPrimary(ProductImage $productImage)
+    public function setPrimary(ProductImage $image)
     {
-        // Remove primary from other images of same product and color
-        ProductImage::where('product_id', $productImage->product_id)
-            ->where('color_id', $productImage->color_id)
+        ProductImage::where('product_id', $image->product_id)
             ->update(['is_primary' => false]);
         
-        $productImage->update(['is_primary' => true]);
+        $image->update(['is_primary' => true]);
+
+        $image->product?->updateQuietly(['image' => $image->url]);
+
+        if ($image->file_id || $image->url) {
+            Media::where('model_type', \App\Models\Product::class)
+                ->where('model_id', $image->product_id)
+                ->update(['is_primary' => false]);
+
+            Media::where('model_type', \App\Models\Product::class)
+                ->where('model_id', $image->product_id)
+                ->where(function ($query) use ($image) {
+                    if ($image->file_id) {
+                        $query->where('file_id', $image->file_id);
+                    }
+                    if ($image->url) {
+                        $image->file_id
+                            ? $query->orWhere('url', $image->url)
+                            : $query->where('url', $image->url);
+                    }
+                })
+                ->update(['is_primary' => true]);
+        }
         
         return response()->json(['success' => true]);
     }
 
-    public function destroy(ProductImage $productImage)
+    public function destroy(ProductImage $image)
     {
-        $productImage->delete();
+        $product = $image->product;
+        $wasMainImage = $product && $product->image === $image->url;
+
+        if ($product && ($image->file_id || $image->url)) {
+            Media::where('model_type', \App\Models\Product::class)
+                ->where('model_id', $product->id)
+                ->where(function ($query) use ($image) {
+                    if ($image->file_id) {
+                        $query->where('file_id', $image->file_id);
+                    }
+                    if ($image->url) {
+                        $image->file_id
+                            ? $query->orWhere('url', $image->url)
+                            : $query->where('url', $image->url);
+                    }
+                })
+                ->delete();
+        }
+
+        $image->delete();
+
+        if ($wasMainImage && $product) {
+            $next = ProductImage::where('product_id', $product->id)
+                ->orderByDesc('is_primary')
+                ->orderBy('sort_order')
+                ->first();
+
+            if ($next) {
+                $next->update(['is_primary' => true]);
+                $product->updateQuietly(['image' => $next->url]);
+            } else {
+                $nextMedia = Media::where('model_type', \App\Models\Product::class)
+                    ->where('model_id', $product->id)
+                    ->orderByDesc('is_primary')
+                    ->orderBy('sort_order')
+                    ->first();
+
+                if ($nextMedia) {
+                    $nextMedia->update(['is_primary' => true]);
+                }
+
+                $product->updateQuietly(['image' => $nextMedia?->url]);
+            }
+        }
+
         return response()->json(['success' => true]);
     }
 }

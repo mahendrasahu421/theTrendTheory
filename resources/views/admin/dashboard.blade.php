@@ -99,7 +99,7 @@
 {{-- BRAND BANNER --}}
 <div class="inv-banner">
     <div>
-        <div class="inv-brand">THE TREND THEORY</div>
+        <div class="inv-brand">VAYU</div>
         <div class="inv-sub">D2C Fashion India · Admin + Investor Dashboard · Live Data</div>
     </div>
     <div style="text-align:right">
@@ -552,7 +552,7 @@
 
 {{-- FOOTER --}}
 <div style="margin-top:20px;padding:14px 18px;background:#f8fafc;border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8fa6">
-    <span>The Trend Theory · {{ now()->format('d M Y') }} · All numbers pulled live from database</span>
+    <span>VAYU · {{ now()->format('d M Y') }} · All numbers pulled live from database</span>
     <a href="#" onclick="window.print();return false" style="color:#00285a;text-decoration:none;font-weight:600;font-size:11px">
         <i class="bi bi-printer"></i> Print / Save as PDF
     </a>

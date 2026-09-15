@@ -445,7 +445,7 @@
                         <input class="fc" type="number" name="min_order_amount"
                             value="{{ old('min_order_amount', $r ? $r->min_order_amount : '') }}" min="0"
                             step="0.01" placeholder="999"
-                            oninput="document.getElementById('previewMin').textContent=this.value?'Min order ₹'+Number(this.value).toLocaleString('en-IN'):''">
+                            oninput="document.getElementById('previewMin').textContent=this.value?'Min order ₹'+Math.round(Number(this.value || 0)).toLocaleString('en-IN'):''">
                         <div class="hint">Is amount se kam pe coupon nahi lagega. 0 = no minimum</div>
                     </div>
                     <div class="fgrp">
@@ -646,7 +646,7 @@
                                     <div class="multi-select-option ${this.selectedItems.has(item.id) ? 'selected' : ''}" 
                                          data-id="${item.id}" data-name="${item.name}">
                                         <span class="option-check">${this.selectedItems.has(item.id) ? '✓' : '◻'}</span>
-                                        <span class="option-text">${this.escapeHtml(item.name)} ${item.price ? '(₹' + item.price.toLocaleString('en-IN') + ')' : ''}</span>
+                                        <span class="option-text">${this.escapeHtml(item.name)} ${item.price ? '(₹' + Math.round(Number(item.price || 0)).toLocaleString('en-IN') + ')' : ''}</span>
                                     </div>
                                 `).join('')}
                                 ${filteredItems.length === 0 ? '<div style="padding: 20px; text-align: center; color: #999;">No items found</div>' : ''}
@@ -828,7 +828,7 @@ function updateSelectedCategoriesDisplay() {
 
                 document.getElementById('previewCode').textContent = code.toUpperCase();
                 document.getElementById('previewVal').textContent = val ?
-                    (type === 'percent' ? val + '% Off' : '₹' + Number(val).toLocaleString('en-IN') + ' Off') :
+                    (type === 'percent' ? val + '% Off' : '₹' + Math.round(Number(val || 0)).toLocaleString('en-IN') + ' Off') :
                     '— Off';
 
                 hint.textContent = type === 'percent' ?

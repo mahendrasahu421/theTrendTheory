@@ -404,11 +404,11 @@
                 tb.innerHTML = rows.map(c => {
                     var typeBadge = c.type === 'percent' ?
                         '<span class="bdg bdg-b">' + c.value + '% Off</span>' :
-                        '<span class="bdg bdg-p">Flat ₹' + Number(c.value).toLocaleString('en-IN') + '</span>';
+                        '<span class="bdg bdg-p">Flat ₹' + Math.round(Number(c.value || 0)).toLocaleString('en-IN') + '</span>';
 
-                    var minOrder = c.min_order ? '₹' + Number(c.min_order).toLocaleString('en-IN') :
+                    var minOrder = c.min_order ? '₹' + Math.round(Number(c.min_order || 0)).toLocaleString('en-IN') :
                         '<span style="color:#cbd5e1">—</span>';
-                    var maxDisc = c.max_discount ? '₹' + Number(c.max_discount).toLocaleString('en-IN') :
+                    var maxDisc = c.max_discount ? '₹' + Math.round(Number(c.max_discount || 0)).toLocaleString('en-IN') :
                         '<span style="color:#cbd5e1">—</span>';
 
                     var usageBar = c.usage_limit ?
@@ -429,7 +429,7 @@
             <td><span class="code-pill">${esc(c.code)}</span></td>
             <td style="font-size:12px;color:#555;max-width:180px">${esc(c.description||'—')}</td>
             <td>${typeBadge}</td>
-            <td style="font-weight:700;color:#00285a">${c.type==='percent'?c.value+'%':'₹'+Number(c.value).toLocaleString('en-IN')}</td>
+            <td style="font-weight:700;color:#00285a">${c.type==='percent'?c.value+'%':'₹'+Math.round(Number(c.value || 0)).toLocaleString('en-IN')}</td>
             <td>${minOrder}</td>
             <td>${maxDisc}</td>
             <td>${usageBar}</td>

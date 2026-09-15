@@ -37,22 +37,25 @@ class HeroSlide extends Model
         return $value ?: 'image';
     }
 
-    // Get full image URL from ImageKit
+    // Get full image URL
     public function getImageUrl()
     {
         if (empty($this->image)) {
             return asset('images/placeholder-slide.jpg');
         }
 
+        // Already a full URL (Cloudinary, etc.)
         if (filter_var($this->image, FILTER_VALIDATE_URL)) {
             return $this->image;
         }
 
-        if (str_starts_with($this->image, '/storage/') || str_starts_with($this->image, 'storage/')) {
-            return asset(ltrim($this->image, '/'));
+        // Absolute /storage/ path
+        if (str_starts_with($this->image, '/storage/') || str_starts_with($this->image, '/')) {
+            return url($this->image);
         }
 
-        return "https://ik.imagekit.io/zjhpv2mbz/" . $this->image;
+        // Relative path like 'slides/file.jpg'
+        return url('/storage/' . ltrim($this->image, '/'));
     }
 
     // Get mobile image URL
@@ -62,15 +65,18 @@ class HeroSlide extends Model
             return $this->getImageUrl();
         }
 
+        // Already a full URL (Cloudinary, etc.)
         if (filter_var($this->mobile_image, FILTER_VALIDATE_URL)) {
             return $this->mobile_image;
         }
 
-        if (str_starts_with($this->mobile_image, '/storage/') || str_starts_with($this->mobile_image, 'storage/')) {
-            return asset(ltrim($this->mobile_image, '/'));
+        // Absolute /storage/ path
+        if (str_starts_with($this->mobile_image, '/storage/') || str_starts_with($this->mobile_image, '/')) {
+            return url($this->mobile_image);
         }
 
-        return "https://ik.imagekit.io/zjhpv2mbz/" . $this->mobile_image;
+        // Relative path like 'slides/mobile_file.jpg'
+        return url('/storage/' . ltrim($this->mobile_image, '/'));
     }
 
     // Accessors

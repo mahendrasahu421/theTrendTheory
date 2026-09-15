@@ -23,18 +23,31 @@ class ProductController extends Controller
     // ── Index ────────────────────────────────────────
     public function index()
     {
-        return view('admin.products.index');
+        $categories = Category::where('is_active', true)->orderBy('name')->get();
+        $totalProducts = Product::count();
+        $activeProducts = Product::where('is_active', true)->count();
+        $draftProducts = Product::where('is_active', false)->count();
+        $lowStockProducts = Product::where('stock', '<=', 10)->count();
+
+        return view('admin.products.index', compact(
+            'categories',
+            'totalProducts',
+            'activeProducts',
+            'draftProducts',
+            'lowStockProducts'
+        ));
     }
 
     // ── AJAX DataTable ───────────────────────────────
     public function ajax(Request $request)
     {
-        $perPageInput = $request->get('per_page', 'all');
+        $perPageInput = $request->get('per_page', 20);
         $perPage = $perPageInput === 'all' ? 5000 : max(1, min((int) $perPageInput, 5000));
         $page = (int) $request->get('page', 1);
         $search = trim($request->get('search', ''));
         $catId = $request->get('category', '');
         $status = $request->get('status', '');
+        $sort = $request->get('sort', 'latest');
 
         $q = Product::with(['category', 'media']);
 
@@ -42,18 +55,49 @@ class ProductController extends Controller
             $q->withCount('variants');
         }
 
-        if ($search)
-            $q->where(
-                fn($qq) =>
+        if ($search) {
+            $q->where(function ($qq) use ($search) {
                 $qq->where('name', 'like', '%' . $search . '%')
                     ->orWhere('sku', 'like', '%' . $search . '%')
-            );
-        if ($catId)
-            $q->where('category_id', $catId);
-        if ($status !== '')
-            $q->where('is_active', (bool) (int) $status);
+                    ->orWhere('color_name', 'like', '%' . $search . '%');
+            });
+        }
 
-        $result = $q->latest()->paginate($perPage, ['*'], 'page', $page);
+        if ($catId) {
+            $q->where('category_id', $catId);
+        }
+
+        if ($status === 'active' || $status === '1') {
+            $q->where('is_active', true);
+        } elseif ($status === 'inactive' || $status === '0') {
+            $q->where('is_active', false);
+        } elseif ($status === 'low_stock') {
+            $q->where('stock', '<=', 10);
+        } elseif ($status === 'featured') {
+            $q->where('is_featured', true);
+        }
+
+        // Sorting
+        switch ($sort) {
+            case 'price_asc':
+                $q->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $q->orderBy('price', 'desc');
+                break;
+            case 'stock_asc':
+                $q->orderBy('stock', 'asc');
+                break;
+            case 'sold_desc':
+                $q->orderBy('total_sold', 'desc');
+                break;
+            case 'latest':
+            default:
+                $q->latest();
+                break;
+        }
+
+        $result = $q->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
             'data' => $result->map(function ($p) {
@@ -117,7 +161,9 @@ class ProductController extends Controller
             ->orderBy('parent_id')->orderBy('sort_order')->orderBy('name')
             ->get();
         $tags = Tag::orderBy('name')->get();
-        return view('admin.products.form', compact('categories', 'sizes', 'colors', 'linkedProducts', 'tags'));
+        $frontPrintImages = collect();
+        $backPrintImages = collect();
+        return view('admin.products.form', compact('categories', 'sizes', 'colors', 'linkedProducts', 'tags', 'frontPrintImages', 'backPrintImages'));
     }
 
     // ── Store ────────────────────────────────────────
@@ -140,7 +186,10 @@ class ProductController extends Controller
             'tag_ids' => 'nullable|array',
             'tag_ids.*' => 'exists:tags,id',
             'tag_names' => 'nullable|string|max:500',
+            'front_image_files.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'back_image_files.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'color_images.*.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'available_print_sides' => 'nullable|string|in:both,front_only,back_only',
         ]);
 
         $slug = Str::slug($request->name);
@@ -150,13 +199,24 @@ class ProductController extends Controller
             $slug = $orig . '-' . $n++;
         }
 
+        $frontImage = null;
+        $backImage = null;
+
+        $availablePrintSides = in_array($request->available_print_sides, ['both', 'front_only', 'back_only'])
+            ? $request->available_print_sides
+            : 'both';
+
         DB::beginTransaction();
         try {
+            $sku = $request->filled('sku')
+                ? trim($request->sku)
+                : $this->calculateNextSku($request->category_id ? (int)$request->category_id : null, $request->name);
+
             $product = Product::create([
                 'name' => $request->name,
                 'slug' => $slug,
                 'category_id' => $request->category_id,
-                'sku' => $request->sku ?? null,
+                'sku' => $sku,
                 'parent_product_id' => $request->parent_product_id ?: null,
                 'product_type' => $request->parent_product_id ? 'color_variant' : ($request->filled('color_name') ? 'color_variant_parent' : null),
                 'color_name' => $request->color_name,
@@ -166,12 +226,16 @@ class ProductController extends Controller
                 'price' => !$hasVariants ? ($request->price ?? 0) : 0,
                 'original_price' => !$hasVariants ? ($request->original_price ?? null) : null,
                 'cost_price' => !$hasVariants ? ($request->cost_price ?? null) : null,
+                'image' => $frontImage ?? null,
+                'front_image' => $frontImage,
+                'back_image' => $backImage,
+                'available_print_sides' => $availablePrintSides,
                 'stock' => !$hasVariants ? ($request->stock ?? 0) : 0,
                 'has_variants' => $hasVariants,
                 'meta_title' => $request->meta_title,
                 'meta_description' => $request->meta_description,
                 'meta_keywords' => $request->meta_keywords,
-                'og_image' => $request->og_image ?? null,
+                'og_image' => $request->og_image ?? $frontImage,
                 'is_active' => $request->boolean('is_active', true),
                 'is_featured' => $request->boolean('is_featured'),
                 'is_new' => $request->boolean('is_new', true),
@@ -192,17 +256,56 @@ class ProductController extends Controller
                 }
             }
 
+            $this->storePrintSideImages($request, $product, 'front');
+            $this->storePrintSideImages($request, $product, 'back');
             $this->storeColorImages($request, $product);
             $this->syncTagsFromRequest($request, $product);
 
+            if ($request->filled('designated_main_image_name')) {
+                $targetMedia = Media::where('model_type', Product::class)
+                    ->where('model_id', $product->id)
+                    ->where('file_name', $request->designated_main_image_name)
+                    ->first();
+                if ($targetMedia) {
+                    $product->updateQuietly(['image' => $targetMedia->url]);
+                }
+            } elseif ($request->filled('designated_main_image')) {
+                $product->updateQuietly(['image' => $request->designated_main_image]);
+            }
+
+            if (empty($product->image)) {
+                $firstMedia = Media::where('model_type', Product::class)->where('model_id', $product->id)->first();
+                $firstProductImg = ProductImage::where('product_id', $product->id)->first();
+                $fallback = $product->front_image ?: ($firstMedia?->url ?: ($firstProductImg?->url ?: $product->back_image));
+                if ($fallback) {
+                    $product->updateQuietly(['image' => $fallback]);
+                }
+            }
+
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Product create failed: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Could not create product: ' . $e->getMessage());
+        }
+
+        try {
+            // Auto-notify registered users about new product drop
+            app(\App\Services\NotificationService::class)->notifyNewProduct($product);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('New product notification failed: ' . $e->getMessage(), [
+                'product_id' => $product->id,
+            ]);
         }
 
         return redirect()->route('admin.products.edit', $product)
-            ->with('success', '✓ Product saved! Now upload images.');
+            ->with('success', 'Product created successfully! You can now manage photos and variants.')
+            ->with('open_step', 3);
     }
 
     // ── Edit ─────────────────────────────────────────
@@ -218,11 +321,109 @@ class ProductController extends Controller
             ->get(['id', 'name', 'color_name']);
         $tags = Tag::orderBy('name')->get();
 
-        $product->load(['variants', 'tags']);
+        $product->load(['variants', 'tags', 'media', 'productImages.color']);
 
-        $images = $product->images()->orderByDesc('is_primary')->orderBy('sort_order')->get();
+        $seenImageUrls = [];
+        $images = collect();
 
-        return view('admin.products.form', compact('product', 'categories', 'sizes', 'colors', 'images', 'linkedProducts', 'tags'));
+        foreach ($product->productImages->sortByDesc('is_primary')->sortBy('sort_order') as $productImage) {
+            if (empty($productImage->url) || isset($seenImageUrls[$productImage->url])) {
+                continue;
+            }
+
+            $seenImageUrls[$productImage->url] = true;
+            $images->push((object) [
+                'id' => $productImage->id,
+                'source' => 'product_image',
+                'source_label' => $productImage->color ? $productImage->color->name : 'General',
+                'url' => $productImage->url,
+                'thumb_url' => $productImage->thumb_url ?? $productImage->url,
+                'alt_text' => $productImage->alt_text,
+                'is_primary' => $product->image === $productImage->url || (bool) $productImage->is_primary,
+                'color_id' => $productImage->color_id,
+                'primary_url' => route('admin.product-images.primary', $productImage),
+                'delete_url' => route('admin.product-images.destroy', $productImage),
+            ]);
+        }
+
+        foreach ($product->media->sortByDesc('is_primary')->sortBy('sort_order') as $media) {
+            if (empty($media->url) || isset($seenImageUrls[$media->url])) {
+                continue;
+            }
+
+            $seenImageUrls[$media->url] = true;
+            $images->push((object) [
+                'id' => $media->id,
+                'source' => 'media',
+                'source_label' => 'Media',
+                'url' => $media->url,
+                'thumb_url' => $media->thumb_url ?: $media->url,
+                'alt_text' => $media->alt_text,
+                'is_primary' => $product->image === $media->url || (bool) $media->is_primary,
+                'color_id' => null,
+                'primary_url' => route('admin.media.primary', $media),
+                'delete_url' => route('admin.media.destroy', $media),
+            ]);
+        }
+
+        if (!empty($product->image) && !isset($seenImageUrls[$product->image])) {
+            $seenImageUrls[$product->image] = true;
+            $images->prepend((object) [
+                'id' => 'main',
+                'source' => 'direct',
+                'source_label' => 'Main Image',
+                'url' => $product->image,
+                'thumb_url' => $product->image,
+                'alt_text' => $product->name,
+                'is_primary' => true,
+                'color_id' => null,
+                'primary_url' => null,
+                'delete_url' => null,
+            ]);
+        }
+
+        if (!empty($product->front_image) && !isset($seenImageUrls[$product->front_image])) {
+            $seenImageUrls[$product->front_image] = true;
+            $images->push((object) [
+                'id' => 'front',
+                'source' => 'direct',
+                'source_label' => 'Front Print',
+                'url' => $product->front_image,
+                'thumb_url' => $product->front_image,
+                'alt_text' => 'Front print image',
+                'is_primary' => $product->image === $product->front_image,
+                'color_id' => null,
+                'primary_url' => null,
+                'delete_url' => null,
+            ]);
+        }
+
+        if (!empty($product->back_image) && !isset($seenImageUrls[$product->back_image])) {
+            $seenImageUrls[$product->back_image] = true;
+            $images->push((object) [
+                'id' => 'back',
+                'source' => 'direct',
+                'source_label' => 'Back Print',
+                'url' => $product->back_image,
+                'thumb_url' => $product->back_image,
+                'alt_text' => 'Back print image',
+                'is_primary' => $product->image === $product->back_image,
+                'color_id' => null,
+                'primary_url' => null,
+                'delete_url' => null,
+            ]);
+        }
+
+        // Ensure exactly one image is marked as is_primary if images exist
+        if ($images->isNotEmpty() && !$images->contains('is_primary', true)) {
+            $images->first()->is_primary = true;
+            $product->updateQuietly(['image' => $images->first()->url]);
+        }
+
+        $frontPrintImages = $this->printSideImages($product, 'front');
+        $backPrintImages = $this->printSideImages($product, 'back');
+
+        return view('admin.products.form', compact('product', 'categories', 'sizes', 'colors', 'images', 'linkedProducts', 'tags', 'frontPrintImages', 'backPrintImages'));
     }
 
     // ── Update ───────────────────────────────────────
@@ -240,8 +441,43 @@ class ProductController extends Controller
             'tag_ids' => 'nullable|array',
             'tag_ids.*' => 'exists:tags,id',
             'tag_names' => 'nullable|string|max:500',
+            'front_image_files.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'back_image_files.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'color_images.*.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'available_print_sides' => 'nullable|string|in:both,front_only,back_only',
         ]);
+
+        $frontImage = $product->front_image;
+        if ($request->boolean('remove_front_image')) {
+            $frontImage = null;
+        } elseif ($request->hasFile('front_image_file')) {
+            try {
+                $upload = $this->cloudinary->upload($request->file('front_image_file'), 'products');
+                $frontImage = $upload['url'] ?? $frontImage;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Front image upload error: ' . $e->getMessage());
+            }
+        } elseif ($request->filled('front_image')) {
+            $frontImage = $request->front_image;
+        }
+
+        $backImage = $product->back_image;
+        if ($request->boolean('remove_back_image')) {
+            $backImage = null;
+        } elseif ($request->hasFile('back_image_file')) {
+            try {
+                $upload = $this->cloudinary->upload($request->file('back_image_file'), 'products');
+                $backImage = $upload['url'] ?? $backImage;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Back image upload error: ' . $e->getMessage());
+            }
+        } elseif ($request->filled('back_image')) {
+            $backImage = $request->back_image;
+        }
+
+        $availablePrintSides = in_array($request->available_print_sides, ['both', 'front_only', 'back_only'])
+            ? $request->available_print_sides
+            : ($product->available_print_sides ?? 'both');
 
         DB::beginTransaction();
         try {
@@ -258,12 +494,16 @@ class ProductController extends Controller
                 'price' => !$hasVariants ? ($request->price ?? $product->price) : $product->price,
                 'original_price' => !$hasVariants ? ($request->original_price ?? null) : $product->original_price,
                 'cost_price' => !$hasVariants ? ($request->cost_price ?? null) : $product->cost_price,
+                'image' => $frontImage ?: ($product->image ?: null),
+                'front_image' => $frontImage,
+                'back_image' => $backImage,
+                'available_print_sides' => $availablePrintSides,
                 'stock' => !$hasVariants ? ($request->stock ?? 0) : $product->stock,
                 'has_variants' => $hasVariants,
                 'meta_title' => $request->meta_title,
                 'meta_description' => $request->meta_description,
                 'meta_keywords' => $request->meta_keywords,
-                'og_image' => $request->og_image ?? $product->og_image,
+                'og_image' => $request->og_image ?? ($frontImage ?: $product->og_image),
                 'is_active' => $request->boolean('is_active'),
                 'is_featured' => $request->boolean('is_featured'),
                 'is_new' => $request->boolean('is_new'),
@@ -314,6 +554,8 @@ class ProductController extends Controller
                 $product->variants()->delete();
             }
 
+            $this->storePrintSideImages($request, $product, 'front');
+            $this->storePrintSideImages($request, $product, 'back');
             $this->storeColorImages($request, $product);
             $this->syncTagsFromRequest($request, $product);
 
@@ -335,10 +577,61 @@ class ProductController extends Controller
     }
 
     // ── Destroy ──────────────────────────────────────
-    public function destroy(Product $product)
+    public function destroy(Request $request, Product $product)
     {
-        $product->update(['is_active' => false]);
-        return back()->with('success', 'Product deactivated.');
+        try {
+            DB::beginTransaction();
+
+            // 1. Delete associated variants
+            $product->variants()->delete();
+
+            // 2. Delete media and storage files safely
+            $mediaItems = Media::where('model_type', Product::class)->where('model_id', $product->id)->get();
+            foreach ($mediaItems as $media) {
+                try {
+                    if ($media->file_id) {
+                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($media->file_id)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($media->file_id);
+                        } else {
+                            $this->cloudinary->delete($media->file_id);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Product media delete error: ' . $e->getMessage());
+                }
+                $media->delete();
+            }
+
+            // 3. Delete product images table entries
+            ProductImage::where('product_id', $product->id)->delete();
+
+            // 4. Detach / delete foreign references
+            DB::table('coupon_products')->where('product_id', $product->id)->delete();
+            DB::table('reviews')->where('product_id', $product->id)->delete();
+            if (Schema::hasTable('product_tags')) {
+                DB::table('product_tags')->where('product_id', $product->id)->delete();
+            }
+
+            // 5. Delete product
+            $product->delete();
+
+            DB::commit();
+
+            if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
+                return response()->json(['success' => true, 'message' => 'Product deleted successfully.']);
+            }
+
+            return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error deleting product: ' . $e->getMessage());
+
+            if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
+                return response()->json(['success' => false, 'message' => 'Error deleting product: ' . $e->getMessage()], 500);
+            }
+
+            return back()->with('error', 'Error deleting product: ' . $e->getMessage());
+        }
     }
 
     // ── Helper: sync stock+price from variants ────────
@@ -362,18 +655,40 @@ class ProductController extends Controller
     {
         $now = now();
         $rows = [];
+        $product = Product::find($productId);
+        $baseSku = $product?->sku ?: 'PRD';
+        $usedSkus = [];
 
         foreach ($variants as $i => $v) {
             if (($v['price'] ?? '') === '' && ($v['stock'] ?? '') === '') {
                 continue;
             }
 
+            $sku = trim((string)($v['sku'] ?? ''));
+            if ($sku === '') {
+                $colorPart = !empty($v['color']) ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $v['color']), 0, 4)) : '';
+                $sizePart = !empty($v['size']) ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $v['size']), 0, 4)) : '';
+                $baseCandidate = trim($baseSku . ($colorPart ? '-' . $colorPart : '') . ($sizePart ? '-' . $sizePart : ''), '-');
+                $candidate = $baseCandidate;
+                $suffix = 1;
+                while (
+                    in_array($candidate, $usedSkus, true) ||
+                    DB::table('product_variants')->where('sku', $candidate)->where('product_id', '!=', $productId)->exists() ||
+                    DB::table('products')->where('sku', $candidate)->where('id', '!=', $productId)->exists()
+                ) {
+                    $candidate = $baseCandidate . '-' . $suffix;
+                    $suffix++;
+                }
+                $sku = $candidate;
+            }
+            $usedSkus[] = $sku;
+
             $row = [
                 'product_id' => $productId,
                 'size' => $v['size'] ?? null,
                 'color' => $v['color'] ?? null,
                 'color_hex' => $v['color_hex'] ?? null,
-                'sku' => $v['sku'] ?? null,
+                'sku' => $sku,
                 'price' => $v['price'] ?? 0,
                 'original_price' => $v['original_price'] ?? null,
                 'cost_price' => $v['cost_price'] ?? null,
@@ -416,11 +731,13 @@ class ProductController extends Controller
                     continue;
                 }
 
+                $isDesignatedMain = ($request->filled('designated_main_image_name') && $request->input('designated_main_image_name') === $file->getClientOriginalName());
+
                 $isColorPrimary = !ProductImage::where('product_id', $product->id)
                     ->where('color_id', $color?->id)
                     ->exists();
 
-                if ($isColorPrimary) {
+                if ($isColorPrimary || $isDesignatedMain) {
                     ProductImage::where('product_id', $product->id)
                         ->where('color_id', $color?->id)
                         ->update(['is_primary' => false]);
@@ -432,17 +749,155 @@ class ProductController extends Controller
                     'file_id' => $upload['public_id'] ?? $upload['fileId'] ?? null,
                     'url' => $url,
                     'alt_text' => trim($product->name . ' ' . ($color?->name ?? '')),
-                    'is_primary' => $isColorPrimary,
+                    'is_primary' => $isDesignatedMain ?: $isColorPrimary,
                     'sort_order' => ProductImage::where('product_id', $product->id)
                         ->where('color_id', $color?->id)
                         ->count(),
                 ]);
 
-                if (!$product->image || !ProductImage::where('product_id', $product->id)->where('id', '!=', $image->id)->exists()) {
+                if ($isDesignatedMain || !$product->image || !ProductImage::where('product_id', $product->id)->where('id', '!=', $image->id)->exists()) {
                     $product->updateQuietly(['image' => $url]);
                 }
             }
         }
+    }
+
+    private function printSideImages(Product $product, string $side)
+    {
+        $collection = $this->printSideCollection($side);
+        $column = $side === 'back' ? 'back_image' : 'front_image';
+        $items = collect();
+        $seen = [];
+
+        // 1. Gather all media in this collection
+        foreach ($product->media->where('collection', $collection)->sortBy('sort_order') as $media) {
+            if (empty($media->url) || isset($seen[$media->url])) {
+                continue;
+            }
+
+            $seen[$media->url] = true;
+            $isSideMain = ($product->{$column} === $media->url) || (bool)$media->is_primary;
+            $items->push((object) [
+                'id' => $media->id,
+                'source' => 'media',
+                'url' => $media->url,
+                'thumb_url' => $media->thumb_url ?: $media->url,
+                'label' => $media->alt_text ?: ucfirst($side) . ' image',
+                'is_primary' => $isSideMain,
+                'collection' => $collection,
+            ]);
+        }
+
+        // 2. If product column exists and wasn't in media (direct image)
+        if (!empty($product->{$column}) && !isset($seen[$product->{$column}])) {
+            $seen[$product->{$column}] = true;
+            $items->prepend((object) [
+                'id' => $side,
+                'source' => 'direct',
+                'url' => $product->{$column},
+                'thumb_url' => $product->{$column},
+                'label' => ucfirst($side) . ' main',
+                'is_primary' => true,
+                'collection' => $collection,
+            ]);
+        }
+
+        if ($items->isNotEmpty() && !$items->contains('is_primary', true)) {
+            $items->first()->is_primary = true;
+        }
+
+        return $items;
+    }
+
+    private function storePrintSideImages(Request $request, Product $product, string $side): void
+    {
+        $column = $side === 'back' ? 'back_image' : 'front_image';
+        $collection = $this->printSideCollection($side);
+        $removeInput = $side === 'back' ? 'remove_back_image' : 'remove_front_image';
+        $filesInput = $side === 'back' ? 'back_image_files' : 'front_image_files';
+        $legacyFileInput = $side === 'back' ? 'back_image_file' : 'front_image_file';
+
+        $currentMainImage = $request->boolean($removeInput) ? null : $product->{$column};
+
+        if ($request->boolean($removeInput)) {
+            Media::where('model_type', Product::class)
+                ->where('model_id', $product->id)
+                ->where('collection', $collection)
+                ->delete();
+        }
+
+        $files = $request->file($filesInput, []);
+        $files = is_array($files) ? $files : [$files];
+
+        if ($request->hasFile($legacyFileInput)) {
+            $files[] = $request->file($legacyFileInput);
+        }
+
+        foreach ($files as $file) {
+            if (!$file || !$file->isValid()) {
+                continue;
+            }
+
+            $upload = $this->cloudinary->upload($file, 'products/' . $product->id . '/' . $side);
+            $url = $upload['url'] ?? null;
+            if (!$url) {
+                continue;
+            }
+
+            $isDesignatedMain = ($request->filled("designated_{$side}_image_name") && $request->input("designated_{$side}_image_name") === $file->getClientOriginalName());
+
+            $isFirstSideImage = empty($currentMainImage)
+                && !Media::where('model_type', Product::class)
+                    ->where('model_id', $product->id)
+                    ->where('collection', $collection)
+                    ->exists();
+
+            if ($isDesignatedMain) {
+                Media::where('model_type', Product::class)
+                    ->where('model_id', $product->id)
+                    ->where('collection', $collection)
+                    ->update(['is_primary' => false]);
+            }
+
+            Media::create([
+                'model_type' => Product::class,
+                'model_id' => $product->id,
+                'collection' => $collection,
+                'file_name' => $file->getClientOriginalName(),
+                'file_id' => $upload['public_id'] ?? $upload['fileId'] ?? null,
+                'url' => $url,
+                'thumb_url' => $url,
+                'size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'alt_text' => trim($product->name . ' ' . ucfirst($side) . ' print'),
+                'is_primary' => $isDesignatedMain ?: $isFirstSideImage,
+                'sort_order' => Media::where('model_type', Product::class)
+                    ->where('model_id', $product->id)
+                    ->where('collection', $collection)
+                    ->count(),
+            ]);
+
+            if ($isDesignatedMain || empty($currentMainImage)) {
+                $currentMainImage = $url;
+            }
+
+            if ($request->filled('designated_main_image_name') && $request->input('designated_main_image_name') === $file->getClientOriginalName()) {
+                $product->updateQuietly(['image' => $url]);
+            }
+        }
+
+        if ($currentMainImage !== $product->{$column}) {
+            $product->updateQuietly([
+                $column => $currentMainImage,
+                'image' => $side === 'front' && empty($product->image) ? $currentMainImage : $product->image,
+            ]);
+            $product->refresh();
+        }
+    }
+
+    private function printSideCollection(string $side): string
+    {
+        return $side === 'back' ? 'back_print' : 'front_print';
     }
 
     private function cleanDescription(?string $description): ?string
@@ -530,7 +985,7 @@ class ProductController extends Controller
 
             $image = ProductImage::create([
                 'product_id' => $product->id,
-                'file_id' => $result['fileId'],
+                'file_id' => $result['public_id'] ?? $result['fileId'] ?? null,
                 'url' => $result['url'],
                 'alt_text' => $product->name,
                 'is_primary' => $isPrimary,
@@ -553,40 +1008,386 @@ class ProductController extends Controller
         }
     }
 
-    // ── Set Primary Image (AJAX) ──────────────────────
-    public function setPrimary(Request $request, Product $product, ProductImage $image)
+    // ── Set Main/Primary Image (AJAX) ──────────────────
+    public function setMainImage(Request $request, Product $product)
     {
-        $product->images()->update(['is_primary' => false]);
-        $image->update(['is_primary' => true]);
-        $product->updateQuietly(['image' => $image->url]);
-        return response()->json(['success' => true]);
+        $url = $request->input('url');
+        $source = $request->input('source');
+        $imageId = $request->input('image_id');
+
+        if (!$url) {
+            return response()->json(['success' => false, 'message' => 'Image URL is required.'], 422);
+        }
+
+        $target = $request->input('target', 'main');
+
+        if ($target === 'front') {
+            $product->updateQuietly(['front_image' => $url]);
+            if (empty($product->image)) {
+                $product->updateQuietly(['image' => $url]);
+            }
+            Media::where('model_type', Product::class)
+                ->where('model_id', $product->id)
+                ->where('collection', 'front_print')
+                ->update(['is_primary' => false]);
+            Media::where('model_type', Product::class)
+                ->where('model_id', $product->id)
+                ->where('collection', 'front_print')
+                ->where('url', $url)
+                ->update(['is_primary' => true]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Front side primary image updated!',
+                'target' => 'front',
+                'image_url' => $url,
+            ]);
+        }
+
+        if ($target === 'back') {
+            $product->updateQuietly(['back_image' => $url]);
+            Media::where('model_type', Product::class)
+                ->where('model_id', $product->id)
+                ->where('collection', 'back_print')
+                ->update(['is_primary' => false]);
+            Media::where('model_type', Product::class)
+                ->where('model_id', $product->id)
+                ->where('collection', 'back_print')
+                ->where('url', $url)
+                ->update(['is_primary' => true]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Back side primary image updated!',
+                'target' => 'back',
+                'image_url' => $url,
+            ]);
+        }
+
+        // 1. Update product table image column
+        $product->updateQuietly(['image' => $url]);
+
+        // 2. Update Media table
+        Media::where('model_type', Product::class)
+            ->where('model_id', $product->id)
+            ->update(['is_primary' => false]);
+
+        Media::where('model_type', Product::class)
+            ->where('model_id', $product->id)
+            ->where(function ($q) use ($url, $source, $imageId) {
+                if ($source === 'media' && is_numeric($imageId)) {
+                    $q->where('id', $imageId)->orWhere('url', $url);
+                } else {
+                    $q->where('url', $url);
+                }
+            })
+            ->update(['is_primary' => true]);
+
+        // 3. Update ProductImage table
+        ProductImage::where('product_id', $product->id)
+            ->update(['is_primary' => false]);
+
+        ProductImage::where('product_id', $product->id)
+            ->where(function ($q) use ($url, $source, $imageId) {
+                if ($source === 'product_image' && is_numeric($imageId)) {
+                    $q->where('id', $imageId)->orWhere('url', $url);
+                } else {
+                    $q->where('url', $url);
+                }
+            })
+            ->update(['is_primary' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Main image updated successfully!',
+            'image_url' => $url,
+            'main_url' => $url,
+        ]);
     }
 
     // ── Delete Image (AJAX) ────────────────────────────
-    public function deleteImage(Request $request, Product $product, ProductImage $image)
+    public function deleteImage(Request $request, Product $product, ?ProductImage $image = null)
     {
-        try {
-            // If you previously stored Cloud public_id in file_id, delete from Cloudinary
-            if ($image->file_id) {
-                $this->cloudinary->delete($image->file_id);
-            }
-        } catch (\Exception $e) {
+        $url = $request->input('url');
+        $source = $request->input('source');
+        $imageId = $request->input('image_id');
+
+        // Support legacy route binding /products/{product}/images/{image}
+        if ($image && $image->id) {
+            $source = 'product_image';
+            $imageId = $image->id;
+            $url = $url ?: $image->url;
         }
 
-        $wasPrimary = $image->is_primary;
-        $image->delete();
+        $wasMain = ($product->image === $url) || ($source === 'direct' && $imageId === 'main');
 
-        if ($wasPrimary) {
-            $next = $product->images()->first();
-            if ($next) {
-                $next->update(['is_primary' => true]);
-                $product->updateQuietly(['image' => $next->url]);
-            } else {
+        // 1. Delete from Media
+        if ($source === 'media' && is_numeric($imageId)) {
+            $media = Media::where('model_type', Product::class)->where('model_id', $product->id)->find($imageId);
+            if ($media) {
+                if ($media->is_primary) $wasMain = true;
+                try {
+                    if ($media->file_id) {
+                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($media->file_id)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($media->file_id);
+                        } else {
+                            $this->cloudinary->delete($media->file_id);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Delete image file error: ' . $e->getMessage());
+                }
+
+                ProductImage::where('product_id', $product->id)
+                    ->where(function ($q) use ($media) {
+                        if ($media->file_id) $q->where('file_id', $media->file_id);
+                        if ($media->url) $q->orWhere('url', $media->url);
+                    })->delete();
+
+                $media->delete();
+            }
+        }
+        // 2. Delete from ProductImage
+        elseif ($source === 'product_image' && is_numeric($imageId)) {
+            $pi = ProductImage::where('product_id', $product->id)->find($imageId);
+            if ($pi) {
+                if ($pi->is_primary) $wasMain = true;
+                try {
+                    if ($pi->file_id) {
+                        $this->cloudinary->delete($pi->file_id);
+                    }
+                } catch (\Throwable $e) {}
+
+                Media::where('model_type', Product::class)->where('model_id', $product->id)
+                    ->where(function ($q) use ($pi) {
+                        if ($pi->file_id) $q->where('file_id', $pi->file_id);
+                        if ($pi->url) $q->orWhere('url', $pi->url);
+                    })->delete();
+
+                $pi->delete();
+            }
+        }
+
+        // Clean up direct or matching url
+        if ($url) {
+            if ($product->image === $url) {
                 $product->updateQuietly(['image' => null]);
+                $wasMain = true;
+            }
+            if ($product->front_image === $url) {
+                $nextFront = Media::where('model_type', Product::class)
+                    ->where('model_id', $product->id)
+                    ->where('collection', 'front_print')
+                    ->where('url', '!=', $url)
+                    ->first();
+                $product->updateQuietly(['front_image' => $nextFront ? $nextFront->url : null]);
+            }
+            if ($product->back_image === $url) {
+                $nextBack = Media::where('model_type', Product::class)
+                    ->where('model_id', $product->id)
+                    ->where('collection', 'back_print')
+                    ->where('url', '!=', $url)
+                    ->first();
+                $product->updateQuietly(['back_image' => $nextBack ? $nextBack->url : null]);
+            }
+
+            Media::where('model_type', Product::class)->where('model_id', $product->id)->where('url', $url)->delete();
+            ProductImage::where('product_id', $product->id)->where('url', $url)->delete();
+        }
+
+        // Elect new main image if deleted image was main
+        $newMainUrl = null;
+        $newMainKey = null;
+
+        if ($wasMain) {
+            $nextPi = ProductImage::where('product_id', $product->id)
+                ->orderByDesc('is_primary')
+                ->orderBy('sort_order')
+                ->first();
+
+            if ($nextPi) {
+                $nextPi->update(['is_primary' => true]);
+                $product->updateQuietly(['image' => $nextPi->url]);
+                $newMainUrl = $nextPi->url;
+                $newMainKey = 'product_image_' . $nextPi->id;
+            } else {
+                $nextMedia = Media::where('model_type', Product::class)
+                    ->where('model_id', $product->id)
+                    ->orderByDesc('is_primary')
+                    ->orderBy('sort_order')
+                    ->first();
+
+                if ($nextMedia) {
+                    $nextMedia->update(['is_primary' => true]);
+                    $product->updateQuietly(['image' => $nextMedia->url]);
+                    $newMainUrl = $nextMedia->url;
+                    $newMainKey = 'media_' . $nextMedia->id;
+                } elseif (!empty($product->front_image)) {
+                    $product->updateQuietly(['image' => $product->front_image]);
+                    $newMainUrl = $product->front_image;
+                    $newMainKey = 'direct_front';
+                } elseif (!empty($product->back_image)) {
+                    $product->updateQuietly(['image' => $product->back_image]);
+                    $newMainUrl = $product->back_image;
+                    $newMainKey = 'direct_back';
+                } else {
+                    $product->updateQuietly(['image' => null]);
+                }
+            }
+        } else {
+            $newMainUrl = $product->image;
+        }
+
+        $remainingCount = ProductImage::where('product_id', $product->id)->count() +
+            Media::where('model_type', Product::class)->where('model_id', $product->id)->count() +
+            (!empty($product->image) ? 1 : 0);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Image deleted successfully.',
+            'new_main_url' => $newMainUrl,
+            'new_main_key' => $newMainKey,
+            'remaining_count' => $remainingCount,
+        ]);
+    }
+
+    // ── SKU Generation & Validation Helpers ─────────────
+    public function generateSku(Request $request)
+    {
+        $categoryId = $request->input('category_id');
+        $productName = $request->input('name', 'Product');
+        $productId = $request->input('product_id');
+
+        $sku = $this->calculateNextSku(
+            $categoryId ? (int)$categoryId : null,
+            $productName,
+            $productId ? (int)$productId : null
+        );
+
+        return response()->json([
+            'success' => true,
+            'sku' => $sku,
+        ]);
+    }
+
+    public function checkSku(Request $request)
+    {
+        $sku = trim($request->input('sku', ''));
+        $productId = $request->input('product_id');
+
+        if ($sku === '') {
+            return response()->json(['exists' => false]);
+        }
+
+        $existsInProduct = Product::where('sku', $sku)
+            ->when($productId, fn($q, $id) => $q->where('id', '!=', $id))
+            ->exists();
+
+        $existsInVariant = DB::table('product_variants')
+            ->where('sku', $sku)
+            ->when($productId, fn($q, $id) => $q->where('product_id', '!=', $id))
+            ->exists();
+
+        return response()->json([
+            'exists' => $existsInProduct || $existsInVariant,
+            'sku' => $sku,
+        ]);
+    }
+
+    public function calculateNextSku($categoryInput, ?string $productName, ?int $excludeProductId = null): string
+    {
+        $categoryName = '';
+        if (is_numeric($categoryInput) && (int)$categoryInput > 0) {
+            $cat = Category::find((int)$categoryInput);
+            if ($cat) {
+                $categoryName = $cat->name;
+            }
+        } elseif (is_string($categoryInput) && trim($categoryInput) !== '') {
+            $categoryName = trim($categoryInput);
+        }
+
+        $cleanCat = preg_replace('/^[-\s]+/', '', $categoryName ?: '');
+        $collection = $this->skuToken($cleanCat);
+
+        $name = trim($productName ?? 'Product');
+        $lowerName = strtolower($name);
+
+        // If no category was selected or category was generic, try to extract collection from product name
+        if (!$collection || in_array($collection, ['TTT', 'ALL', 'PRODUCT'])) {
+            if (preg_match('/^([a-z0-9]+)\s+(oversized|tshirt|t-shirt|tee|hoodie|jacket|shirt)/i', $name, $m)) {
+                $collection = $this->skuToken($m[1]);
+            } else {
+                $words = preg_split('/\s+/', $name);
+                $firstWord = $this->skuToken($words[0] ?? '');
+                if ($firstWord && !in_array($firstWord, ['MEN', 'WOMEN', 'OVERSIZED', 'TSHIRT', 'TEE'])) {
+                    $collection = $firstWord;
+                }
             }
         }
 
-        return response()->json(['success' => true]);
+        if (!$collection) {
+            $collection = 'TTT';
+        }
+
+        if (str_contains($lowerName, 'oversized') || str_contains($lowerName, 'tshirt') || str_contains($lowerName, 'tee')) {
+            $productCode = 'OTS';
+        } elseif (str_contains($lowerName, 'hoodie')) {
+            $productCode = 'HD';
+        } elseif (str_contains($lowerName, 'jacket')) {
+            $productCode = 'JK';
+        } else {
+            $tokens = explode('-', $this->skuToken($name));
+            $productCode = implode('-', array_filter(array_slice($tokens, 0, 2))) ?: 'PRD';
+        }
+
+        $prefix = $collection . '-' . $productCode;
+
+        // Existing matching SKUs in products and variants
+        $existingProductSkus = Product::where('sku', 'like', $prefix . '-%')
+            ->when($excludeProductId, fn($q, $id) => $q->where('id', '!=', $id))
+            ->pluck('sku')
+            ->toArray();
+
+        $existingVariantSkus = DB::table('product_variants')
+            ->where('sku', 'like', $prefix . '-%')
+            ->when($excludeProductId, fn($q, $id) => $q->where('product_id', '!=', $id))
+            ->pluck('sku')
+            ->toArray();
+
+        $maxNumber = 0;
+        $regex = '/^' . preg_quote($prefix, '/') . '-(\d+)/i';
+
+        foreach (array_merge($existingProductSkus, $existingVariantSkus) as $existingSku) {
+            if (preg_match($regex, $existingSku, $matches)) {
+                $num = (int) $matches[1];
+                if ($num > $maxNumber) {
+                    $maxNumber = $num;
+                }
+            }
+        }
+
+        $candidateNumber = $maxNumber + 1;
+        $candidateSku = sprintf('%s-%03d', $prefix, $candidateNumber);
+
+        // Strict uniqueness check across products and product_variants
+        while (
+            Product::where('sku', $candidateSku)->when($excludeProductId, fn($q, $id) => $q->where('id', '!=', $id))->exists()
+            || DB::table('product_variants')->where('sku', $candidateSku)->exists()
+        ) {
+            $candidateNumber++;
+            $candidateSku = sprintf('%s-%03d', $prefix, $candidateNumber);
+        }
+
+        return $candidateSku;
+    }
+
+    private function skuToken(?string $value): string
+    {
+        $v = strtoupper($value ?? '');
+        $v = str_replace('&', ' AND ', $v);
+        $v = preg_replace('/[^A-Z0-9]+/i', '-', $v);
+        $v = trim($v, '-');
+        return substr($v, 0, 18);
     }
 
     // ── Toggle Product Status ─────────────────────────

@@ -85,7 +85,11 @@ class MasterController extends Controller
         return response()->json([
             'data' => $result->map(fn($item) => array_merge(
                 $item->toArray(),
-                ['is_active' => (bool) $item->is_active]
+                [
+                    'is_active' => (bool) $item->is_active,
+                    'hex' => $item->hex ?? $item->hex_code ?? null,
+                    'image' => $item->image ?? null,
+                ]
             )),
             'total' => $result->total(),
             'per_page' => $result->perPage(),
@@ -100,11 +104,43 @@ class MasterController extends Controller
     {
         $cfg = $this->getConfig($type);
         $model = $this->getModel($type);
+        $nameRule = \Illuminate\Validation\Rule::unique($type === 'sizes' ? 'sizes' : 'colors', 'name');
 
-        $request->validate([
-            'name' => 'required|string|max:100',
+        if ($cfg['has_type']) {
+            $nameRule->where('type', $request->input('type', 'clothing'));
+        }
+
+        $rules = [
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                $nameRule,
+            ],
             'sort_order' => 'nullable|integer|min:0',
-        ]);
+            'is_active' => 'nullable|boolean',
+        ];
+
+        if ($cfg['has_hex']) {
+            $rules['hex'] = ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'];
+        }
+
+        if ($type === 'colors') {
+            $rules['image'] = 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120';
+        }
+
+        if ($cfg['has_type']) {
+            $rules['type'] = ['nullable', 'string', \Illuminate\Validation\Rule::in(array_keys($cfg['type_options']))];
+        }
+
+        if ($cfg['has_measurements']) {
+            $rules['label'] = 'nullable|string|max:100';
+            $rules['chest'] = 'nullable|string|max:100';
+            $rules['waist'] = 'nullable|string|max:100';
+            $rules['length'] = 'nullable|string|max:100';
+        }
+
+        $request->validate($rules);
 
         $data = [
             'name' => $request->name,
@@ -114,6 +150,16 @@ class MasterController extends Controller
 
         if ($cfg['has_hex']) {
             $data['hex'] = $request->hex ?? '#000000';
+        }
+
+        if ($type === 'colors') {
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $upload = app(\App\Services\CloudinaryService::class)->upload($request->file('image'), 'colors');
+                $data['image'] = $upload['url'] ?? null;
+            }
+            if ($cfg['has_hex'] && !empty($data['hex'])) {
+                $data['hex_code'] = $data['hex'];
+            }
         }
 
         if ($cfg['has_measurements']) {
@@ -137,10 +183,44 @@ class MasterController extends Controller
         $cfg = $this->getConfig($type);
         $model = $this->getModel($type);
         $item = $model::findOrFail($id);
+        $nameRule = \Illuminate\Validation\Rule::unique($type === 'sizes' ? 'sizes' : 'colors', 'name')->ignore($id);
 
-        $request->validate([
-            'name' => 'required|string|max:100',
-        ]);
+        if ($cfg['has_type']) {
+            $nameRule->where('type', $request->input('type', 'clothing'));
+        }
+
+        $rules = [
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                $nameRule,
+            ],
+            'sort_order' => 'nullable|integer|min:0',
+            'is_active' => 'nullable|boolean',
+        ];
+
+        if ($cfg['has_hex']) {
+            $rules['hex'] = ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'];
+        }
+
+        if ($type === 'colors') {
+            $rules['image'] = 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120';
+            $rules['remove_image'] = 'nullable|boolean';
+        }
+
+        if ($cfg['has_type']) {
+            $rules['type'] = ['nullable', 'string', \Illuminate\Validation\Rule::in(array_keys($cfg['type_options']))];
+        }
+
+        if ($cfg['has_measurements']) {
+            $rules['label'] = 'nullable|string|max:100';
+            $rules['chest'] = 'nullable|string|max:100';
+            $rules['waist'] = 'nullable|string|max:100';
+            $rules['length'] = 'nullable|string|max:100';
+        }
+
+        $request->validate($rules);
 
         $data = [
             'name' => $request->name,
@@ -150,6 +230,18 @@ class MasterController extends Controller
 
         if ($cfg['has_hex']) {
             $data['hex'] = $request->hex ?? '#000000';
+        }
+
+        if ($type === 'colors') {
+            if ($request->boolean('remove_image')) {
+                $data['image'] = null;
+            } elseif ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $upload = app(\App\Services\CloudinaryService::class)->upload($request->file('image'), 'colors');
+                $data['image'] = $upload['url'] ?? null;
+            }
+            if ($cfg['has_hex'] && !empty($data['hex'])) {
+                $data['hex_code'] = $data['hex'];
+            }
         }
 
         if ($cfg['has_measurements']) {
@@ -171,7 +263,16 @@ class MasterController extends Controller
     public function destroy(string $type, int $id)
     {
         $model = $this->getModel($type);
-        $model::findOrFail($id)->delete();
+        $item = $model::findOrFail($id);
+
+        if (method_exists($item, 'variants') && $item->variants()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => "Cannot delete this {$type} item because it is used in product variants.",
+            ], 422);
+        }
+
+        $item->delete();
         return response()->json(['success' => true]);
     }
 

@@ -93,14 +93,50 @@ class MediaController extends Controller
                 ]);
             }
 
+            if ($modelClass === \App\Models\Product::class) {
+                if ($isPrimary) {
+                    \App\Models\Product::where('id', $request->model_id)->update(['image' => $media->url]);
+                }
+                if ($request->collection === 'front_print') {
+                    $prod = \App\Models\Product::find($request->model_id);
+                    if ($prod) {
+                        if (empty($prod->front_image) || $isPrimary) {
+                            $prod->updateQuietly(['front_image' => $media->url]);
+                        }
+                        if (empty($prod->image)) {
+                            $prod->updateQuietly(['image' => $media->url]);
+                        }
+                    }
+                } elseif ($request->collection === 'back_print') {
+                    $prod = \App\Models\Product::find($request->model_id);
+                    if ($prod && (empty($prod->back_image) || $isPrimary)) {
+                        $prod->updateQuietly(['back_image' => $media->url]);
+                    }
+                }
+            }
+
+            $imageSource = $productImage ? 'product_image' : 'media';
+            $imageId = $productImage?->id ?? $media->id;
+
             return response()->json([
                 'success' => true,
                 'media' => [
-                    'id' => $media->id,
+                    'id' => $imageId,
+                    'source' => $imageSource,
+                    'source_key' => $imageSource . '_' . $imageId,
+                    'source_label' => $productImage ? ($request->alt_text ?: 'Color image') : 'Media',
                     'url' => $media->url,
                     'thumb_url' => $media->thumb_url,
-                    'is_primary' => $media->is_primary,
+                    'alt_text' => $media->alt_text,
+                    'color_id' => $request->color_id,
+                    'is_primary' => $productImage ? (bool) $productImage->is_primary : (bool) $media->is_primary,
                     'product_image_id' => $productImage?->id,
+                    'primary_url' => $productImage
+                        ? route('admin.product-images.primary', $productImage)
+                        : route('admin.media.primary', $media),
+                    'delete_url' => $productImage
+                        ? route('admin.product-images.destroy', $productImage)
+                        : route('admin.media.destroy', $media),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -110,19 +146,70 @@ class MediaController extends Controller
 
     public function destroy(Media $media)
     {
-        // Delete from Cloudinary
-        if ($media->file_id) {
-            $this->cloudinary->delete($media->file_id);
+        try {
+            // Delete from Storage / Cloudinary safely
+            if ($media->file_id) {
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($media->file_id)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($media->file_id);
+                } else {
+                    $this->cloudinary->delete($media->file_id);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Media file delete error: ' . $e->getMessage());
         }
-        ProductImage::where('file_id', $media->file_id)
-            ->orWhere('url', $media->url)
-            ->delete();
+
+        if ($media->model_type === \App\Models\Product::class && ($media->file_id || $media->url)) {
+            ProductImage::where('product_id', $media->model_id)
+                ->where(function ($query) use ($media) {
+                    if ($media->file_id) {
+                        $query->where('file_id', $media->file_id);
+                    }
+                    if ($media->url) {
+                        $media->file_id
+                            ? $query->orWhere('url', $media->url)
+                            : $query->where('url', $media->url);
+                    }
+                })
+                ->delete();
+        }
+
+        $modelType = $media->model_type;
+        $modelId = $media->model_id;
+        $wasPrimary = $media->is_primary;
+
         $media->delete();
-        return response()->json(['success' => true]);
+
+        // If the primary image was deleted for a product, elect a new primary image
+        if ($wasPrimary && $modelType === \App\Models\Product::class) {
+            $nextMedia = Media::where('model_type', $modelType)
+                ->where('model_id', $modelId)
+                ->orderBy('sort_order')
+                ->first();
+            if ($nextMedia) {
+                $nextMedia->update(['is_primary' => true]);
+                \App\Models\Product::where('id', $modelId)->update(['image' => $nextMedia->url]);
+            } else {
+                $nextProductImage = ProductImage::where('product_id', $modelId)
+                    ->orderByDesc('is_primary')
+                    ->orderBy('sort_order')
+                    ->first();
+
+                if ($nextProductImage) {
+                    $nextProductImage->update(['is_primary' => true]);
+                }
+
+                \App\Models\Product::where('id', $modelId)->update(['image' => $nextProductImage?->url]);
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Image deleted successfully.']);
     }
 
     public function setPrimary(Media $media)
     {
+        $isProductMedia = $media->model_type === \App\Models\Product::class;
+
         if ($media->model_type === 'App\Models\Gallery') {
             Media::where('model_type', 'App\Models\Gallery')
                 ->whereIn('collection', ['gallery', 'video_section'])
@@ -136,14 +223,27 @@ class MediaController extends Controller
 
         $media->update(['is_primary' => true]);
 
-        $productImage = ProductImage::where('file_id', $media->file_id)
-            ->orWhere('url', $media->url)
-            ->first();
-        if ($productImage) {
-            ProductImage::where('product_id', $productImage->product_id)
-                ->where('color_id', $productImage->color_id)
-                ->update(['is_primary' => false]);
-            $productImage->update(['is_primary' => true]);
+        if ($isProductMedia) {
+            \App\Models\Product::where('id', $media->model_id)->update(['image' => $media->url]);
+
+            $productImage = ProductImage::where('product_id', $media->model_id)
+                ->where(function ($query) use ($media) {
+                    if ($media->file_id) {
+                        $query->where('file_id', $media->file_id);
+                    }
+                    if ($media->url) {
+                        $media->file_id
+                            ? $query->orWhere('url', $media->url)
+                            : $query->where('url', $media->url);
+                    }
+                })
+                ->first();
+
+            if ($productImage) {
+                ProductImage::where('product_id', $productImage->product_id)
+                    ->update(['is_primary' => false]);
+                $productImage->update(['is_primary' => true]);
+            }
         }
 
         return response()->json(['success' => true]);
@@ -255,7 +355,7 @@ class MediaController extends Controller
 }
 
     /**
-     * Get all gallery media
+     * Get all gallery media (Blade view or JSON API)
      */
     public function getGalleryMedia(Request $request)
     {
@@ -269,16 +369,19 @@ class MediaController extends Controller
             $query->where('mime_type', 'like', 'video/%');
         }
         
-        $media = $query->orderBy('sort_order')
+        $mediaList = $query->with('products')->orderBy('sort_order')
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function($item) {
+            ->get();
+
+        // If AJAX / JSON API request, return JSON
+        if ($request->expectsJson() || $request->ajax() || $request->is('api/*') || $request->filled('json')) {
+            $media = $mediaList->map(function($item) {
                 return [
                     'id' => $item->id,
                     'title' => $item->alt_text,
                     'subtitle' => $item->subtitle,
                     'button_link' => $item->button_link,
-                    'product_ids' => $item->products()->pluck('products.id')->values(),
+                    'product_ids' => $item->products->pluck('id')->values(),
                     'url' => $item->url,
                     'thumb_url' => $item->thumb_url ?? $item->url,
                     'type' => str_starts_with($item->mime_type, 'video/') ? 'video' : 'image',
@@ -288,8 +391,20 @@ class MediaController extends Controller
                     'created_at' => $item->created_at ? $item->created_at->format('Y-m-d') : null
                 ];
             });
-        
-        return response()->json($media);
+            return response()->json($media);
+        }
+
+        // Otherwise return full Admin Blade view
+        $galleryItems = $mediaList;
+        $products = \App\Models\Product::where('is_active', true)->select('id', 'name', 'slug', 'price')->orderBy('name')->get();
+        $stats = [
+            'total' => $galleryItems->count(),
+            'images_count' => $galleryItems->filter(fn($m) => !str_starts_with($m->mime_type, 'video/'))->count(),
+            'videos_count' => $galleryItems->filter(fn($m) => str_starts_with($m->mime_type, 'video/'))->count(),
+            'hero_video' => $galleryItems->firstWhere('is_primary', true),
+        ];
+
+        return view('admin.media.gallery', compact('galleryItems', 'products', 'stats'));
     }
 
     /**

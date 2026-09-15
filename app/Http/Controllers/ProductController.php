@@ -8,6 +8,67 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    public function quickView(Product $product)
+    {
+        if (!$product->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found.',
+            ], 404);
+        }
+
+        $product->load([
+            'productImages' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('sort_order'),
+            'media' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('sort_order'),
+            'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+            'variants.size',
+        ]);
+
+        $gallery = collect()
+            ->merge($product->productImages->map(fn ($image) => $image->getImageUrl(900, 1100)))
+            ->merge($product->media->map(fn ($media) => $media->getImageUrl(900, 1100)))
+            ->push($product->image_url)
+            ->push($product->main_image)
+            ->push($product->card_image)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($gallery->isEmpty()) {
+            $gallery->push(asset('images/placeholder-product.jpg'));
+        }
+
+        $sizes = $product->variants
+            ->filter(fn ($variant) => is_null($variant->stock) || $variant->stock > 0)
+            ->map(fn ($variant) => optional($variant->size)->name ?: $variant->size)
+            ->filter()
+            ->unique()
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'url' => route('product.show', $product->slug),
+                'price' => (float) $product->price,
+                'original_price' => $product->original_price ? (float) $product->original_price : null,
+                'discount_percent' => $product->discount_percent,
+                'image' => $gallery->first(),
+                'image_url' => $gallery->first(),
+                'gallery' => $gallery,
+                'sizes' => $sizes,
+                'stock_status' => $product->stock_status,
+                'is_in_stock' => $product->stock_status !== 'out_of_stock',
+                'short_description' => $product->short_description,
+                'front_image' => $product->front_image,
+                'back_image' => $product->back_image,
+                'available_print_sides' => $product->available_print_sides ?: 'both',
+            ],
+        ]);
+    }
+
     public function show(Request $request, string $slug, ?string $colorSlug = null)
     {
         $product = Product::with([
@@ -57,6 +118,15 @@ class ProductController extends Controller
             })
             ->orderBy('id')
             ->get();
+
+        // Log user activity
+        \App\Helpers\ActivityLogger::log('product_viewed', "Viewed: {$product->name}", [
+            'product_id'    => $product->id,
+            'product_name'  => $product->name,
+            'price'         => (float) $product->price,
+            'slug'          => $product->slug,
+            'category'      => $product->category?->name,
+        ]);
 
         return view('froentend.product.show', compact('product', 'relatedProducts', 'recentlyViewedProducts', 'linkedColorProducts', 'selectedColor'));
     }

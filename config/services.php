@@ -40,4 +40,17 @@ return [
         'api_secret' => env('CLOUDINARY_API_SECRET'),
         'sync_upload' => env('CLOUDINARY_SYNC_UPLOAD', false),
     ],
+    'razorpay' => [
+        'key_id' => env('RAZORPAY_KEY_ID', 'rzp_test_TRBFsbQ4XURTge'),
+        'key_secret' => env('RAZORPAY_KEY_SECRET', 'BtT5h3mgE57NChkD45u2xHPI'),
+    ],
+    'phonepe' => [
+        'merchant_id'    => env('PHONEPE_MERCHANT_ID', 'PGTESTPAYUAT86'),
+        'salt_key'       => env('PHONEPE_SALT_KEY', '96434309-7796-489d-8924-ab34988a6161'),
+        'salt_index'     => env('PHONEPE_SALT_INDEX', 1),
+        'client_id'      => env('PHONEPE_CLIENT_ID', 'PGTESTPAYUAT86'),
+        'client_secret'  => env('PHONEPE_CLIENT_SECRET', '96434309-7796-489d-8924-ab34988a6161'),
+        'client_version' => env('PHONEPE_CLIENT_VERSION', '1'),
+        'env'            => env('PHONEPE_ENV', 'UAT'), // 'UAT' or 'PRODUCTION'
+    ],
 ];

@@ -73,6 +73,7 @@
                 <tr>
                     <th>#</th>
                     <th>Color</th>
+                    <th>T-Shirt</th>
                     <th>Hex Code</th>
                     <th>Sort</th>
                     <th>Used In</th>
@@ -111,6 +112,21 @@
             <label>Sort Order</label>
             <input type="number" id="fSort" placeholder="0" min="0" value="0">
         </div>
+        <div class="field">
+            <label>T-Shirt Mockup / Photo</label>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div id="imgPreviewWrap" style="width:50px;height:50px;border-radius:8px;border:1.5px dashed #cbd5e1;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                    <img id="fImgPreview" src="" alt="Preview" style="width:100%;height:100%;object-fit:cover;display:none">
+                    <i id="fImgPlaceholder" class="bi bi-image" style="font-size:20px;color:#94a3b8"></i>
+                </div>
+                <div style="flex:1">
+                    <input type="file" id="fImage" accept="image/jpeg,image/png,image/webp" onchange="previewColorImage(this)" style="font-size:12px;padding:6px 0;width:100%">
+                    <div style="font-size:10.5px;color:#94a3b8;margin-top:2px">Upload base t-shirt mockup for this color</div>
+                </div>
+                <button type="button" id="btnRemoveImg" onclick="removeColorImage()" style="display:none;background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer">Remove</button>
+            </div>
+            <input type="hidden" id="removeImageFlag" value="0">
+        </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
             <label style="font-size:11px;font-weight:700;color:#00285a;text-transform:uppercase;letter-spacing:.5px">Active</label>
             <input type="checkbox" id="fActive" checked style="width:16px;height:16px;cursor:pointer">
@@ -143,15 +159,19 @@ function fetchData(){
 
 function renderTable(rows){
     var tbody=document.getElementById('tableBody');
-    if(!rows||!rows.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:#7a8fa6">No colors found</td></tr>';return;}
+    if(!rows||!rows.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:#7a8fa6">No colors found</td></tr>';return;}
     tbody.innerHTML=rows.map(function(c,i){
         var offset=(state.page-1)*state.perPage;
         var swatch=c.hex_code
             ?'<span class="color-swatch" style="background:'+c.hex_code+'"></span>'
             :'<span class="color-swatch" style="background:linear-gradient(135deg,#f00,#0f0,#00f)"></span>';
+        var tshirtImg = c.image
+            ? '<a href="'+c.image+'" target="_blank" title="View Full Mockup"><img src="'+c.image+'" alt="'+esc(c.name)+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc"></a>'
+            : '<span style="color:#cbd5e1;font-size:12px">—</span>';
         return '<tr>'+
             '<td style="color:#7a8fa6;font-size:12px">'+(offset+i+1)+'</td>'+
             '<td><div style="display:flex;align-items:center;gap:10px">'+swatch+'<strong style="color:#00285a">'+esc(c.name)+'</strong></div></td>'+
+            '<td>'+tshirtImg+'</td>'+
             '<td>'+(c.hex_code?'<code style="background:#f8fafc;padding:2px 8px;border-radius:6px;font-size:12px">'+c.hex_code+'</code>':'<span style="color:#cbd5e1">—</span>')+'</td>'+
             '<td style="color:#94a3b8;font-size:12px">'+c.sort_order+'</td>'+
             '<td><span class="bdg bdg-b">'+c.variants_count+' variants</span></td>'+
@@ -180,6 +200,29 @@ function goPage(p){if(p<1)return;state.page=p;fetchData();}
 function syncHex(picker){var v=picker.value;document.getElementById('fHex').value=v;document.getElementById('hexPreview').style.background=v;}
 function syncPicker(input){var v=input.value;if(/^#[0-9A-Fa-f]{6}$/.test(v)){document.getElementById('fHexPicker').value=v;document.getElementById('hexPreview').style.background=v;}}
 
+function previewColorImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('fImgPreview').src = e.target.result;
+            document.getElementById('fImgPreview').style.display = 'block';
+            document.getElementById('fImgPlaceholder').style.display = 'none';
+            document.getElementById('btnRemoveImg').style.display = 'inline-block';
+            document.getElementById('removeImageFlag').value = '0';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removeColorImage() {
+    document.getElementById('fImage').value = '';
+    document.getElementById('fImgPreview').src = '';
+    document.getElementById('fImgPreview').style.display = 'none';
+    document.getElementById('fImgPlaceholder').style.display = 'inline-block';
+    document.getElementById('btnRemoveImg').style.display = 'none';
+    document.getElementById('removeImageFlag').value = '1';
+}
+
 function openModal(){
     document.getElementById('modalBg').classList.add('show');
     document.getElementById('modalTitle').textContent='Add Color';
@@ -190,6 +233,12 @@ function openModal(){
     document.getElementById('hexPreview').style.background='#eeeeee';
     document.getElementById('fSort').value='0';
     document.getElementById('fActive').checked=true;
+    document.getElementById('fImage').value='';
+    document.getElementById('fImgPreview').src='';
+    document.getElementById('fImgPreview').style.display='none';
+    document.getElementById('fImgPlaceholder').style.display='inline-block';
+    document.getElementById('btnRemoveImg').style.display='none';
+    document.getElementById('removeImageFlag').value='0';
     document.getElementById('modalError').style.display='none';
 }
 function closeModal(){document.getElementById('modalBg').classList.remove('show');}
@@ -204,24 +253,70 @@ function editColor(c){
     document.getElementById('hexPreview').style.background=c.hex_code||'#eeeeee';
     document.getElementById('fSort').value=c.sort_order;
     document.getElementById('fActive').checked=c.is_active;
+    document.getElementById('fImage').value='';
+    document.getElementById('removeImageFlag').value='0';
+    if(c.image){
+        document.getElementById('fImgPreview').src=c.image;
+        document.getElementById('fImgPreview').style.display='block';
+        document.getElementById('fImgPlaceholder').style.display='none';
+        document.getElementById('btnRemoveImg').style.display='inline-block';
+    } else {
+        document.getElementById('fImgPreview').src='';
+        document.getElementById('fImgPreview').style.display='none';
+        document.getElementById('fImgPlaceholder').style.display='inline-block';
+        document.getElementById('btnRemoveImg').style.display='none';
+    }
     document.getElementById('modalError').style.display='none';
 }
 
 function saveColor(){
     var id=document.getElementById('editId').value;
     var url=id?'/admin/colors/'+id:STORE_URL;
-    var method=id?'PUT':'POST';
     var hex=document.getElementById('fHex').value.trim();
-    var body={name:document.getElementById('fName').value.trim(),hex_code:hex||null,sort_order:parseInt(document.getElementById('fSort').value)||0,is_active:document.getElementById('fActive').checked?1:0};
-    if(!body.name){document.getElementById('modalError').textContent='Color name is required.';document.getElementById('modalError').style.display='block';return;}
+    var name=document.getElementById('fName').value.trim();
+    if(!name){document.getElementById('modalError').textContent='Color name is required.';document.getElementById('modalError').style.display='block';return;}
     if(hex && !/^#[0-9A-Fa-f]{6}$/.test(hex)){document.getElementById('modalError').textContent='Invalid hex code. Use format: #RRGGBB';document.getElementById('modalError').style.display='block';return;}
+
+    var formData = new FormData();
+    formData.append('name', name);
+    if(hex) formData.append('hex_code', hex);
+    formData.append('sort_order', parseInt(document.getElementById('fSort').value)||0);
+    formData.append('is_active', document.getElementById('fActive').checked ? 1 : 0);
+    formData.append('remove_image', document.getElementById('removeImageFlag').value);
+
+    var fileInput = document.getElementById('fImage');
+    if(fileInput.files && fileInput.files[0]){
+        formData.append('image', fileInput.files[0]);
+    }
+    if(id){
+        formData.append('_method', 'PUT');
+    }
+
     document.getElementById('saveBtn').textContent='Saving...';
-    fetch(url,{method:method,headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify(body)})
-        .then(r=>r.json()).then(res=>{
-            document.getElementById('saveBtn').textContent='Save Color';
-            if(res.error){document.getElementById('modalError').textContent=res.error;document.getElementById('modalError').style.display='block';return;}
-            closeModal();fetchData();
-        });
+    document.getElementById('saveBtn').disabled = true;
+
+    fetch(url,{
+        method:'POST',
+        headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'},
+        body:formData
+    })
+    .then(r=>r.json()).then(res=>{
+        document.getElementById('saveBtn').textContent='Save Color';
+        document.getElementById('saveBtn').disabled = false;
+        if(res.error || (res.errors)){
+            var msg = res.error || Object.values(res.errors).flat().join(' ');
+            document.getElementById('modalError').textContent=msg;
+            document.getElementById('modalError').style.display='block';
+            return;
+        }
+        closeModal();fetchData();
+    })
+    .catch(err => {
+        document.getElementById('saveBtn').textContent='Save Color';
+        document.getElementById('saveBtn').disabled = false;
+        document.getElementById('modalError').textContent='Failed to save color.';
+        document.getElementById('modalError').style.display='block';
+    });
 }
 
 function toggleColor(id){fetch('/admin/colors/'+id+'/toggle',{method:'POST',headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'}}).then(()=>fetchData());}

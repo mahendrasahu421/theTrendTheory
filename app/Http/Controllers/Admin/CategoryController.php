@@ -62,7 +62,7 @@ class CategoryController extends Controller
                 'show_in_nav' => (bool) $c->show_in_nav,
                 'show_in_home' => (bool) $c->show_in_home,
                 'is_active' => (bool) $c->is_active,
-                'image' => $c->image,
+                'image' => $c->image_url,
                 'edit_url' => route('admin.categories.edit', $c),
             ]),
             'total' => $result->total(),

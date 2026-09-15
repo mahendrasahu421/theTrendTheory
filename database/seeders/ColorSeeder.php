@@ -9,18 +9,12 @@ class ColorSeeder extends Seeder
 {
     public function run(): void
     {
-        // Minimal default seed values for admin forms.
         $colors = [
-            ['name' => 'Black', 'label' => 'Black', 'value' => 'Black', 'type' => 'solid', 'hex' => '#111111', 'is_active' => 1, 'sort_order' => 10],
-            ['name' => 'White', 'label' => 'White', 'value' => 'White', 'type' => 'solid', 'hex' => '#FFFFFF', 'is_active' => 1, 'sort_order' => 20],
-            ['name' => 'Navy', 'label' => 'Navy', 'value' => 'Navy', 'type' => 'solid', 'hex' => '#0F2747', 'is_active' => 1, 'sort_order' => 30],
-            ['name' => 'Charcoal', 'label' => 'Charcoal', 'value' => 'Charcoal', 'type' => 'solid', 'hex' => '#3B3F46', 'is_active' => 1, 'sort_order' => 40],
-            ['name' => 'Olive', 'label' => 'Olive', 'value' => 'Olive', 'type' => 'solid', 'hex' => '#556B2F', 'is_active' => 1, 'sort_order' => 50],
-            ['name' => 'Burgundy', 'label' => 'Burgundy', 'value' => 'Burgundy', 'type' => 'solid', 'hex' => '#7A1F3D', 'is_active' => 1, 'sort_order' => 60],
-            ['name' => 'Sky Blue', 'label' => 'Sky Blue', 'value' => 'Sky Blue', 'type' => 'solid', 'hex' => '#8EC5E8', 'is_active' => 1, 'sort_order' => 70],
-            ['name' => 'Sage', 'label' => 'Sage', 'value' => 'Sage', 'type' => 'solid', 'hex' => '#9CAF88', 'is_active' => 1, 'sort_order' => 80],
-            ['name' => 'Dusty Pink', 'label' => 'Dusty Pink', 'value' => 'Dusty Pink', 'type' => 'solid', 'hex' => '#D8A1A9', 'is_active' => 1, 'sort_order' => 90],
-            ['name' => 'Beige', 'label' => 'Beige', 'value' => 'Beige', 'type' => 'solid', 'hex' => '#D9C7A3', 'is_active' => 1, 'sort_order' => 100],
+            ['name' => 'Offwhite', 'label' => 'Offwhite', 'value' => 'Offwhite', 'type' => 'solid', 'hex' => '#F8F4E8', 'is_active' => 1, 'sort_order' => 10],
+            ['name' => 'Black', 'label' => 'Black', 'value' => 'Black', 'type' => 'solid', 'hex' => '#111111', 'is_active' => 1, 'sort_order' => 20],
+            ['name' => 'Brown', 'label' => 'Brown', 'value' => 'Brown', 'type' => 'solid', 'hex' => '#7A4A2E', 'is_active' => 1, 'sort_order' => 30],
+            ['name' => 'Lavender', 'label' => 'Lavender', 'value' => 'Lavender', 'type' => 'solid', 'hex' => '#BBA7D9', 'is_active' => 1, 'sort_order' => 40],
+            ['name' => 'Sage Green', 'label' => 'Sage Green', 'value' => 'Sage Green', 'type' => 'solid', 'hex' => '#9CAF88', 'is_active' => 1, 'sort_order' => 50],
         ];
 
         foreach ($colors as $row) {

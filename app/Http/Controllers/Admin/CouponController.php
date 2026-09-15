@@ -155,6 +155,9 @@ class CouponController extends Controller
         
         DB::commit();
         
+        // Auto-notify registered users about new offer / coupon
+        app(\App\Services\NotificationService::class)->notifyNewOffer($coupon);
+
         return redirect()->route('admin.coupons.index')
             ->with('success', 'Coupon "' . $coupon->code . '" created!');
             

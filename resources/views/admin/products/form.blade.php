@@ -14,17 +14,19 @@
         ->map(fn($id) => (int) $id)
         ->all();
 
-    function buildCategoryOptions($categories, $selectedId = null, $prefix = '')
-    {
-        $html = '';
-        foreach ($categories as $category) {
-            $selected = $selectedId == $category->id ? 'selected' : '';
-            $html .= '<option value="' . $category->id . '" ' . $selected . '>' . $prefix . $category->name . '</option>';
-            if ($category->children && $category->children->count() > 0) {
-                $html .= buildCategoryOptions($category->children, $selectedId, $prefix . '— ');
+    if (!function_exists('buildCategoryOptions')) {
+        function buildCategoryOptions($categories, $selectedId = null, $prefix = '')
+        {
+            $html = '';
+            foreach ($categories as $category) {
+                $selected = $selectedId == $category->id ? 'selected' : '';
+                $html .= '<option value="' . $category->id . '" ' . $selected . '>' . $prefix . $category->name . '</option>';
+                if ($category->children && $category->children->count() > 0) {
+                    $html .= buildCategoryOptions($category->children, $selectedId, $prefix . '— ');
+                }
             }
+            return $html;
         }
-        return $html;
     }
 
     $parentCategories = $categories->filter(function ($cat) {
@@ -499,13 +501,26 @@
     gap: 10px;
     padding: 0 20px 16px;
 }
-.icard { position: relative; border-radius: 10px; overflow: hidden; border: 2px solid #eef2f6; aspect-ratio: 4/5; background: #f8fafc; }
-.icard.main { border-color: #ffd700; }
+.icard { position: relative; border-radius: 12px; overflow: hidden; border: 2.5px solid #eef2f6; aspect-ratio: 4/5; background: #f8fafc; transition: all .2s; }
+.icard.main { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.28); }
+.icard.is-cover { border-color: #00285a; box-shadow: 0 0 0 2px rgba(0, 40, 90, 0.35); }
+.icard.main.is-cover { border-color: #00285a; box-shadow: 0 0 0 2px #f59e0b; }
 .icard img { width: 100%; height: 100%; object-fit: cover; }
-.ibadge { position: absolute; top: 5px; left: 5px; background: #ffd700; color: #00285a; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
-.iact { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.55); display: flex; gap: 3px; padding: 4px; opacity: 0; transition: .15s; }
-.icard:hover .iact { opacity: 1; }
-.iab { flex: 1; padding: 3px; border: none; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; }
+.ibadge { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.25); z-index: 2; }
+.ibadge-cover { position: absolute; top: 6px; right: 6px; background: linear-gradient(135deg, #00285a 0%, #1e3f75 100%); color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.25); z-index: 2; }
+.isource { position: absolute; top: 6px; right: 6px; background: rgba(15,23,42,.78); color: #fff; font-size: 9px; font-weight: 700; padding: 2.5px 7px; border-radius: 20px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; z-index: 2; }
+.iact { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(15,23,42,0.96) 0%, rgba(15,23,42,0.8) 75%, transparent 100%); display: flex; flex-wrap: wrap; gap: 3px; padding: 5px; opacity: 0; transition: .18s ease; z-index: 3; }
+.icard:hover .iact, .icard:focus-within .iact { opacity: 1; }
+.iab { flex: 1 1 auto; padding: 4px 4px; border: none; border-radius: 5px; font-size: 9.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 2px; text-decoration: none; transition: transform .1s, filter .15s; white-space: nowrap; }
+.iab:hover { transform: scale(1.03); filter: brightness(1.1); }
+.iab-cover { background: #00285a; color: #ffffff; }
+.iab-main { background: #ffd700; color: #00285a; }
+.iab-del { background: #ef4444; color: #ffffff; }
+.iab-view { background: rgba(255,255,255,0.22); color: #ffffff; }
+.img-manage-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px 0; flex-wrap: wrap; }
+.img-manage-title { font-size: 12px; font-weight: 800; color: #00285a; display: flex; align-items: center; gap: 8px; }
+.img-count-badge { background: #eef5ff; color: #00285a; border: 1px solid #dbeafe; border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 800; }
+.img-empty-note { margin: 0 20px 14px; padding: 16px; border: 1px dashed #cbd5e1; border-radius: 10px; color: #64748b; background: #f8fafc; font-size: 12px; text-align: center; }
 
 /* ─── Color Tabs for Images ─────────────────────────── */
 .color-tabs { display: flex; gap: 0; padding: 0 20px; border-bottom: 1px solid #eef2f6; flex-wrap: wrap; }
@@ -528,11 +543,113 @@
 .color-tab-panel { display: none; }
 .color-tab-panel.active { display: block; }
 
-/* ─── New Product Image Queue ─────────────────────────── */
-.new-img-queue { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; padding: 0 20px 16px; }
-.new-img-thumb { position: relative; aspect-ratio: 4/5; border-radius: 8px; overflow: hidden; border: 2px solid #eef2f6; background: #f8fafc; }
+/* ─── New Product Image Queue (Create Mode) ───────────── */
+.new-img-queue { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 10px; padding: 0 20px 16px; }
+.new-img-thumb { position: relative; aspect-ratio: 4/5; border-radius: 10px; overflow: hidden; border: 2.5px solid #eef2f6; background: #f8fafc; transition: all .2s; }
+.new-img-thumb.main { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.28); }
+.new-img-thumb.is-cover { border-color: #00285a; box-shadow: 0 0 0 2px rgba(0,40,90,0.35); }
+.new-img-thumb.main.is-cover { border-color: #00285a; box-shadow: 0 0 0 2px #f59e0b; }
 .new-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.new-img-rm { position: absolute; top: 3px; right: 3px; background: #ff3f6c; color: #fff; border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.new-img-badge { position: absolute; top: 4px; left: 4px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; font-size: 8.5px; font-weight: 800; padding: 2px 6px; border-radius: 12px; z-index: 2; }
+.new-img-badge-cover { position: absolute; bottom: 32px; left: 4px; background: linear-gradient(135deg, #00285a 0%, #1e3f75 100%); color: #fff; font-size: 8.5px; font-weight: 800; padding: 2px 6px; border-radius: 12px; z-index: 2; }
+.new-img-act { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(15,23,42,0.95) 0%, transparent 100%); display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; z-index: 2; }
+.new-img-btn-main { flex: 1 1 45%; border: none; border-radius: 4px; font-size: 9px; font-weight: 800; background: #ffd700; color: #00285a; cursor: pointer; padding: 3px 2px; text-align: center; }
+.new-img-btn-cover { flex: 1 1 45%; border: none; border-radius: 4px; font-size: 9px; font-weight: 800; background: #00285a; color: #fff; cursor: pointer; padding: 3px 2px; text-align: center; }
+.new-img-rm { position: absolute; top: 4px; right: 4px; background: #ef4444; color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 2px 5px rgba(0,0,0,0.25); }
+
+/* ─── Print Sides (Front & Back) ─────────────────────── */
+.print-sides-selector {
+    display: flex;
+    gap: 8px;
+    padding: 12px 20px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid #eef2f6;
+    background: #f8fafc;
+}
+.print-side-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #cbd5e1;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    background: #fff;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.print-side-pill:hover { border-color: #00285a; color: #00285a; }
+.print-side-pill.active {
+    background: #00285a;
+    color: #fff;
+    border-color: #00285a;
+    box-shadow: 0 2px 6px rgba(0,40,90,0.22);
+}
+.print-sides-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 16px 20px;
+}
+@media (max-width: 820px) {
+    .print-sides-wrap { grid-template-columns: 1fr; }
+}
+.print-side-box {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: opacity .2s, border-color .2s;
+}
+.print-side-box:hover { border-color: #cbd5e1; }
+.print-side-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.print-side-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #00285a;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.print-side-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #e0f2fe;
+    color: #0369a1;
+}
+.izone-compact {
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+    background: #fafbff;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.izone-compact:hover { border-color: #00285a; background: #f0f4ff; }
+.side-img-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 8px;
+    min-height: 40px;
+}
 
 /* ─── Status Toggles ─────────────────────────────────── */
 .status-grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 20px; }
@@ -661,10 +778,24 @@
                     </div>
 
                     <div class="fgrp">
-                        <label>SKU <span style="font-weight:400;text-transform:none">(optional)</span></label>
-                        <input class="fc" type="text" name="sku"
-                               value="{{ old('sku', $isEdit ? $product->sku : '') }}"
-                               placeholder="TTT-TS-001">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                            <label style="margin-bottom:0">SKU <span style="font-weight:400;text-transform:none">(unique identifier)</span></label>
+                            <button type="button" class="btn btn-sm" id="btnAutoSku" onclick="fillProductSku()"
+                                    title="Auto-calculate unique non-colliding SKU"
+                                    style="background:#00285a;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;cursor:pointer;transition:all .15s">
+                                <i class="bi bi-magic"></i> Auto SKU
+                            </button>
+                        </div>
+                        <div style="position:relative">
+                            <input class="fc" type="text" name="sku" id="fieldSku"
+                                   value="{{ old('sku', $isEdit ? $product->sku : '') }}"
+                                   oninput="debounceCheckSku(this.value)"
+                                   placeholder="TTT-OTS-001" style="text-transform:uppercase;letter-spacing:0.5px;font-weight:600">
+                            <span id="skuSpinner" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);display:none;font-size:14px;color:#00285a">
+                                <i class="bi bi-arrow-repeat spin"></i>
+                            </span>
+                        </div>
+                        <div id="skuFeedback" style="font-size:11px;margin-top:4px;font-weight:600;min-height:16px;display:none"></div>
                     </div>
 
                     <div class="fgrp full">
@@ -780,7 +911,13 @@
 
                     {{-- Step A: Pick Colors --}}
                     <div class="vb-section" style="border-bottom:1px solid #eef2f6">
-                        <div class="vb-title"><i class="bi bi-palette"></i> Step 1 — Select Colors</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+                            <div class="vb-title" style="margin-bottom:0"><i class="bi bi-palette"></i> Step 1 — Select Colors</div>
+                            <button type="button" class="btn btn-sm" onclick="openQuickColorModal()"
+                                    style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:6px;font-size:11.5px;font-weight:700;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s">
+                                <i class="bi bi-plus-circle-fill"></i> + Add New Color
+                            </button>
+                        </div>
                         <div class="color-pills" id="colorPillsWrap">
                             @foreach ($colorsArray as $color)
                                 <label class="color-pill" id="cpill_{{ $color->name }}">
@@ -796,15 +933,22 @@
                         </div>
                     </div>
 
-                    {{-- Step B: Pick Sizes per Color --}}
+                    {{-- Step B: Pick Sizes per Color & Upload T-Shirt Photos --}}
                     <div class="vb-section" id="sizeBlocksWrap" style="display:none;border-bottom:1px solid #eef2f6">
-                        <div class="vb-title"><i class="bi bi-rulers"></i> Step 2 — Select Sizes for each Color</div>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px" id="sizeBlocksGrid">
+                        <div class="vb-title"><i class="bi bi-rulers"></i> Step 2 — Select Sizes &amp; Upload T-Shirt Photos for each Color</div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px" id="sizeBlocksGrid">
                             @foreach ($colorsArray as $color)
                                 <div class="size-block" data-color-block="{{ $color->name }}" id="sblock_{{ $color->name }}">
-                                    <div class="size-block-title">
-                                        <span class="color-dot-sm" style="background:{{ $color->hex_code }}"></span>
-                                        {{ $color->name }}
+                                    <div class="size-block-title" style="display:flex;justify-content:space-between;align-items:center">
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            <span class="color-dot-sm" style="background:{{ $color->hex_code }}"></span>
+                                            {{ $color->name }}
+                                        </div>
+                                        <button type="button" class="btn btn-link btn-sm"
+                                                style="color:#0284c7;font-size:11px;font-weight:700;padding:0;text-decoration:none;cursor:pointer"
+                                                onclick="toggleAllSizesForColor('{{ $color->name }}')">
+                                            Select All Sizes
+                                        </button>
                                     </div>
                                     <div class="size-pills">
                                         @foreach ($sizesArray as $size)
@@ -815,6 +959,57 @@
                                                 {{ $size->name }}
                                             </label>
                                         @endforeach
+                                    </div>
+
+                                    {{-- Color T-Shirt Photos Section --}}
+                                    <div class="color-tshirt-box" style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1">
+                                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                                            <span style="font-size:11px;font-weight:700;color:#00285a;display:flex;align-items:center;gap:5px">
+                                                <i class="bi bi-camera-fill" style="color:#0284c7"></i> {{ $color->name }} T-Shirt Photos
+                                            </span>
+                                            @if ($color->image)
+                                                <a href="{{ $color->image }}" target="_blank" title="View Color Mockup" style="font-size:10.5px;color:#0284c7;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+                                                    <img src="{{ $color->image }}" alt="{{ $color->name }}" style="width:18px;height:18px;border-radius:4px;object-fit:cover;border:1px solid #cbd5e1"> Base Mockup
+                                                </a>
+                                            @endif
+                                        </div>
+
+                                        @if ($isEdit)
+                                            @php
+                                                $colorImgs = $product->productImages->where('color_id', $color->id);
+                                            @endphp
+                                            <div class="color-img-grid" id="colorGrid_{{ $color->id }}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(65px,1fr));gap:6px;margin-bottom:8px">
+                                                @foreach ($colorImgs as $cImg)
+                                                    @php $isCover = ($product->image === $cImg->url); @endphp
+                                                    <div class="icard {{ $cImg->is_primary ? 'main' : '' }} {{ $isCover ? 'is-cover' : '' }}" id="cimg_{{ $cImg->id }}" data-id="{{ $cImg->id }}" data-url="{{ $cImg->url }}" style="aspect-ratio:1;border-radius:8px">
+                                                        <img src="{{ $cImg->url }}" alt="{{ $color->name }}">
+                                                        <div class="ibadge-cover" style="{{ $isCover ? '' : 'display:none;' }}">★ COVER</div>
+                                                        <div class="iact" style="padding:2px">
+                                                            <button type="button" class="iab iab-cover js-set-cover" style="{{ $isCover ? 'display:none;' : '' }};font-size:8.5px;padding:2px" onclick="setMain('{{ $cImg->id }}', '{{ $cImg->url }}', 'product_image')">
+                                                                Cover
+                                                            </button>
+                                                            <button type="button" class="iab iab-del" style="font-size:8.5px;padding:2px" onclick="deleteColorImageAjax('{{ $cImg->id }}', '{{ $cImg->url }}', {{ $color->id }})">
+                                                                Del
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                            <div class="izone-compact" onclick="document.getElementById('step2_cFileInput_{{ $color->id }}').click()" style="padding:10px 8px">
+                                                <i class="bi bi-cloud-arrow-up" style="font-size:18px;color:#0284c7"></i>
+                                                <div style="font-size:11.5px;font-weight:700;color:#00285a">+ Upload {{ $color->name }} Photos</div>
+                                                <div style="font-size:10px;color:#94a3b8">Multiple photos · JPG, PNG, WEBP</div>
+                                                <input type="file" id="step2_cFileInput_{{ $color->id }}" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="uploadColorPhotosAjax(this, {{ $color->id }}, '{{ $color->name }}')">
+                                            </div>
+                                        @else
+                                            <div class="izone-compact" onclick="document.getElementById('step2_cFileInput_{{ $color->id }}').click()" style="padding:10px 8px">
+                                                <i class="bi bi-cloud-arrow-up" style="font-size:18px;color:#0284c7"></i>
+                                                <div style="font-size:11.5px;font-weight:700;color:#00285a">+ Select {{ $color->name }} Photos</div>
+                                                <div style="font-size:10px;color:#94a3b8">Upload photos for this color</div>
+                                                <input type="file" id="step2_cFileInput_{{ $color->id }}" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleStep2ColorFiles(this, '{{ $color->id }}', '{{ $color->name }}')">
+                                            </div>
+                                            <div class="new-img-queue" id="step2_colorQueue_{{ $color->id }}" style="padding:8px 0 0;grid-template-columns:repeat(auto-fill,minmax(65px,1fr));gap:6px"></div>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
@@ -902,9 +1097,196 @@
         {{-- ═══════════════════════════════════════════════ --}}
         <div class="wiz-panel" id="step3" style="display:none">
 
+            {{-- 1. PRINT SIDES CONFIGURATION & MOCKUP IMAGES (FRONT & BACK) --}}
+            <div class="pc" style="margin-bottom:20px">
+                <div class="ph" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+                    <div>
+                        <div class="pt" style="display:flex;align-items:center;gap:8px">
+                            <i class="bi bi-layers-fill" style="color:#00285a"></i> PRINT SIDES & MOCKUPS (FRONT & BACK)
+                        </div>
+                        <div style="font-size:11px;color:#7a8fa6;margin-top:2px">Upload multiple mockup / design photos for Front Side and Back Side prints.</div>
+                    </div>
+                    <span style="background:#e0f2fe;color:#0369a1;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:5px">
+                        <i class="bi bi-aspect-ratio"></i> Front & Back Views
+                    </span>
+                </div>
+
+                {{-- Available Print Sides Selector --}}
+                <div class="print-sides-selector">
+                    <span style="font-size:12px;font-weight:700;color:#00285a;margin-right:8px">Print Options:</span>
+                    @php
+                        $curSides = old('available_print_sides', $isEdit ? ($product->available_print_sides ?? 'both') : 'both');
+                    @endphp
+                    <input type="hidden" name="available_print_sides" id="fieldPrintSides" value="{{ $curSides }}">
+                    
+                    <button type="button" class="print-side-pill {{ $curSides === 'both' ? 'active' : '' }}" id="pill_both" onclick="selectPrintSides('both')">
+                        <i class="bi bi-arrows-expand"></i> Both (Front & Back)
+                    </button>
+                    <button type="button" class="print-side-pill {{ $curSides === 'front_only' ? 'active' : '' }}" id="pill_front_only" onclick="selectPrintSides('front_only')">
+                        <i class="bi bi-arrow-left-circle"></i> Front Only
+                    </button>
+                    <button type="button" class="print-side-pill {{ $curSides === 'back_only' ? 'active' : '' }}" id="pill_back_only" onclick="selectPrintSides('back_only')">
+                        <i class="bi bi-arrow-right-circle"></i> Back Only
+                    </button>
+                </div>
+
+                <div class="print-sides-wrap" id="printSidesWrap">
+                    {{-- ── FRONT SIDE IMAGES ── --}}
+                    <div class="print-side-box" id="boxFrontSide">
+                        <div class="print-side-header">
+                            <div class="print-side-title">
+                                <i class="bi bi-person-bounding-box" style="color:#0284c7;font-size:16px"></i>
+                                <span>Front Side Print Images</span>
+                            </div>
+                            <span class="print-side-badge" id="frontCountBadge">
+                                {{ count($frontPrintImages ?? []) }} File{{ count($frontPrintImages ?? []) === 1 ? '' : 's' }}
+                            </span>
+                        </div>
+                        <div style="font-size:11px;color:#64748b">
+                            Multiple images supported. Select <strong>★ Main</strong> on any photo to set it as the primary front print.
+                        </div>
+
+                        {{-- In Edit mode, show existing Front Images --}}
+                        @if ($isEdit)
+                            <div class="side-img-grid" id="frontGrid">
+                                @forelse ($frontPrintImages as $fImg)
+                                    @php
+                                        $isProductCover = ($product->image === $fImg->url);
+                                    @endphp
+                                    <div class="icard {{ $fImg->is_primary ? 'main' : '' }} {{ $isProductCover ? 'is-cover' : '' }}" id="fimg_{{ $fImg->id ?: 'front' }}"
+                                         data-id="{{ $fImg->id ?: 'front' }}"
+                                         data-url="{{ $fImg->url }}"
+                                         data-source="{{ $fImg->source ?? 'media' }}"
+                                         data-side="front">
+                                        <img src="{{ $fImg->thumb_url ?: $fImg->url }}" alt="{{ $fImg->label }}">
+                                        <div class="ibadge" style="{{ $fImg->is_primary ? '' : 'display:none;' }}">★ FRONT MAIN</div>
+                                        <div class="ibadge-cover" style="{{ $isProductCover ? '' : 'display:none;' }}">★ COVER</div>
+                                        <div class="iact">
+                                            <button type="button" class="iab iab-cover js-set-cover"
+                                                    style="{{ $isProductCover ? 'display:none;' : '' }}"
+                                                    onclick="setMain('{{ $fImg->id ?: 'front' }}', '{{ $fImg->url }}', '{{ $fImg->source ?? 'media' }}')">
+                                                <i class="bi bi-star"></i> Cover
+                                            </button>
+                                            <button type="button" class="iab iab-main js-set-side-main"
+                                                    style="{{ $fImg->is_primary ? 'display:none;' : '' }}"
+                                                    onclick="setSideMain('front', '{{ $fImg->id ?: 'front' }}', '{{ $fImg->url }}', '{{ $fImg->source ?? 'media' }}')">
+                                                <i class="bi bi-star-fill"></i> Front
+                                            </button>
+                                            <button type="button" class="iab iab-del"
+                                                    onclick="deleteSideImage('front', '{{ $fImg->id ?: 'front' }}', '{{ $fImg->url }}', '{{ $fImg->source ?? 'media' }}')">
+                                                <i class="bi bi-trash-fill"></i> Del
+                                            </button>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="img-empty-note" id="frontEmptyNote" style="grid-column:1/-1;margin:0;padding:12px;font-size:11px">
+                                        No front side images uploaded yet.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            {{-- Dropzone / Upload for Front Side (Edit Mode) --}}
+                            <div class="izone-compact" onclick="document.getElementById('frontFilesInputEdit').click()">
+                                <i class="bi bi-cloud-arrow-up" style="font-size:22px;color:#0284c7"></i>
+                                <div style="font-size:12px;font-weight:700;color:#00285a">+ Upload Front Side Photos</div>
+                                <div style="font-size:10.5px;color:#94a3b8">Multiple files allowed · JPG, PNG, WEBP</div>
+                                <input type="file" id="frontFilesInputEdit" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="uploadSideFiles(this, 'front')">
+                            </div>
+
+                        @else
+                            {{-- Create Mode Front Side --}}
+                            <input type="hidden" name="designated_front_image_name" id="designatedFrontImageName" value="">
+                            <div class="izone-compact" onclick="document.getElementById('frontFilesInput').click()">
+                                <i class="bi bi-cloud-arrow-up" style="font-size:22px;color:#0284c7"></i>
+                                <div style="font-size:12px;font-weight:700;color:#00285a">+ Select Front Side Photos</div>
+                                <div style="font-size:10.5px;color:#94a3b8">Upload multiple images (Click or drop)</div>
+                                <input type="file" id="frontFilesInput" name="front_image_files[]" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="previewSideFiles(this, 'front')">
+                            </div>
+                            <div class="new-img-queue" id="frontQueue" style="padding:0"></div>
+                        @endif
+                    </div>
+
+                    {{-- ── BACK SIDE IMAGES ── --}}
+                    <div class="print-side-box" id="boxBackSide">
+                        <div class="print-side-header">
+                            <div class="print-side-title">
+                                <i class="bi bi-person-bounding-box" style="color:#7c3aed;font-size:16px"></i>
+                                <span>Back Side Print Images</span>
+                            </div>
+                            <span class="print-side-badge" style="background:#f3e8ff;color:#7c3aed" id="backCountBadge">
+                                {{ count($backPrintImages ?? []) }} File{{ count($backPrintImages ?? []) === 1 ? '' : 's' }}
+                            </span>
+                        </div>
+                        <div style="font-size:11px;color:#64748b">
+                            Multiple images supported. Select <strong>★ Main</strong> on any photo to set it as the primary back print.
+                        </div>
+
+                        {{-- In Edit mode, show existing Back Images --}}
+                        @if ($isEdit)
+                            <div class="side-img-grid" id="backGrid">
+                                @forelse ($backPrintImages as $bImg)
+                                    @php
+                                        $isProductCover = ($product->image === $bImg->url);
+                                    @endphp
+                                    <div class="icard {{ $bImg->is_primary ? 'main' : '' }} {{ $isProductCover ? 'is-cover' : '' }}" id="bimg_{{ $bImg->id ?: 'back' }}"
+                                         data-id="{{ $bImg->id ?: 'back' }}"
+                                         data-url="{{ $bImg->url }}"
+                                         data-source="{{ $bImg->source ?? 'media' }}"
+                                         data-side="back">
+                                        <img src="{{ $bImg->thumb_url ?: $bImg->url }}" alt="{{ $bImg->label }}">
+                                        <div class="ibadge" style="{{ $bImg->is_primary ? '' : 'display:none;' }}">★ BACK MAIN</div>
+                                        <div class="ibadge-cover" style="{{ $isProductCover ? '' : 'display:none;' }}">★ COVER</div>
+                                        <div class="iact">
+                                            <button type="button" class="iab iab-cover js-set-cover"
+                                                    style="{{ $isProductCover ? 'display:none;' : '' }}"
+                                                    onclick="setMain('{{ $bImg->id ?: 'back' }}', '{{ $bImg->url }}', '{{ $bImg->source ?? 'media' }}')">
+                                                <i class="bi bi-star"></i> Cover
+                                            </button>
+                                            <button type="button" class="iab iab-main js-set-side-main"
+                                                    style="{{ $bImg->is_primary ? 'display:none;' : '' }}"
+                                                    onclick="setSideMain('back', '{{ $bImg->id ?: 'back' }}', '{{ $bImg->url }}', '{{ $bImg->source ?? 'media' }}')">
+                                                <i class="bi bi-star-fill"></i> Back
+                                            </button>
+                                            <button type="button" class="iab iab-del"
+                                                    onclick="deleteSideImage('back', '{{ $bImg->id ?: 'back' }}', '{{ $bImg->url }}', '{{ $bImg->source ?? 'media' }}')">
+                                                <i class="bi bi-trash-fill"></i> Del
+                                            </button>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="img-empty-note" id="backEmptyNote" style="grid-column:1/-1;margin:0;padding:12px;font-size:11px">
+                                        No back side images uploaded yet.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            {{-- Dropzone / Upload for Back Side (Edit Mode) --}}
+                            <div class="izone-compact" onclick="document.getElementById('backFilesInputEdit').click()">
+                                <i class="bi bi-cloud-arrow-up" style="font-size:22px;color:#7c3aed"></i>
+                                <div style="font-size:12px;font-weight:700;color:#00285a">+ Upload Back Side Photos</div>
+                                <div style="font-size:10.5px;color:#94a3b8">Multiple files allowed · JPG, PNG, WEBP</div>
+                                <input type="file" id="backFilesInputEdit" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="uploadSideFiles(this, 'back')">
+                            </div>
+
+                        @else
+                            {{-- Create Mode Back Side --}}
+                            <input type="hidden" name="designated_back_image_name" id="designatedBackImageName" value="">
+                            <div class="izone-compact" onclick="document.getElementById('backFilesInput').click()">
+                                <i class="bi bi-cloud-arrow-up" style="font-size:22px;color:#7c3aed"></i>
+                                <div style="font-size:12px;font-weight:700;color:#00285a">+ Select Back Side Photos</div>
+                                <div style="font-size:10.5px;color:#94a3b8">Upload multiple images (Click or drop)</div>
+                                <input type="file" id="backFilesInput" name="back_image_files[]" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="previewSideFiles(this, 'back')">
+                            </div>
+                            <div class="new-img-queue" id="backQueue" style="padding:0"></div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- 2. ALL GALLERY & COLOR-SPECIFIC IMAGES --}}
             <div class="pc">
                 <div class="ph">
-                    <div class="pt">PRODUCT IMAGES</div>
+                    <div class="pt"><i class="bi bi-images" style="color:#00285a"></i> GALLERY & COLOR-SPECIFIC IMAGES</div>
                     <span style="font-size:12px;color:#7a8fa6"><i class="bi bi-cloud-upload"></i> ImageKit CDN</span>
                 </div>
 
@@ -922,20 +1304,49 @@
                         @endforeach
                     </div>
 
+                    <div class="img-manage-bar">
+                        <div class="img-manage-title">
+                            <span><i class="bi bi-images" style="color:#00285a"></i> Product Gallery</span>
+                            <span class="img-count-badge" id="imageCountBadge">{{ count($images) }} Image{{ count($images) == 1 ? '' : 's' }}</span>
+                        </div>
+                        <div style="font-size:11px;color:#64748b">
+                            <i class="bi bi-info-circle"></i> Hover over any image to set as <strong>★ Main</strong> or <strong>Delete</strong>
+                        </div>
+                    </div>
+
                     {{-- Image grid --}}
-                    <div class="igrid" id="igrid">
-                        @foreach ($images as $img)
-                            <div class="icard {{ $img->is_primary ? 'main' : '' }}" id="img_{{ $img->id }}" data-color-id="{{ $img->color_id ?? '' }}">
-                                <img src="{{ $img->url }}" alt="{{ $img->alt_text ?? 'Product image' }}">
-                                @if ($img->is_primary) <div class="ibadge">MAIN</div> @endif
+                    <div class="igrid" id="igrid" style="margin-top:10px">
+                        @forelse ($images as $img)
+                            @php
+                                $isProductCover = ((bool)$img->is_primary || $product->image === $img->url);
+                            @endphp
+                            <div class="icard {{ $isProductCover ? 'main is-cover' : '' }}" id="img_{{ $img->id }}"
+                                 data-id="{{ $img->id }}"
+                                 data-url="{{ $img->url }}"
+                                 data-source="{{ $img->source ?? 'media' }}"
+                                 data-color-id="{{ $img->color_id ?? '' }}">
+                                <img src="{{ $img->thumb_url ?: $img->url }}" alt="{{ $img->alt_text ?? 'Product image' }}">
+                                <div class="ibadge" style="{{ $isProductCover ? '' : 'display:none;' }}">★ COVER</div>
+                                @if (!empty($img->source_label))
+                                    <div class="isource">{{ $img->source_label }}</div>
+                                @endif
                                 <div class="iact">
-                                    @if (!$img->is_primary)
-                                        <button type="button" class="iab" style="background:#ffd700;color:#00285a" onclick="setMain({{ $img->id }})">Main</button>
-                                    @endif
-                                    <button type="button" class="iab" style="background:#ff3f6c;color:white" onclick="deleteImage({{ $img->id }})">Del</button>
+                                    <button type="button" class="iab iab-main js-set-main"
+                                            style="{{ $isProductCover ? 'display:none;' : '' }}"
+                                            onclick="setMain('{{ $img->id }}', '{{ $img->url }}', '{{ $img->source ?? 'media' }}')">
+                                        <i class="bi bi-star-fill"></i> Cover
+                                    </button>
+                                    <button type="button" class="iab iab-del js-delete-image"
+                                            onclick="deleteImage('{{ $img->id }}', '{{ $img->url }}', '{{ $img->source ?? 'media' }}')">
+                                        <i class="bi bi-trash-fill"></i> Del
+                                    </button>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="img-empty-note" id="imgEmptyNote" style="grid-column:1/-1">
+                                No images uploaded yet. Upload images using the dropzone below.
+                            </div>
+                        @endforelse
                     </div>
 
                     {{-- Upload zone --}}
@@ -949,10 +1360,11 @@
 
                 @else
                     {{-- CREATE MODE: queue images per color for form submit --}}
+                    <input type="hidden" name="designated_main_image_name" id="designatedMainImageName" value="">
+
                     <div style="padding:14px 20px 0">
-                        <div style="background:#e8f5e9;color:#2e7d32;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600">
-                            <i class="bi bi-info-circle-fill"></i>
-                            Upload images below. They will be saved when you submit the form.
+                        <div style="background:#e8f5e9;color:#2e7d32;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
+                            <div><i class="bi bi-info-circle-fill"></i> Upload images below. Select <strong>★ Main</strong> on any photo to set it as the primary cover image.</div>
                         </div>
                     </div>
 
@@ -1140,14 +1552,54 @@
 
 </div>
 
+{{-- Quick Add Color Modal --}}
+<div class="modal-bg" id="quickColorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;padding:16px">
+    <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+        <div style="font-size:16px;font-weight:800;color:#00285a;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+            <i class="bi bi-palette-fill" style="color:#0284c7"></i> Add New Color
+        </div>
+        <div class="fgrp" style="margin-bottom:12px">
+            <label>Color Name *</label>
+            <input type="text" id="qcName" class="fc" placeholder="e.g. Sage Green, Maroon">
+        </div>
+        <div class="fgrp" style="margin-bottom:12px">
+            <label>Hex Code</label>
+            <div style="display:flex;gap:8px;align-items:center">
+                <input type="color" id="qcHexPicker" value="#000000" style="width:44px;height:40px;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;padding:2px" oninput="document.getElementById('qcHex').value=this.value">
+                <input type="text" id="qcHex" class="fc" placeholder="#000000" maxlength="7" value="#000000" oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value)){document.getElementById('qcHexPicker').value=this.value}">
+            </div>
+        </div>
+        <div class="fgrp" style="margin-bottom:16px">
+            <label>T-Shirt Mockup / Photo</label>
+            <div style="display:flex;align-items:center;gap:10px">
+                <div id="qcImgWrap" style="width:48px;height:48px;border-radius:8px;border:1.5px dashed #cbd5e1;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                    <img id="qcImgPreview" src="" alt="Preview" style="width:100%;height:100%;object-fit:cover;display:none">
+                    <i id="qcImgPlaceholder" class="bi bi-image" style="font-size:18px;color:#94a3b8"></i>
+                </div>
+                <div style="flex:1">
+                    <input type="file" id="qcImage" accept="image/jpeg,image/png,image/webp" onchange="previewQuickColorImg(this)" style="font-size:12px;width:100%">
+                    <div style="font-size:10.5px;color:#94a3b8;margin-top:2px">Base t-shirt photo for this color (optional)</div>
+                </div>
+            </div>
+        </div>
+        <div id="qcError" style="color:#c62828;font-size:12px;margin-bottom:12px;display:none;background:#fce4ec;padding:8px 12px;border-radius:6px"></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+            <button type="button" class="btn btn-back" onclick="closeQuickColorModal()" style="padding:8px 18px">Cancel</button>
+            <button type="button" class="btn btn-next" id="btnSaveQuickColor" onclick="saveQuickColor()" style="padding:8px 18px">
+                <i class="bi bi-check-lg"></i> Save &amp; Use Color
+            </button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 // ── Data from PHP ────────────────────────────────────────
 var varIdx = {{ $isEdit && ($product->has_variants ?? false) && $variants->count() ? $variants->count() : 0 }};
 var CSRF   = document.querySelector('meta[name="csrf-token"]').content;
 var PRODUCT_ID = {{ $isEdit ? $product->id : 'null' }};
-var sizes  = @json($sizesArray->pluck('name'));
-var colors = @json($colorsArray->map(fn($c) => ['id'=>$c->id,'name'=>$c->name,'hex'=>$c->hex_code]));
+var sizes  = {!! json_encode($sizesArray->pluck('name')->values()) !!};
+var colors = {!! json_encode($colorsArray->map(fn($c) => ['id'=>$c->id, 'name'=>$c->name, 'hex'=>$c->hex_code, 'image'=>$c->image])->values()) !!};
 
 // ── Current wizard step ──────────────────────────────────
 var currentStep = 1;
@@ -1321,6 +1773,37 @@ function generateVariants() {
     syncImageTabs();
 }
 
+function toggleAllSizesForColor(colorName) {
+    var block = document.getElementById('sblock_' + CSS.escape(colorName));
+    if (!block) return;
+    var pills = block.querySelectorAll('.size-pill');
+    var anyUnchecked = Array.from(pills).some(function(p) {
+        var inp = p.querySelector('input');
+        return inp && !inp.checked;
+    });
+    pills.forEach(function(p) {
+        var inp = p.querySelector('input');
+        if (inp) {
+            inp.checked = anyUnchecked;
+            p.classList.toggle('selected', anyUnchecked);
+        }
+    });
+}
+
+function updateVariantRowSku(el) {
+    var tr = el.closest('tr');
+    if (!tr) return;
+    var skuInput = tr.querySelector('[name*="[sku]"]');
+    var sizeSel = tr.querySelector('[name*="[size]"]');
+    var colorSel = tr.querySelector('[name*="[color]"]');
+    if (!skuInput || skuInput.dataset.manualEdit === '1') return;
+
+    var baseSku = document.getElementById('fieldSku')?.value.trim().toUpperCase() || 'PRD';
+    var colorCode = (colorSel?.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
+    var sizeCode = (sizeSel?.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    skuInput.value = baseSku + (colorCode ? '-' + colorCode : '') + (sizeCode ? '-' + sizeCode : '');
+}
+
 function makeVariantRow(i, sizeName, colorName, colorHex) {
     var tr = document.createElement('tr');
     tr.className = 'vrow';
@@ -1332,15 +1815,20 @@ function makeVariantRow(i, sizeName, colorName, colorHex) {
                (c.name === colorName ? ' selected' : '') + '>' + c.name + '</option>';
     }).join('');
 
+    var baseSku = document.getElementById('fieldSku')?.value.trim().toUpperCase() || 'PRD';
+    var colorCode = (colorName || '').toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
+    var sizeCode = (sizeName || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    var rowSku = baseSku + (colorCode ? '-' + colorCode : '') + (sizeCode ? '-' + sizeCode : '');
+
     tr.innerHTML = `
-        <td><select class="vi" name="variants[${i}][size]" style="width:100%">${sizeOpts}</select></td>
-        <td><select class="vi" name="variants[${i}][color]" style="width:100%" onchange="updateSwatch(this);syncImageTabs()">${colorOpts}</select></td>
+        <td><select class="vi" name="variants[${i}][size]" style="width:100%" onchange="updateVariantRowSku(this)">${sizeOpts}</select></td>
+        <td><select class="vi" name="variants[${i}][color]" style="width:100%" onchange="updateSwatch(this);updateVariantRowSku(this);syncImageTabs()">${colorOpts}</select></td>
         <td><input class="ci" type="color" name="variants[${i}][color_hex]" value="${colorHex}"></td>
         <td><input class="vi" type="number" name="variants[${i}][price]" placeholder="Price" min="0" step="0.01" required></td>
         <td><input class="vi" type="number" name="variants[${i}][original_price]" placeholder="MRP" min="0" step="0.01"></td>
         <td><input class="vi" type="number" name="variants[${i}][cost_price]" placeholder="Cost" min="0" step="0.01"></td>
         <td><input class="vi" type="number" name="variants[${i}][stock]" placeholder="Qty" min="0" required></td>
-        <td><input class="vi" type="text" name="variants[${i}][sku]" placeholder="SKU"></td>
+        <td><input class="vi" type="text" name="variants[${i}][sku]" value="${rowSku}" placeholder="SKU" oninput="this.dataset.manualEdit='1'"></td>
         <td><button type="button" class="bdel" onclick="this.closest('tr').remove()">×</button></td>
     `;
     return tr;
@@ -1375,6 +1863,413 @@ function updateToggleStyle(input, id) {
     document.getElementById(id).classList.toggle('on', input.checked);
 }
 
+// ── Print Sides (Front & Back) Management ─────────────────
+var _sideTransfers = { front: new DataTransfer(), back: new DataTransfer() };
+
+function selectPrintSides(mode) {
+    var hidden = document.getElementById('fieldPrintSides');
+    if (hidden) hidden.value = mode;
+
+    document.querySelectorAll('.print-side-pill').forEach(function(p) { p.classList.remove('active'); });
+    var pill = document.getElementById('pill_' + mode);
+    if (pill) pill.classList.add('active');
+
+    var boxF = document.getElementById('boxFrontSide');
+    var boxB = document.getElementById('boxBackSide');
+    if (boxF && boxB) {
+        if (mode === 'front_only') {
+            boxF.style.opacity = '1';
+            boxF.style.filter = 'none';
+            boxB.style.opacity = '0.45';
+            boxB.style.filter = 'grayscale(40%)';
+        } else if (mode === 'back_only') {
+            boxB.style.opacity = '1';
+            boxB.style.filter = 'none';
+            boxF.style.opacity = '0.45';
+            boxF.style.filter = 'grayscale(40%)';
+        } else {
+            boxF.style.opacity = '1';
+            boxF.style.filter = 'none';
+            boxB.style.opacity = '1';
+            boxB.style.filter = 'none';
+        }
+    }
+}
+
+function setSideMain(side, id, url, source) {
+    if (!url) {
+        var card = document.getElementById((side === 'front' ? 'fimg_' : 'bimg_') + id);
+        if (card) url = card.getAttribute('data-url');
+        if (!source && card) source = card.getAttribute('data-source') || 'media';
+    }
+
+    var setMainRoute = '{{ $isEdit ? route('admin.products.set-main-image', $product->id) : '' }}';
+    if (!setMainRoute) return;
+
+    fetch(setMainRoute, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: url, image_id: id, source: source, target: side })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (!res.success) {
+            showToast(res.message || 'Failed to update', 'error');
+            return;
+        }
+
+        var gridId = side === 'front' ? 'frontGrid' : 'backGrid';
+        var prefix = side === 'front' ? 'fimg_' : 'bimg_';
+        var badgeText = side === 'front' ? '★ FRONT MAIN' : '★ BACK MAIN';
+
+        document.querySelectorAll('#' + gridId + ' .icard').forEach(function(c) {
+            c.classList.remove('main');
+            var b = c.querySelector('.ibadge');
+            if (b) b.style.display = 'none';
+            var mainBtn = c.querySelector('.js-set-side-main');
+            if (mainBtn) mainBtn.style.display = '';
+        });
+
+        var card = document.getElementById(prefix + id);
+        if (card) {
+            card.classList.add('main');
+            var b = card.querySelector('.ibadge');
+            if (b) {
+                b.textContent = badgeText;
+                b.style.display = '';
+            } else {
+                card.insertAdjacentHTML('afterbegin', '<div class="ibadge">' + badgeText + '</div>');
+            }
+            var mainBtn = card.querySelector('.js-set-side-main');
+            if (mainBtn) mainBtn.style.display = 'none';
+        }
+
+        showToast(res.message || '★ Primary ' + side + ' image updated!', 'success');
+    })
+    .catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+    });
+}
+
+function deleteSideImage(side, id, url, source) {
+    if (!confirm('Delete this ' + side + ' side image?')) return;
+
+    if (!url) {
+        var card = document.getElementById((side === 'front' ? 'fimg_' : 'bimg_') + id);
+        if (card) url = card.getAttribute('data-url');
+        if (!source && card) source = card.getAttribute('data-source') || 'media';
+    }
+
+    var delRoute = '{{ $isEdit ? route('admin.products.delete-image', $product->id) : '' }}';
+    if (!delRoute) return;
+
+    fetch(delRoute, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: url, image_id: id, source: source, collection: side + '_print' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (!res.success) {
+            showToast(res.message || 'Failed to delete image', 'error');
+            return;
+        }
+
+        var prefix = side === 'front' ? 'fimg_' : 'bimg_';
+        var gridId = side === 'front' ? 'frontGrid' : 'backGrid';
+        var countBadgeId = side === 'front' ? 'frontCountBadge' : 'backCountBadge';
+        var emptyNoteId = side === 'front' ? 'frontEmptyNote' : 'backEmptyNote';
+
+        var card = document.getElementById(prefix + id);
+        if (card) {
+            card.style.transition = 'transform .2s, opacity .2s';
+            card.style.transform = 'scale(0.8)';
+            card.style.opacity = '0';
+            setTimeout(function() {
+                card.remove();
+                var remaining = document.querySelectorAll('#' + gridId + ' .icard').length;
+                var badge = document.getElementById(countBadgeId);
+                if (badge) badge.textContent = remaining + ' File' + (remaining === 1 ? '' : 's');
+                if (remaining === 0) {
+                    var grid = document.getElementById(gridId);
+                    if (grid && !document.getElementById(emptyNoteId)) {
+                        grid.innerHTML = '<div class="img-empty-note" id="' + emptyNoteId + '" style="grid-column:1/-1;margin:0;padding:12px;font-size:11px">No ' + side + ' side images uploaded yet.</div>';
+                    }
+                }
+            }, 200);
+        }
+
+        showToast(side.toUpperCase() + ' image deleted ✓', 'success');
+    })
+    .catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+    });
+}
+
+function uploadSideFiles(input, side) {
+    var files = Array.from(input.files || []).filter(function(f) { return f.type.startsWith('image/'); });
+    if (!files.length) return;
+
+    var total = files.length, done = 0;
+    showToast('Uploading ' + total + ' ' + side + ' image(s)…', 'info');
+
+    var collection = side + '_print';
+    var gridId = side === 'front' ? 'frontGrid' : 'backGrid';
+    var countBadgeId = side === 'front' ? 'frontCountBadge' : 'backCountBadge';
+    var emptyNoteId = side === 'front' ? 'frontEmptyNote' : 'backEmptyNote';
+    var prefix = side === 'front' ? 'fimg_' : 'bimg_';
+    var badgeText = side === 'front' ? '★ FRONT MAIN' : '★ BACK MAIN';
+
+    files.forEach(function(file) {
+        if (file.size > 5 * 1024 * 1024) {
+            showToast(file.name + ' too large (max 5MB)', 'error');
+            done++; return;
+        }
+
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('model_type', 'product');
+        fd.append('model_id', PRODUCT_ID);
+        fd.append('collection', collection);
+        fd.append('alt_text', side === 'front' ? 'Front Print' : 'Back Print');
+        var isFirst = document.querySelectorAll('#' + gridId + ' .icard').length === 0;
+        fd.append('is_primary', isFirst ? '1' : '0');
+
+        fetch('{{ route('admin.media.upload') }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': CSRF },
+            body: fd
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            done++;
+            if (data.success) {
+                var emptyNote = document.getElementById(emptyNoteId);
+                if (emptyNote) emptyNote.remove();
+
+                var grid = document.getElementById(gridId);
+                var media = data.media;
+                var isPrimary = media.is_primary || isFirst;
+
+                var card = document.createElement('div');
+                card.className = 'icard' + (isPrimary ? ' main' : '');
+                card.id = prefix + media.id;
+                card.setAttribute('data-id', media.id);
+                card.setAttribute('data-url', media.url);
+                card.setAttribute('data-source', 'media');
+                card.setAttribute('data-side', side);
+
+                var badgeStyle = isPrimary ? '' : 'display:none;';
+                var mainBtnStyle = isPrimary ? 'display:none;' : '';
+
+                card.innerHTML = `
+                    <img src="${media.thumb_url || media.url}" alt="${media.alt_text || side}">
+                    <div class="ibadge" style="${badgeStyle}">${badgeText}</div>
+                    <div class="iact">
+                        <button type="button" class="iab iab-main js-set-side-main" style="${mainBtnStyle}" onclick="setSideMain('${side}', '${media.id}', '${media.url}', 'media')">
+                            <i class="bi bi-star-fill"></i> Main
+                        </button>
+                        <button type="button" class="iab iab-del" onclick="deleteSideImage('${side}', '${media.id}', '${media.url}', 'media')">
+                            <i class="bi bi-trash-fill"></i> Del
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+
+                var badge = document.getElementById(countBadgeId);
+                if (badge) {
+                    var totalCards = grid.querySelectorAll('.icard').length;
+                    badge.textContent = totalCards + ' File' + (totalCards === 1 ? '' : 's');
+                }
+
+                if (typeof addImageCard === 'function') {
+                    addImageCard(media);
+                }
+
+                showToast(side.toUpperCase() + ' image uploaded ✓', 'success');
+            } else {
+                showToast('Upload failed: ' + (data.message || 'Unknown'), 'error');
+            }
+        })
+        .catch(function(err) {
+            done++;
+            showToast('Error: ' + err.message, 'error');
+        });
+    });
+
+    input.value = '';
+}
+
+function previewSideFiles(input, side) {
+    var queue = document.getElementById(side + 'Queue');
+    if (!queue) return;
+
+    var dt = _sideTransfers[side];
+    var newFiles = Array.from(input.files || []);
+
+    newFiles.forEach(function(file) {
+        if (!file.type.startsWith('image/')) return;
+
+        for (var i = 0; i < dt.items.length; i++) {
+            var ex = dt.items[i].getAsFile();
+            if (ex && ex.name === file.name && ex.size === file.size) return;
+        }
+
+        dt.items.add(file);
+
+        var thumb = document.createElement('div');
+        thumb.className = 'new-img-thumb';
+        thumb.setAttribute('data-file-name', file.name);
+
+        var hiddenSideMain = document.getElementById('designated' + (side === 'front' ? 'Front' : 'Back') + 'ImageName');
+        var isSideMain = (hiddenSideMain && hiddenSideMain.value === file.name);
+        if (hiddenSideMain && !hiddenSideMain.value) {
+            hiddenSideMain.value = file.name;
+            isSideMain = true;
+        }
+        if (isSideMain) thumb.classList.add('main');
+
+        var hiddenCover = document.getElementById('designatedMainImageName');
+        var isCover = (hiddenCover && hiddenCover.value === file.name);
+        if (hiddenCover && !hiddenCover.value && side === 'front' && isSideMain) {
+            hiddenCover.value = file.name;
+            isCover = true;
+        }
+        if (isCover) thumb.classList.add('is-cover');
+
+        var img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.onload = function() { URL.revokeObjectURL(img.src); };
+
+        var badge = document.createElement('div');
+        badge.className = 'new-img-badge';
+        badge.textContent = side === 'front' ? '★ FRONT MAIN' : '★ BACK MAIN';
+        badge.style.display = isSideMain ? 'block' : 'none';
+
+        var coverBadge = document.createElement('div');
+        coverBadge.className = 'new-img-badge-cover';
+        coverBadge.textContent = '★ COVER';
+        coverBadge.style.display = isCover ? 'block' : 'none';
+
+        var act = document.createElement('div');
+        act.className = 'new-img-act';
+
+        var btnCover = document.createElement('button');
+        btnCover.type = 'button';
+        btnCover.className = 'new-img-btn-cover';
+        btnCover.innerHTML = '<i class="bi bi-star"></i> Cover';
+        btnCover.style.display = isCover ? 'none' : '';
+        btnCover.onclick = function() {
+            setNewDesignatedMain(file.name);
+        };
+
+        var btnSideMain = document.createElement('button');
+        btnSideMain.type = 'button';
+        btnSideMain.className = 'new-img-btn-main';
+        btnSideMain.innerHTML = '<i class="bi bi-star-fill"></i> ' + (side === 'front' ? 'Front' : 'Back');
+        btnSideMain.style.display = isSideMain ? 'none' : '';
+        btnSideMain.onclick = function() {
+            setDesignatedSideMain(side, file.name);
+        };
+
+        act.appendChild(btnCover);
+        act.appendChild(btnSideMain);
+
+        var rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'new-img-rm';
+        rm.innerHTML = '×';
+        rm.title = 'Remove image';
+        rm.onclick = function() {
+            removeSideFile(input, side, file.name, thumb);
+        };
+
+        thumb.appendChild(img);
+        thumb.appendChild(badge);
+        thumb.appendChild(coverBadge);
+        thumb.appendChild(act);
+        thumb.appendChild(rm);
+        queue.appendChild(thumb);
+    });
+
+    input.files = dt.files;
+    var countBadge = document.getElementById(side + 'CountBadge');
+    if (countBadge) {
+        countBadge.textContent = dt.files.length + ' File' + (dt.files.length === 1 ? '' : 's');
+    }
+}
+
+function setDesignatedSideMain(side, fileName) {
+    var hiddenMain = document.getElementById('designated' + (side === 'front' ? 'Front' : 'Back') + 'ImageName');
+    if (hiddenMain) hiddenMain.value = fileName;
+
+    var queue = document.getElementById(side + 'Queue');
+    if (queue) {
+        queue.querySelectorAll('.new-img-thumb').forEach(function(t) {
+            var match = (t.getAttribute('data-file-name') === fileName);
+            t.classList.toggle('main', match);
+            var b = t.querySelector('.new-img-badge');
+            if (b) b.style.display = match ? 'block' : 'none';
+            var btn = t.querySelector('.new-img-btn-main');
+            if (btn) btn.style.display = match ? 'none' : '';
+        });
+    }
+    showToast('★ ' + side.toUpperCase() + ' primary set to ' + fileName, 'success');
+}
+
+function removeSideFile(input, side, fileName, thumbElement) {
+    var dt = _sideTransfers[side];
+    if (dt) {
+        var newDt = new DataTransfer();
+        for (var i = 0; i < dt.items.length; i++) {
+            var f = dt.items[i].getAsFile();
+            if (f && f.name !== fileName) {
+                newDt.items.add(f);
+            }
+        }
+        _sideTransfers[side] = newDt;
+        input.files = newDt.files;
+    }
+
+    var wasSideMain = thumbElement.classList.contains('main');
+    var wasCover = thumbElement.classList.contains('is-cover');
+    thumbElement.remove();
+
+    var countBadge = document.getElementById(side + 'CountBadge');
+    if (countBadge && dt) {
+        countBadge.textContent = dt.files.length + ' File' + (dt.files.length === 1 ? '' : 's');
+    }
+
+    if (wasSideMain) {
+        var queue = document.getElementById(side + 'Queue');
+        var firstRemaining = queue ? queue.querySelector('.new-img-thumb') : null;
+        if (firstRemaining) {
+            setDesignatedSideMain(side, firstRemaining.getAttribute('data-file-name'));
+        } else {
+            var hiddenMain = document.getElementById('designated' + (side === 'front' ? 'Front' : 'Back') + 'ImageName');
+            if (hiddenMain) hiddenMain.value = '';
+        }
+    }
+
+    if (wasCover) {
+        var anyFirstThumb = document.querySelector('.new-img-thumb');
+        if (anyFirstThumb) {
+            setNewDesignatedMain(anyFirstThumb.getAttribute('data-file-name'));
+        } else {
+            var hiddenCover = document.getElementById('designatedMainImageName');
+            if (hiddenCover) hiddenCover.value = '';
+        }
+    }
+}
+
 // ── Image Tabs (Edit mode) ────────────────────────────────
 function switchColorTab(el, colorId) {
     document.querySelectorAll('#imgColorTabs .color-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -1400,25 +2295,275 @@ function switchNewTab(el, colorId) {
     if (panel) panel.classList.add('active');
 }
 
+// ── SKU Generation & Validation ───────────────────────────
+var skuCheckTimeout = null;
+
+function fillProductSku() {
+    var nameVal = document.getElementById('fieldName')?.value || '';
+    var catVal  = document.getElementById('fieldCategory')?.value || '';
+    var prodId  = typeof PRODUCT_ID !== 'undefined' ? PRODUCT_ID : '';
+
+    var btn = document.getElementById('btnAutoSku');
+    var spinner = document.getElementById('skuSpinner');
+    var skuInput = document.getElementById('fieldSku');
+
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.style.display = 'block';
+
+    var url = '{{ route('admin.products.generate-sku') }}?category_id=' + encodeURIComponent(catVal) +
+              '&name=' + encodeURIComponent(nameVal) +
+              (prodId ? '&product_id=' + encodeURIComponent(prodId) : '');
+
+    fetch(url, { headers: { 'Accept': 'application/json' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (btn) btn.disabled = false;
+            if (spinner) spinner.style.display = 'none';
+
+            if (data.sku) {
+                if (skuInput) {
+                    skuInput.value = data.sku;
+                    checkSkuAvailability(data.sku);
+                }
+                showToast('Unique SKU generated: ' + data.sku + ' ✓', 'success');
+                syncVariantSkus(data.sku);
+            }
+        })
+        .catch(function(err) {
+            if (btn) btn.disabled = false;
+            if (spinner) spinner.style.display = 'none';
+            showToast('Error generating SKU', 'error');
+        });
+}
+
+function debounceCheckSku(val) {
+    clearTimeout(skuCheckTimeout);
+    var sku = (val || '').trim().toUpperCase();
+    var skuInput = document.getElementById('fieldSku');
+    if (skuInput && skuInput.value !== sku) {
+        skuInput.value = sku;
+    }
+
+    if (!sku) {
+        var fb = document.getElementById('skuFeedback');
+        if (fb) { fb.style.display = 'none'; fb.textContent = ''; }
+        return;
+    }
+
+    skuCheckTimeout = setTimeout(function() {
+        checkSkuAvailability(sku);
+    }, 350);
+}
+
+function checkSkuAvailability(sku) {
+    var fb = document.getElementById('skuFeedback');
+    var spinner = document.getElementById('skuSpinner');
+    var prodId = typeof PRODUCT_ID !== 'undefined' ? PRODUCT_ID : '';
+
+    if (spinner) spinner.style.display = 'block';
+
+    var url = '{{ route('admin.products.check-sku') }}?sku=' + encodeURIComponent(sku) +
+              (prodId ? '&product_id=' + encodeURIComponent(prodId) : '');
+
+    fetch(url, { headers: { 'Accept': 'application/json' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (spinner) spinner.style.display = 'none';
+            if (!fb) return;
+
+            fb.style.display = 'block';
+            if (data.exists) {
+                fb.style.color = '#dc2626';
+                fb.innerHTML = '<i class="bi bi-x-circle-fill"></i> SKU "' + sku + '" already exists! Click "Auto SKU" to auto-increment.';
+            } else {
+                fb.style.color = '#16a34a';
+                fb.innerHTML = '<i class="bi bi-check-circle-fill"></i> SKU "' + sku + '" is 100% unique & available!';
+            }
+        })
+        .catch(function() {
+            if (spinner) spinner.style.display = 'none';
+        });
+}
+
+function syncVariantSkus(baseSku) {
+    if (!baseSku) return;
+    var rows = document.querySelectorAll('#varBody .vrow');
+    rows.forEach(function(tr) {
+        var sizeSel = tr.querySelector('[name*="[size]"]');
+        var colorSel = tr.querySelector('[name*="[color]"]');
+        var skuInput = tr.querySelector('[name*="[sku]"]');
+        if (skuInput && !skuInput.value && sizeSel && colorSel) {
+            var size = sizeSel.value ? sizeSel.value.toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
+            var color = colorSel.value ? colorSel.value.toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
+            if (size && color) {
+                skuInput.value = baseSku + '-' + color.substring(0, 3) + '-' + size;
+            }
+        }
+    });
+}
+
+// ── Image Tabs (Create mode) ──────────────────────────────
+var _fileTransfers = {};
+
 function previewNewImages(input, colorId) {
     var queue = document.getElementById('newqueue_' + colorId);
     if (!queue) return;
-    Array.from(input.files || []).forEach(function(file) {
+
+    var key = colorId || '0';
+    if (!_fileTransfers[key]) {
+        _fileTransfers[key] = new DataTransfer();
+    }
+
+    var dt = _fileTransfers[key];
+    var newFiles = Array.from(input.files || []);
+
+    newFiles.forEach(function(file) {
         if (!file.type.startsWith('image/')) return;
+
+        // Check if already added
+        for (var i = 0; i < dt.items.length; i++) {
+            var existing = dt.items[i].getAsFile();
+            if (existing && existing.name === file.name && existing.size === file.size) {
+                return;
+            }
+        }
+
+        dt.items.add(file);
+
         var thumb = document.createElement('div');
         thumb.className = 'new-img-thumb';
+        thumb.setAttribute('data-file-name', file.name);
+
+        var mainInput = document.getElementById('designatedMainImageName');
+        var isDesignatedMain = (mainInput && mainInput.value === file.name);
+        if (mainInput && !mainInput.value) {
+            mainInput.value = file.name;
+            isDesignatedMain = true;
+        }
+
+        if (isDesignatedMain) {
+            thumb.classList.add('is-cover', 'main');
+        }
+
         var img = document.createElement('img');
         img.src = URL.createObjectURL(file);
         img.onload = function() { URL.revokeObjectURL(img.src); };
+
+        var badge = document.createElement('div');
+        badge.className = 'new-img-badge';
+        badge.textContent = '★ COVER';
+        badge.style.display = isDesignatedMain ? 'block' : 'none';
+
+        var act = document.createElement('div');
+        act.className = 'new-img-act';
+        var mainBtn = document.createElement('button');
+        mainBtn.type = 'button';
+        mainBtn.className = 'new-img-btn-main';
+        mainBtn.style.flex = '1';
+        mainBtn.style.display = isDesignatedMain ? 'none' : '';
+        mainBtn.innerHTML = '<i class="bi bi-star-fill"></i> Set Cover';
+        mainBtn.onclick = function() {
+            setNewDesignatedMain(file.name);
+        };
+        act.appendChild(mainBtn);
+
         var rm = document.createElement('button');
         rm.type = 'button';
         rm.className = 'new-img-rm';
-        rm.textContent = '×';
-        rm.onclick = function() { thumb.remove(); };
+        rm.innerHTML = '×';
+        rm.title = 'Remove image';
+        rm.onclick = function() {
+            removeNewFile(input, key, file.name, thumb);
+        };
+
         thumb.appendChild(img);
+        thumb.appendChild(badge);
+        thumb.appendChild(act);
         thumb.appendChild(rm);
         queue.appendChild(thumb);
     });
+
+    input.files = dt.files;
+    if (colorId) {
+        renderStep2ColorQueue(colorId);
+    }
+}
+
+function setNewDesignatedMain(fileName) {
+    var mainInput = document.getElementById('designatedMainImageName');
+    if (mainInput) mainInput.value = fileName;
+
+    document.querySelectorAll('.new-img-thumb').forEach(function(t) {
+        var isThis = (t.getAttribute('data-file-name') === fileName);
+        t.classList.toggle('is-cover', isThis);
+
+        // General/color queue badge
+        var b = t.querySelector('.new-img-badge');
+        if (b && !t.closest('#frontQueue') && !t.closest('#backQueue')) {
+            b.textContent = '★ COVER';
+            b.style.display = isThis ? 'block' : 'none';
+        }
+
+        // Side queues cover badge
+        var cb = t.querySelector('.new-img-badge-cover');
+        if (cb) cb.style.display = isThis ? 'block' : 'none';
+
+        var btnCover = t.querySelector('.new-img-btn-cover');
+        if (btnCover) btnCover.style.display = isThis ? 'none' : '';
+
+        var btnMain = t.querySelector('.new-img-btn-main');
+        if (btnMain && !t.closest('#frontQueue') && !t.closest('#backQueue')) {
+            btnMain.style.display = isThis ? 'none' : '';
+        }
+    });
+
+    document.querySelectorAll('[id^="step2_colorQueue_"] .new-img-thumb').forEach(function(t) {
+        var isThis = (t.getAttribute('data-file-name') === fileName);
+        t.classList.toggle('is-cover', isThis);
+        t.classList.toggle('main', isThis);
+        var b = t.querySelector('.new-img-badge');
+        if (b) b.style.display = isThis ? 'block' : 'none';
+        var btnCover = t.querySelector('.new-img-btn-cover');
+        if (btnCover) btnCover.style.display = isThis ? 'none' : '';
+    });
+
+    showToast('★ Cover image set to ' + fileName, 'success');
+}
+
+function removeNewFile(input, key, fileName, thumbElement) {
+    var dt = _fileTransfers[key];
+    if (dt) {
+        var newDt = new DataTransfer();
+        for (var i = 0; i < dt.items.length; i++) {
+            var f = dt.items[i].getAsFile();
+            if (f && f.name !== fileName) {
+                newDt.items.add(f);
+            }
+        }
+        _fileTransfers[key] = newDt;
+        input.files = newDt.files;
+    }
+
+    if (key && key !== '0') {
+        var step2Queue = document.getElementById('step2_colorQueue_' + key);
+        if (step2Queue) {
+            var step2Thumb = step2Queue.querySelector('.new-img-thumb[data-file-name="' + CSS.escape(fileName) + '"]');
+            if (step2Thumb) step2Thumb.remove();
+        }
+    }
+
+    var wasCover = thumbElement.classList.contains('is-cover') || thumbElement.classList.contains('main');
+    thumbElement.remove();
+
+    if (wasCover) {
+        var anyFirstThumb = document.querySelector('.new-img-thumb');
+        if (anyFirstThumb) {
+            setNewDesignatedMain(anyFirstThumb.getAttribute('data-file-name'));
+        } else {
+            var mainInput = document.getElementById('designatedMainImageName');
+            if (mainInput) mainInput.value = '';
+        }
+    }
 }
 
 // ── Sync image tabs based on selected variant colors ──────
@@ -1435,18 +2580,20 @@ var uploading = false;
 window._currentUploadColorId   = '';
 window._currentUploadColorName = 'All Images';
 
-dropzone.addEventListener('click', function() { fileInput.click(); });
-fileInput.addEventListener('change', function(e) {
-    if (e.target.files.length > 0) { uploadFiles(Array.from(e.target.files)); fileInput.value = ''; }
-});
-dropzone.addEventListener('dragover',  function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
-dropzone.addEventListener('dragleave', function()  { dropzone.classList.remove('dragover'); });
-dropzone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    dropzone.classList.remove('dragover');
-    var files = Array.from(e.dataTransfer.files).filter(function(f) { return f.type.startsWith('image/'); });
-    if (files.length) uploadFiles(files);
-});
+if (dropzone && fileInput) {
+    dropzone.addEventListener('click', function() { fileInput.click(); });
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) { uploadFiles(Array.from(e.target.files)); fileInput.value = ''; }
+    });
+    dropzone.addEventListener('dragover',  function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', function()  { dropzone.classList.remove('dragover'); });
+    dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        var files = Array.from(e.dataTransfer.files).filter(function(f) { return f.type.startsWith('image/'); });
+        if (files.length) uploadFiles(files);
+    });
+}
 
 function uploadFiles(files) {
     if (uploading) return;
@@ -1464,7 +2611,7 @@ function uploadFiles(files) {
         fd.append('model_type', 'product');
         fd.append('model_id', PRODUCT_ID);
         fd.append('collection', 'default');
-        fd.append('is_primary', document.querySelectorAll('.icard').length === 0 ? '1' : '0');
+        fd.append('is_primary', document.querySelectorAll('#igrid .icard').length === 0 ? '1' : '0');
         if (window._currentUploadColorId) {
             fd.append('color_id', window._currentUploadColorId);
             fd.append('alt_text', window._currentUploadColorName);
@@ -1484,46 +2631,670 @@ function uploadFiles(files) {
 }
 
 function addImageCard(media) {
+    var emptyNote = document.getElementById('imgEmptyNote');
+    if (emptyNote) emptyNote.remove();
+
     var grid = document.getElementById('igrid');
+    var isFirst = grid.querySelectorAll('.icard').length === 0;
+    var isMain = media.is_primary || isFirst;
+
     var div  = document.createElement('div');
-    div.className = 'icard' + (media.is_primary ? ' main' : '');
+    div.className = 'icard' + (isMain ? ' main' : '');
     div.id = 'img_' + media.id;
+    div.setAttribute('data-id', media.id);
+    div.setAttribute('data-url', media.url);
+    div.setAttribute('data-source', 'media');
     div.setAttribute('data-color-id', media.color_id || '');
+
+    var imgUrl = media.thumb_url || media.url;
+    var mainDisplay = isMain ? 'style="display:none;"' : '';
+    var badgeDisplay = isMain ? '' : 'style="display:none;"';
+
     div.innerHTML = `
-        <img src="${media.thumb_url || media.url}" alt="${media.alt_text || 'Product image'}">
-        ${media.is_primary ? '<div class="ibadge">MAIN</div>' : ''}
+        <img src="${imgUrl}" alt="${media.alt_text || 'Product image'}">
+        <div class="ibadge" ${badgeDisplay}>★ COVER</div>
         <div class="iact">
-            ${!media.is_primary ? '<button type="button" class="iab" style="background:#ffd700;color:#00285a" onclick="setMain(' + media.id + ')">Main</button>' : ''}
-            <button type="button" class="iab" style="background:#ff3f6c;color:white" onclick="deleteImage(' + media.id + ')">Del</button>
+            <button type="button" class="iab iab-main js-set-main" ${mainDisplay} onclick="setMain('${media.id}', '${media.url}', 'media')">
+                <i class="bi bi-star-fill"></i> Cover
+            </button>
+            <button type="button" class="iab iab-del js-delete-image" onclick="deleteImage('${media.id}', '${media.url}', 'media')">
+                <i class="bi bi-trash-fill"></i> Del
+            </button>
         </div>`;
     grid.appendChild(div);
+
+    if (media.color_id) {
+        var cGrid = document.getElementById('colorGrid_' + media.color_id);
+        if (cGrid && !document.getElementById('cimg_' + media.id)) {
+            var cCard = document.createElement('div');
+            cCard.className = 'icard' + (isMain ? ' main is-cover' : '');
+            cCard.id = 'cimg_' + media.id;
+            cCard.setAttribute('data-id', media.id);
+            cCard.setAttribute('data-url', media.url);
+            cCard.style.aspectRatio = '1';
+            cCard.style.borderRadius = '8px';
+            cCard.innerHTML = `
+                <img src="${imgUrl}" alt="${media.alt_text || 'Color photo'}">
+                <div class="ibadge-cover" ${isMain ? '' : 'style="display:none;"'}>★ COVER</div>
+                <div class="iact" style="padding:2px">
+                    <button type="button" class="iab iab-cover js-set-cover" ${isMain ? 'style="display:none;"' : ''} style="font-size:8.5px;padding:2px" onclick="setMain('${media.id}', '${media.url}', 'product_image')">
+                        Cover
+                    </button>
+                    <button type="button" class="iab iab-del" style="font-size:8.5px;padding:2px" onclick="deleteColorImageAjax('${media.id}', '${media.url}', ${media.color_id})">
+                        Del
+                    </button>
+                </div>
+            `;
+            cGrid.appendChild(cCard);
+        }
+    }
+
+    var countBadge = document.getElementById('imageCountBadge');
+    if (countBadge) {
+        var total = grid.querySelectorAll('.icard').length;
+        countBadge.textContent = total + ' Image' + (total === 1 ? '' : 's');
+    }
 }
 
-function setMain(id) {
-    fetch('/admin/media/' + id + '/primary', { method:'POST', headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json','Content-Type':'application/json'}, body:'{}' })
-        .then(function(r) { return r.json(); })
-        .then(function(res) {
-            if (!res.success) return;
-            document.querySelectorAll('.icard').forEach(function(card) {
-                card.classList.remove('main');
-                var badge = card.querySelector('.ibadge'); if (badge) badge.remove();
+function setMain(id, url, source) {
+    if (!url) {
+        var card = document.getElementById('img_' + id) || document.getElementById('fimg_' + id) || document.getElementById('bimg_' + id) || document.getElementById('cimg_' + id);
+        if (card) url = card.getAttribute('data-url');
+        if (!source && card) source = card.getAttribute('data-source') || 'media';
+    }
+
+    var setMainRoute = '{{ $isEdit ? route('admin.products.set-main-image', $product->id) : '' }}';
+    if (!setMainRoute) return;
+
+    fetch(setMainRoute, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: url, image_id: id, source: source, target: 'main' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (!res.success) {
+            showToast(res.message || 'Failed to set main cover image', 'error');
+            return;
+        }
+
+        // Reset all cards across igrid, frontGrid, backGrid, color grids
+        document.querySelectorAll('.icard').forEach(function(c) {
+            c.classList.remove('is-cover');
+            var coverBadge = c.querySelector('.ibadge-cover');
+            if (coverBadge) coverBadge.style.display = 'none';
+            var coverBtn = c.querySelector('.js-set-cover');
+            if (coverBtn) coverBtn.style.display = '';
+        });
+        document.querySelectorAll('#igrid .icard').forEach(function(c) {
+            c.classList.remove('main');
+            var b = c.querySelector('.ibadge');
+            if (b) b.style.display = 'none';
+            var mainBtn = c.querySelector('.js-set-main');
+            if (mainBtn) mainBtn.style.display = '';
+        });
+
+        // Activate clicked card and any matching URL cards
+        var card = document.getElementById('img_' + id) || document.getElementById('fimg_' + id) || document.getElementById('bimg_' + id) || document.getElementById('cimg_' + id);
+        if (!card && url) {
+            card = document.querySelector('.icard[data-url="' + CSS.escape(url) + '"]');
+        }
+
+        if (card) {
+            card.classList.add('is-cover');
+            var coverBadge = card.querySelector('.ibadge-cover');
+            if (coverBadge) {
+                coverBadge.style.display = '';
+            } else if (!card.closest('#igrid')) {
+                card.insertAdjacentHTML('beforeend', '<div class="ibadge-cover">★ COVER</div>');
+            }
+            var coverBtn = card.querySelector('.js-set-cover');
+            if (coverBtn) coverBtn.style.display = 'none';
+
+            if (card.closest('#igrid')) {
+                card.classList.add('main');
+                var b = card.querySelector('.ibadge');
+                if (b) b.style.display = '';
+                var mainBtn = card.querySelector('.js-set-main');
+                if (mainBtn) mainBtn.style.display = 'none';
+            }
+        }
+
+        if (url) {
+            document.querySelectorAll('.icard[data-url="' + CSS.escape(url) + '"]').forEach(function(c) {
+                c.classList.add('is-cover');
+                var cb = c.querySelector('.ibadge-cover');
+                if (cb) cb.style.display = '';
+                var cbtn = c.querySelector('.js-set-cover');
+                if (cbtn) cbtn.style.display = 'none';
             });
-            var card = document.getElementById('img_' + id);
-            if (card) { card.classList.add('main'); card.insertAdjacentHTML('afterbegin','<div class="ibadge">MAIN</div>'); }
-            showToast('Main image updated', 'success');
-        });
+        }
+        showToast('★ Primary cover photo updated!', 'success');
+    })
+    .catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+    });
 }
 
-function deleteImage(id) {
-    if (!confirm('Delete this image?')) return;
-    fetch('{{ route('admin.media.destroy', ['media' => '__ID__']) }}'.replace('__ID__', id),
-          { method:'DELETE', headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json','Content-Type':'application/json'}, body:'{}' })
+function deleteImage(id, url, source) {
+    if (!confirm('Are you sure you want to delete this image?')) return;
+
+    if (!url) {
+        var card = document.getElementById('img_' + id) || document.getElementById('fimg_' + id) || document.getElementById('bimg_' + id);
+        if (card) url = card.getAttribute('data-url');
+        if (!source && card) source = card.getAttribute('data-source') || 'media';
+    }
+
+    var delRoute = '{{ $isEdit ? route('admin.products.delete-image', $product->id) : '' }}';
+    if (!delRoute) return;
+
+    fetch(delRoute, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: url, image_id: id, source: source })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (!res.success) {
+            showToast(res.message || 'Failed to delete image', 'error');
+            return;
+        }
+
+        var card = document.getElementById('img_' + id);
+        if (card) {
+            card.style.transition = 'transform .2s, opacity .2s';
+            card.style.transform = 'scale(0.8)';
+            card.style.opacity = '0';
+            setTimeout(function() {
+                card.remove();
+                var remaining = document.querySelectorAll('#igrid .icard').length;
+                var badge = document.getElementById('imageCountBadge');
+                if (badge) badge.textContent = remaining + ' Image' + (remaining === 1 ? '' : 's');
+                if (remaining === 0) {
+                    var grid = document.getElementById('igrid');
+                    if (grid && !document.getElementById('imgEmptyNote')) {
+                        grid.innerHTML = '<div class="img-empty-note" id="imgEmptyNote" style="grid-column:1/-1">No images uploaded yet. Upload images using the dropzone below.</div>';
+                    }
+                }
+            }, 200);
+        }
+
+        // If new main image was elected by backend
+        var targetUrl = res.new_main_url || res.image_url;
+        if (targetUrl) {
+            document.querySelectorAll('.icard').forEach(function(c) {
+                var cardUrl = c.getAttribute('data-url');
+                var isThis = (cardUrl === targetUrl);
+                c.classList.toggle('is-cover', isThis);
+                var cb = c.querySelector('.ibadge-cover');
+                if (cb) cb.style.display = isThis ? '' : 'none';
+                var cbtn = c.querySelector('.js-set-cover');
+                if (cbtn) cbtn.style.display = isThis ? 'none' : '';
+
+                if (c.closest('#igrid')) {
+                    c.classList.toggle('main', isThis);
+                    var b = c.querySelector('.ibadge');
+                    if (b) b.style.display = isThis ? '' : 'none';
+                    var mainBtn = c.querySelector('.js-set-main');
+                    if (mainBtn) mainBtn.style.display = isThis ? 'none' : '';
+                }
+            });
+        }
+
+        var cCard = document.getElementById('cimg_' + id);
+        if (cCard) cCard.remove();
+
+        showToast('Image deleted successfully ✓', 'success');
+    })
+    .catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+    });
+}
+
+function uploadColorPhotosAjax(input, colorId, colorName) {
+    var files = Array.from(input.files || []).filter(function(f) { return f.type.startsWith('image/'); });
+    if (!files.length) return;
+
+    var total = files.length, done = 0;
+    showToast('Uploading ' + total + ' ' + colorName + ' photo(s)...', 'info');
+
+    files.forEach(function(file) {
+        if (file.size > 5 * 1024 * 1024) {
+            showToast(file.name + ' too large (max 5MB)', 'error');
+            done++; return;
+        }
+
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('model_type', 'product');
+        fd.append('model_id', PRODUCT_ID);
+        fd.append('color_id', colorId);
+        fd.append('alt_text', colorName + ' photo');
+        fd.append('is_primary', document.querySelectorAll('#igrid .icard').length === 0 ? '1' : '0');
+
+        fetch('{{ route('admin.media.upload') }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': CSRF },
+            body: fd
+        })
         .then(function(r) { return r.json(); })
-        .then(function(res) {
-            if (res.success) { var el = document.getElementById('img_' + id); if (el) el.remove(); showToast('Image deleted', 'success'); }
+        .then(function(data) {
+            done++;
+            if (data.success) {
+                var media = data.media;
+                // Add to Step 2 color grid
+                var grid = document.getElementById('colorGrid_' + colorId);
+                if (grid && !document.getElementById('cimg_' + media.id)) {
+                    var card = document.createElement('div');
+                    card.className = 'icard' + (media.is_primary ? ' main is-cover' : '');
+                    card.id = 'cimg_' + media.id;
+                    card.setAttribute('data-id', media.id);
+                    card.setAttribute('data-url', media.url);
+                    card.style.aspectRatio = '1';
+                    card.style.borderRadius = '8px';
+                    card.innerHTML = `
+                        <img src="${media.thumb_url || media.url}" alt="${colorName}">
+                        <div class="ibadge-cover" style="${media.is_primary ? '' : 'display:none;'}">★ COVER</div>
+                        <div class="iact" style="padding:2px">
+                            <button type="button" class="iab iab-cover js-set-cover" style="${media.is_primary ? 'display:none;' : ''};font-size:8.5px;padding:2px" onclick="setMain('${media.id}', '${media.url}', 'product_image')">
+                                Cover
+                            </button>
+                            <button type="button" class="iab iab-del" style="font-size:8.5px;padding:2px" onclick="deleteColorImageAjax('${media.id}', '${media.url}', ${colorId})">
+                                Del
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+
+                // Add to Step 3 general gallery
+                if (typeof addImageCard === 'function') {
+                    addImageCard(media);
+                }
+
+                showToast(colorName + ' photo uploaded ✓', 'success');
+            } else {
+                showToast('Upload failed: ' + (data.message || 'Unknown'), 'error');
+            }
+        })
+        .catch(function(err) {
+            done++;
+            showToast('Error uploading: ' + err.message, 'error');
         });
+    });
+
+    input.value = '';
+}
+
+function deleteColorImageAjax(id, url, colorId) {
+    if (!confirm('Delete this color photo?')) return;
+    var cCard = document.getElementById('cimg_' + id);
+    if (cCard) cCard.remove();
+
+    if (typeof deleteImage === 'function') {
+        deleteImage(id, url, 'product_image');
+    }
 }
 @endif
+
+// ── Quick Add Color Modal Functions ───────────────────────
+function openQuickColorModal() {
+    var m = document.getElementById('quickColorModal');
+    if (!m) return;
+    document.getElementById('qcName').value = '';
+    document.getElementById('qcHex').value = '#000000';
+    document.getElementById('qcHexPicker').value = '#000000';
+    document.getElementById('qcImage').value = '';
+    document.getElementById('qcImgPreview').src = '';
+    document.getElementById('qcImgPreview').style.display = 'none';
+    document.getElementById('qcImgPlaceholder').style.display = 'inline-block';
+    document.getElementById('qcError').style.display = 'none';
+    m.style.display = 'flex';
+}
+
+function closeQuickColorModal() {
+    var m = document.getElementById('quickColorModal');
+    if (m) m.style.display = 'none';
+}
+
+function previewQuickColorImg(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('qcImgPreview').src = e.target.result;
+            document.getElementById('qcImgPreview').style.display = 'block';
+            document.getElementById('qcImgPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function saveQuickColor() {
+    var name = document.getElementById('qcName').value.trim();
+    var hex = document.getElementById('qcHex').value.trim();
+    var errEl = document.getElementById('qcError');
+
+    if (!name) {
+        errEl.textContent = 'Color name is required.';
+        errEl.style.display = 'block';
+        return;
+    }
+    if (hex && !/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+        errEl.textContent = 'Invalid hex code. Use format: #RRGGBB';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    var fd = new FormData();
+    fd.append('name', name);
+    if (hex) fd.append('hex_code', hex);
+    var fileInput = document.getElementById('qcImage');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        fd.append('image', fileInput.files[0]);
+    }
+
+    var btn = document.getElementById('btnSaveQuickColor');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+
+    fetch('{{ route('admin.colors.store') }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Accept': 'application/json'
+        },
+        body: fd
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Save &amp; Use Color';
+        if (res.errors || res.error) {
+            var msg = res.error || Object.values(res.errors).flat().join(' ');
+            errEl.textContent = msg;
+            errEl.style.display = 'block';
+            return;
+        }
+
+        var newCol = res.color;
+        // 1. Add to colors array
+        colors.push({
+            id: newCol.id,
+            name: newCol.name,
+            hex: newCol.hex_code || '#000000',
+            image: newCol.image || null
+        });
+
+        // 2. Append color pill to #colorPillsWrap
+        var pillsWrap = document.getElementById('colorPillsWrap');
+        if (pillsWrap) {
+            var label = document.createElement('label');
+            label.className = 'color-pill selected';
+            label.id = 'cpill_' + newCol.name;
+            label.innerHTML = `
+                <input type="checkbox" class="colorPick"
+                       value="${newCol.name}"
+                       data-color-id="${newCol.id}"
+                       data-color-hex="${newCol.hex_code || '#000000'}"
+                       checked
+                       onchange="onColorToggle(this)">
+                <span class="color-dot-sm" style="background:${newCol.hex_code || '#000000'}"></span>
+                ${newCol.name}
+            `;
+            pillsWrap.appendChild(label);
+        }
+
+        // 3. Append size block to #sizeBlocksGrid
+        var grid = document.getElementById('sizeBlocksGrid');
+        if (grid) {
+            var block = document.createElement('div');
+            block.className = 'size-block visible';
+            block.setAttribute('data-color-block', newCol.name);
+            block.id = 'sblock_' + newCol.name;
+
+            var sizePillsHtml = sizes.map(function(s) {
+                return `<label class="size-pill">
+                    <input type="checkbox" class="sizePick" value="${s}" data-for-color="${newCol.name}">
+                    ${s}
+                </label>`;
+            }).join('');
+
+            var mockupBadge = newCol.image ? `
+                <a href="${newCol.image}" target="_blank" title="View Color Mockup" style="font-size:10.5px;color:#0284c7;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+                    <img src="${newCol.image}" alt="${newCol.name}" style="width:18px;height:18px;border-radius:4px;object-fit:cover;border:1px solid #cbd5e1"> Base Mockup
+                </a>
+            ` : '';
+
+            var uploadBoxHtml = PRODUCT_ID ? `
+                <div class="color-img-grid" id="colorGrid_${newCol.id}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(65px,1fr));gap:6px;margin-bottom:8px"></div>
+                <div class="izone-compact" onclick="document.getElementById('step2_cFileInput_${newCol.id}').click()" style="padding:10px 8px">
+                    <i class="bi bi-cloud-arrow-up" style="font-size:18px;color:#0284c7"></i>
+                    <div style="font-size:11.5px;font-weight:700;color:#00285a">+ Upload ${newCol.name} Photos</div>
+                    <div style="font-size:10px;color:#94a3b8">Multiple photos · JPG, PNG, WEBP</div>
+                    <input type="file" id="step2_cFileInput_${newCol.id}" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="uploadColorPhotosAjax(this, ${newCol.id}, '${newCol.name}')">
+                </div>
+            ` : `
+                <div class="izone-compact" onclick="document.getElementById('step2_cFileInput_${newCol.id}').click()" style="padding:10px 8px">
+                    <i class="bi bi-cloud-arrow-up" style="font-size:18px;color:#0284c7"></i>
+                    <div style="font-size:11.5px;font-weight:700;color:#00285a">+ Select ${newCol.name} Photos</div>
+                    <div style="font-size:10px;color:#94a3b8">Upload photos for this color</div>
+                    <input type="file" id="step2_cFileInput_${newCol.id}" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleStep2ColorFiles(this, '${newCol.id}', '${newCol.name}')">
+                </div>
+                <div class="new-img-queue" id="step2_colorQueue_${newCol.id}" style="padding:8px 0 0;grid-template-columns:repeat(auto-fill,minmax(65px,1fr));gap:6px"></div>
+            `;
+
+            block.innerHTML = `
+                <div class="size-block-title" style="display:flex;justify-content:space-between;align-items:center">
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <span class="color-dot-sm" style="background:${newCol.hex_code || '#000000'}"></span>
+                        ${newCol.name}
+                    </div>
+                    <button type="button" class="btn btn-link btn-sm"
+                            style="color:#0284c7;font-size:11px;font-weight:700;padding:0;text-decoration:none;cursor:pointer"
+                            onclick="toggleAllSizesForColor('${newCol.name}')">
+                        Select All Sizes
+                    </button>
+                </div>
+                <div class="size-pills">
+                    ${sizePillsHtml}
+                </div>
+                <div class="color-tshirt-box" style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                        <span style="font-size:11px;font-weight:700;color:#00285a;display:flex;align-items:center;gap:5px">
+                            <i class="bi bi-camera-fill" style="color:#0284c7"></i> ${newCol.name} T-Shirt Photos
+                        </span>
+                        ${mockupBadge}
+                    </div>
+                    ${uploadBoxHtml}
+                </div>
+            `;
+            grid.appendChild(block);
+        }
+
+        // 4. In Create mode, append color tab and panel in Step 3 if not present
+        var newTabs = document.getElementById('newImgColorTabs');
+        if (newTabs && !document.querySelector('#newImgColorTabs .color-tab[data-color-id="' + newCol.id + '"]')) {
+            var tab = document.createElement('div');
+            tab.className = 'color-tab';
+            tab.setAttribute('data-color-id', newCol.id);
+            tab.onclick = function() { switchNewTab(this, newCol.id); };
+            tab.innerHTML = `<span class="color-tab-dot" style="background:${newCol.hex_code || '#000000'}"></span> ${newCol.name}`;
+            newTabs.appendChild(tab);
+
+            var panel = document.createElement('div');
+            panel.className = 'color-tab-panel';
+            panel.id = 'newpanel_' + newCol.id;
+            panel.innerHTML = `
+                <div class="izone new-zone" id="newdrop_${newCol.id}" onclick="document.getElementById('newinput_${newCol.id}').click()" style="margin:14px 20px">
+                    <i class="bi bi-cloud-arrow-up" style="font-size:28px;color:#b0bec5;display:block;margin-bottom:6px"></i>
+                    <div style="font-size:13px;color:#7a8fa6">
+                        <span class="color-tab-dot" style="background:${newCol.hex_code || '#000000'};display:inline-block;vertical-align:middle;margin-right:4px"></span>
+                        <strong style="color:#00285a">${newCol.name}</strong> images
+                    </div>
+                    <div style="font-size:11px;color:#b0bec5;margin-top:3px">JPG, PNG, WEBP · Max 5MB</div>
+                    <input type="file" id="newinput_${newCol.id}" name="color_images[${newCol.id}][]" accept="image/jpeg,image/jpg,image/png,image/webp" multiple style="display:none" onchange="previewNewImages(this, '${newCol.id}')">
+                </div>
+                <div class="new-img-queue" id="newqueue_${newCol.id}"></div>
+            `;
+            var step3Panel = document.getElementById('step3');
+            if (step3Panel) {
+                var container = step3Panel.querySelector('.pc:last-child');
+                if (container) container.appendChild(panel);
+            }
+        }
+
+        // 5. In Edit mode, append tab in Step 3
+        var editTabs = document.getElementById('imgColorTabs');
+        if (editTabs && !document.querySelector('#imgColorTabs .color-tab[data-color-id="' + newCol.id + '"]')) {
+            var eTab = document.createElement('div');
+            eTab.className = 'color-tab';
+            eTab.setAttribute('data-color-id', newCol.id);
+            eTab.onclick = function() { switchColorTab(this, String(newCol.id)); };
+            eTab.innerHTML = `<span class="color-tab-dot" style="background:${newCol.hex_code || '#000000'}"></span> ${newCol.name}`;
+            editTabs.appendChild(eTab);
+        }
+
+        document.getElementById('sizeBlocksWrap').style.display = 'block';
+        closeQuickColorModal();
+        showToast('Color "' + newCol.name + '" created and selected! ✓', 'success');
+    })
+    .catch(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Save &amp; Use Color';
+        errEl.textContent = 'Error saving color.';
+        errEl.style.display = 'block';
+    });
+}
+
+// ── Step 2 Color Queue Functions (Create Mode) ────────────
+function handleStep2ColorFiles(input, colorId, colorName) {
+    if (!input.files || !input.files.length) return;
+    var step3Input = document.getElementById('newinput_' + colorId);
+    var key = colorId || '0';
+    if (!_fileTransfers[key]) {
+        _fileTransfers[key] = new DataTransfer();
+    }
+    var dt = _fileTransfers[key];
+    Array.from(input.files).forEach(function(file) {
+        if (!file.type.startsWith('image/')) return;
+        for (var i = 0; i < dt.items.length; i++) {
+            var ex = dt.items[i].getAsFile();
+            if (ex && ex.name === file.name && ex.size === file.size) return;
+        }
+        dt.items.add(file);
+    });
+
+    if (step3Input) {
+        step3Input.files = dt.files;
+        previewNewImages(step3Input, colorId);
+    }
+    renderStep2ColorQueue(colorId);
+    showToast('Added ' + input.files.length + ' photo(s) for ' + colorName + ' ✓', 'success');
+    input.value = '';
+}
+
+function renderStep2ColorQueue(colorId) {
+    var queue = document.getElementById('step2_colorQueue_' + colorId);
+    if (!queue) return;
+    queue.innerHTML = '';
+
+    var key = colorId || '0';
+    var dt = _fileTransfers[key];
+    if (!dt || !dt.files.length) return;
+
+    var mainName = document.getElementById('designatedMainImageName')?.value || '';
+
+    Array.from(dt.files).forEach(function(file) {
+        var isCover = (mainName && mainName === file.name);
+        var thumb = document.createElement('div');
+        thumb.className = 'new-img-thumb' + (isCover ? ' is-cover main' : '');
+        thumb.setAttribute('data-file-name', file.name);
+        thumb.style.aspectRatio = '1';
+
+        var img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.onload = function() { URL.revokeObjectURL(img.src); };
+
+        var badge = document.createElement('div');
+        badge.className = 'new-img-badge';
+        badge.textContent = '★ COVER';
+        badge.style.display = isCover ? 'block' : 'none';
+
+        var act = document.createElement('div');
+        act.className = 'new-img-act';
+        act.style.padding = '2px';
+
+        var btnCover = document.createElement('button');
+        btnCover.type = 'button';
+        btnCover.className = 'new-img-btn-cover';
+        btnCover.style.fontSize = '8.5px';
+        btnCover.style.padding = '2px 4px';
+        btnCover.innerHTML = '<i class="bi bi-star"></i> Cover';
+        btnCover.style.display = isCover ? 'none' : '';
+        btnCover.onclick = function() {
+            setNewDesignatedMain(file.name);
+            renderStep2ColorQueue(colorId);
+        };
+        act.appendChild(btnCover);
+
+        var rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'new-img-rm';
+        rm.innerHTML = '×';
+        rm.onclick = function() {
+            removeStep2ColorFile(colorId, file.name);
+        };
+
+        thumb.appendChild(img);
+        thumb.appendChild(badge);
+        thumb.appendChild(act);
+        thumb.appendChild(rm);
+        queue.appendChild(thumb);
+    });
+}
+
+function removeStep2ColorFile(colorId, fileName) {
+    var key = colorId || '0';
+    var dt = _fileTransfers[key];
+    if (dt) {
+        var newDt = new DataTransfer();
+        for (var i = 0; i < dt.items.length; i++) {
+            var f = dt.items[i].getAsFile();
+            if (f && f.name !== fileName) {
+                newDt.items.add(f);
+            }
+        }
+        _fileTransfers[key] = newDt;
+        var step3Input = document.getElementById('newinput_' + colorId);
+        if (step3Input) {
+            step3Input.files = newDt.files;
+            var step3Queue = document.getElementById('newqueue_' + colorId);
+            if (step3Queue) {
+                var matching = step3Queue.querySelector('.new-img-thumb[data-file-name="' + CSS.escape(fileName) + '"]');
+                if (matching) matching.remove();
+            }
+        }
+    }
+    renderStep2ColorQueue(colorId);
+
+    var mainInput = document.getElementById('designatedMainImageName');
+    if (mainInput && mainInput.value === fileName) {
+        var anyThumb = document.querySelector('.new-img-thumb');
+        if (anyThumb) {
+            setNewDesignatedMain(anyThumb.getAttribute('data-file-name'));
+        } else {
+            mainInput.value = '';
+        }
+    }
+}
 
 // ── Toast Notification ────────────────────────────────────
 function showToast(message, type) {

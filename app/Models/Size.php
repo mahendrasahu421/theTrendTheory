@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Size extends Model
 {
     protected $fillable = [
-        'name', 'label', 'value', 'type', 'is_active', 'sort_order'
+        'name', 'label', 'value', 'type', 'chest', 'waist', 'length', 'is_active', 'sort_order'
     ];
     
     protected $casts = [

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Color extends Model
 {
     protected $fillable = [
-        'name', 'label', 'value', 'type', 'code', 'hex', 'hex_code', 'is_active', 'sort_order'
+        'name', 'label', 'value', 'type', 'code', 'hex', 'hex_code', 'image', 'is_active', 'sort_order'
     ];
     
     protected $casts = [

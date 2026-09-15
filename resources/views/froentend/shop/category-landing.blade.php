@@ -58,11 +58,6 @@
             transition: .2s;
         }
 
-        .cat-hero-shopall:hover {
-            background: #ff3f6c;
-            color: white;
-        }
-
         /* ── SUBCATEGORY CARDS ─────────────────────────── */
         .subcat-section {
             padding: 60px 0;
@@ -99,12 +94,6 @@
             position: relative;
         }
 
-        .subcat-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 40px rgba(0, 40, 90, .12);
-            border-color: #00285a;
-        }
-
         .subcat-card-img {
             height: 400px;
             background: linear-gradient(135deg, #e8edf5, #d9dee6);
@@ -120,10 +109,6 @@
             height: 100%;
             object-fit: cover;
             transition: transform .4s;
-        }
-
-        .subcat-card:hover .subcat-card-img img {
-            transform: scale(1.06);
         }
 
         .subcat-card-img-placeholder {
@@ -164,10 +149,6 @@
             transition: background .2s;
         }
 
-        .subcat-card:hover .subcat-card-btn {
-            background: #ff3f6c;
-        }
-
         /* ── FEATURED PRODUCTS ─────────────────────────── */
         .featured-section {
             padding: 60px 0;
@@ -205,11 +186,6 @@
             transition: .2s;
         }
 
-        .featured-viewall:hover {
-            background: #00285a;
-            color: white;
-        }
-
         .featured-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -228,11 +204,6 @@
             position: relative;
         }
 
-        .feat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 16px 30px rgba(0, 40, 90, .1);
-        }
-
         .feat-card-img {
             height: 280px;
             overflow: hidden;
@@ -246,10 +217,6 @@
             transition: transform .4s;
         }
 
-        .feat-card:hover .feat-card-img img {
-            transform: scale(1.06);
-        }
-
         .feat-card-hover {
             position: absolute;
             bottom: 10px;
@@ -260,26 +227,18 @@
             white-space: nowrap;
         }
 
-        .feat-card:hover .feat-card-hover {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
         .feat-card-info {
             padding: 12px 14px 16px;
         }
 
         .feat-card-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #00285a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #0f172a;
             margin-bottom: 4px;
             text-decoration: none;
             display: block;
-        }
-
-        .feat-card-name:hover {
-            color: #ff3f6c;
         }
 
         .feat-card-price {
@@ -425,7 +384,7 @@ if (
     !filter_var($imageUrl, FILTER_VALIDATE_URL) &&
     !str_starts_with($imageUrl, '/')
 ) {
-    $imageUrl = 'https://ik.imagekit.io/zjhpv2mbz/' . $imageUrl;
+    $imageUrl = url('/storage/' . $imageUrl);
                         }
                     @endphp
 
