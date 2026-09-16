@@ -61,6 +61,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Address::class);
     }
+    public function refundAccounts()
+    {
+        return $this->hasMany(UserRefundAccount::class);
+    }
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);

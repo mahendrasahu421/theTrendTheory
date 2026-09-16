@@ -246,8 +246,12 @@ Route::middleware(['auth', 'admin'])
             Route::get('products/ajax', [App\Http\Controllers\Admin\ProductController::class, 'ajax'])->name('products.ajax');
             Route::get('products/generate-sku', [App\Http\Controllers\Admin\ProductController::class, 'generateSku'])->name('products.generate-sku');
             Route::get('products/check-sku', [App\Http\Controllers\Admin\ProductController::class, 'checkSku'])->name('products.check-sku');
+            Route::post('products/{product}/toggle', [App\Http\Controllers\Admin\ProductController::class, 'toggle'])->name('products.toggle');
             Route::post('products/{product}/set-main-image', [App\Http\Controllers\Admin\ProductController::class, 'setMainImage'])->name('products.set-main-image');
             Route::post('products/{product}/delete-image', [App\Http\Controllers\Admin\ProductController::class, 'deleteImage'])->name('products.delete-image');
+            Route::delete('products/{product}/images/{image?}', [App\Http\Controllers\Admin\ProductController::class, 'deleteImage'])->name('products.images.destroy');
+            Route::get('products/export', [App\Http\Controllers\Admin\ProductController::class, 'export'])->name('products.export');
+            Route::post('products/bulk-action', [App\Http\Controllers\Admin\ProductController::class, 'bulkAction'])->name('products.bulk-action');
             Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
 
             // Product Variants

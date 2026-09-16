@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class OrderReturn extends Model
 {
     protected $table    = 'returns';
-    protected $fillable = ['order_id','user_id','return_number','status','reason','description','images'];
+    protected $fillable = ['order_id','user_id','return_number','type','status','reason','description','images','exchange_size','exchange_color','admin_notes'];
     protected $casts    = ['images'=>'array'];
 
     public function order()  { return $this->belongsTo(Order::class); }

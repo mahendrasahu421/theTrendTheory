@@ -407,6 +407,12 @@
                             <span class="rtn-data-label">Refund Amount</span>
                             <span class="rtn-data-val" style="color:#059669;font-size:13.5px;">₹{{ number_format($refund->amount) }}</span>
                         </div>
+                        @if($return->order)
+                            <div class="rtn-data-row">
+                                <span class="rtn-data-label">Delivery Charges Deducted</span>
+                                <span class="rtn-data-val" style="color:#be123c;">₹{{ number_format($return->order->non_refundable_shipping_charge) }}</span>
+                            </div>
+                        @endif
                         <div class="rtn-data-row">
                             <span class="rtn-data-label">Payment Mode</span>
                             <span class="rtn-data-val">{{ ucwords(str_replace('_',' ',$refund->method)) }}</span>
@@ -501,9 +507,17 @@
                             <span>Total Items</span>
                             <span>{{ $return->order->items->sum('quantity') }} items</span>
                         </div>
+                        <div class="rtn-sum-row">
+                            <span>Order Paid Amount</span>
+                            <span>₹{{ number_format($return->order->total_amount) }}</span>
+                        </div>
+                        <div class="rtn-sum-row">
+                            <span>Delivery Charges (Non-refundable)</span>
+                            <span style="color:#be123c;">- ₹{{ number_format($return->order->non_refundable_shipping_charge) }}</span>
+                        </div>
                         <div class="rtn-sum-row total">
-                            <span>Total Amount</span>
-                            <span style="color:#00285a;">₹{{ number_format($return->order->total_amount) }}</span>
+                            <span>Refundable Amount</span>
+                            <span style="color:#00285a;">₹{{ number_format($return->order->refundable_amount) }}</span>
                         </div>
                     </div>
                 @endif

@@ -7,6 +7,15 @@
 @endpush
 
 @section('main')
+@php
+    $originalPaymentAvailable = (bool) ($originalPaymentAvailable ?? false);
+    $oldRefundMethod = old('refund_method');
+    $defaultRefundMethod = $oldRefundMethod ?: (optional($primaryRefundAccount)->type ?: ($originalPaymentAvailable ? 'original_payment' : 'bank_transfer'));
+    if ($defaultRefundMethod === 'original_payment' && !$originalPaymentAvailable) {
+        $defaultRefundMethod = 'bank_transfer';
+    }
+    $defaultRefundAccountId = old('refund_account_id', optional($primaryRefundAccount)->id);
+@endphp
 <style>
 .rtn-container {
     max-width: 1060px;
@@ -227,6 +236,45 @@
     padding: 10px 12px;
     margin-top: 8px;
 }
+.rtn-saved-account-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.rtn-saved-account {
+    width: 100%;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 9px 11px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+}
+.rtn-saved-account.active {
+    border-color: #00285a;
+    background: #f0f4ff;
+}
+.rtn-saved-account-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+}
+.rtn-saved-account-sub {
+    font-size: 10.5px;
+    color: #64748b;
+    margin-top: 2px;
+}
+.rtn-save-checks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: #475569;
+    font-weight: 700;
+}
 
 /* Submit */
 .rtn-submit-btn {
@@ -422,7 +470,8 @@
                 @csrf
                 <input type="hidden" name="type" id="rtnTypeInput" value="{{ !empty($isExchangeOnly) ? 'exchange' : old('type', 'return') }}">
                 <input type="hidden" name="reason" id="rtnReasonHidden" value="{{ old('reason') }}">
-                <input type="hidden" name="refund_method" id="rtnMethodHidden" value="{{ old('refund_method', 'original_payment') }}">
+                <input type="hidden" name="refund_method" id="rtnMethodHidden" value="{{ $defaultRefundMethod }}">
+                <input type="hidden" name="refund_account_id" id="rtnRefundAccountId" value="{{ $defaultRefundAccountId }}">
 
                 <div class="rtn-card-body">
 
@@ -457,16 +506,24 @@
                             <div class="rtn-grid-2">
                                 <div>
                                     <label class="rtn-input-label">Required Size</label>
-                                    <select name="exchange_size" class="rtn-select">
+                                    <select name="exchange_size" id="rtnExchangeSize" class="rtn-select">
                                         <option value="">Select Size</option>
-                                        @foreach(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'] as $sz)
-                                            <option value="{{ $sz }}" {{ old('exchange_size') === $sz ? 'selected' : '' }}>{{ $sz }}</option>
+                                        @foreach($exchangeSizes as $sz)
+                                            <option value="{{ $sz }}" {{ $defaultExchangeSize === $sz ? 'selected' : '' }}>{{ $sz }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="rtn-input-label">Color (optional)</label>
-                                    <input type="text" name="exchange_color" class="rtn-input" value="{{ old('exchange_color') }}" placeholder="e.g. Black, White">
+                                    <label class="rtn-input-label">Color</label>
+                                    <select name="exchange_color" id="rtnExchangeColor" class="rtn-select" data-has-colors="{{ $exchangeColors->isNotEmpty() ? '1' : '0' }}">
+                                        @if($exchangeColors->isEmpty())
+                                            <option value="">No color options available</option>
+                                        @else
+                                            @foreach($exchangeColors as $color)
+                                                <option value="{{ $color }}" {{ $defaultExchangeColor === $color ? 'selected' : '' }}>{{ $color }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -503,26 +560,49 @@
                     {{-- 3. Refund Method (Only for Returns) --}}
                     <div id="refundMethodSection" style="{{ old('type') === 'exchange' ? 'display:none;' : '' }}">
                         <div class="rtn-section-title">3. Refund Destination</div>
+                        @if($refundAccounts->isNotEmpty())
+                            <div class="rtn-saved-account-list">
+                                @foreach($refundAccounts as $account)
+                                    <button type="button"
+                                            class="rtn-saved-account {{ (int) $defaultRefundAccountId === (int) $account->id ? 'active' : '' }}"
+                                            data-id="{{ $account->id }}"
+                                            data-type="{{ $account->type }}"
+                                            data-upi="{{ $account->upi_id }}"
+                                            data-bank="{{ $account->bank_name }}"
+                                            data-account="{{ $account->account_number }}"
+                                            data-ifsc="{{ $account->ifsc_code }}"
+                                            data-holder="{{ $account->account_holder }}"
+                                            onclick="rtnUseSavedRefundAccount(this)">
+                                        <div class="rtn-saved-account-title">
+                                            {{ $account->type === 'upi' ? 'UPI' : 'Bank Transfer' }}
+                                            @if($account->is_primary) <span style="color:#059669;">Primary</span> @endif
+                                        </div>
+                                        <div class="rtn-saved-account-sub">{{ $account->masked_account }}</div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
                         <div class="rtn-methods-grid">
-                            <div class="rtn-method-card {{ old('refund_method', 'original_payment') === 'original_payment' ? 'selected' : '' }}"
-                                 onclick="rtnPickMethod('original_payment', this)">
+                            <div class="rtn-method-card {{ $defaultRefundMethod === 'original_payment' ? 'selected' : '' }}"
+                                 style="{{ !$originalPaymentAvailable ? 'opacity:0.45;cursor:not-allowed;' : '' }}"
+                                 onclick="{{ $originalPaymentAvailable ? "rtnPickMethod('original_payment', this)" : 'rtnOriginalUnavailable()' }}">
                                 <div class="rtn-m-title">Original Payment</div>
-                                <div class="rtn-m-sub">Reversed in 5–7 days</div>
+                                <div class="rtn-m-sub">{{ $originalPaymentAvailable ? 'Reversed in 5-7 days' : 'Not available; add UPI or bank details' }}</div>
                             </div>
 
-                            <div class="rtn-method-card {{ old('refund_method') === 'bank_transfer' ? 'selected' : '' }}"
+                            <div class="rtn-method-card {{ $defaultRefundMethod === 'bank_transfer' ? 'selected' : '' }}"
                                  onclick="rtnPickMethod('bank_transfer', this)">
                                 <div class="rtn-m-title">Bank Transfer</div>
                                 <div class="rtn-m-sub">Account credit in 5–7 days</div>
                             </div>
 
-                            <div class="rtn-method-card {{ old('refund_method') === 'upi' ? 'selected' : '' }}"
+                            <div class="rtn-method-card {{ $defaultRefundMethod === 'upi' ? 'selected' : '' }}"
                                  onclick="rtnPickMethod('upi', this)">
                                 <div class="rtn-m-title">UPI Transfer</div>
                                 <div class="rtn-m-sub">Direct UPI in 1–3 days</div>
                             </div>
 
-                            <div class="rtn-method-card {{ old('refund_method') === 'store_credit' ? 'selected' : '' }}"
+                            <div class="rtn-method-card {{ $defaultRefundMethod === 'store_credit' ? 'selected' : '' }}"
                                  onclick="rtnPickMethod('store_credit', this)">
                                 <div class="rtn-m-title">Store Credit (+5%)</div>
                                 <div class="rtn-m-sub">Wallet bonus credit</div>
@@ -530,33 +610,44 @@
                         </div>
 
                         {{-- Bank fields --}}
-                        <div id="bankFields" class="rtn-panel-details" style="{{ old('refund_method') === 'bank_transfer' ? '' : 'display:none;' }}">
+                        <div id="bankFields" class="rtn-panel-details" style="{{ $defaultRefundMethod === 'bank_transfer' ? '' : 'display:none;' }}">
                             <div class="rtn-grid-2" style="margin-bottom:8px;">
                                 <div>
                                     <label class="rtn-input-label">Account Holder</label>
-                                    <input type="text" name="account_holder" class="rtn-input" value="{{ old('account_holder') }}" placeholder="Full name">
+                                    <input type="text" name="account_holder" id="rtnAccountHolder" class="rtn-input" value="{{ old('account_holder', optional($primaryRefundAccount)->type === 'bank_transfer' ? $primaryRefundAccount->account_holder : '') }}" placeholder="Full name">
                                 </div>
                                 <div>
                                     <label class="rtn-input-label">Bank Name</label>
-                                    <input type="text" name="bank_name" class="rtn-input" value="{{ old('bank_name') }}" placeholder="e.g. SBI, HDFC">
+                                    <input type="text" name="bank_name" id="rtnBankName" class="rtn-input" value="{{ old('bank_name', optional($primaryRefundAccount)->type === 'bank_transfer' ? $primaryRefundAccount->bank_name : '') }}" placeholder="e.g. SBI, HDFC">
                                 </div>
                             </div>
                             <div class="rtn-grid-2">
                                 <div>
                                     <label class="rtn-input-label">Account Number</label>
-                                    <input type="text" name="account_number" class="rtn-input" value="{{ old('account_number') }}" placeholder="Account no.">
+                                    <input type="text" name="account_number" id="rtnAccountNumber" class="rtn-input" value="{{ old('account_number', optional($primaryRefundAccount)->type === 'bank_transfer' ? $primaryRefundAccount->account_number : '') }}" placeholder="Account no.">
                                 </div>
                                 <div>
                                     <label class="rtn-input-label">IFSC Code</label>
-                                    <input type="text" name="ifsc_code" class="rtn-input" value="{{ old('ifsc_code') }}" placeholder="e.g. SBIN0001234">
+                                    <input type="text" name="ifsc_code" id="rtnIfscCode" class="rtn-input" value="{{ old('ifsc_code', optional($primaryRefundAccount)->type === 'bank_transfer' ? $primaryRefundAccount->ifsc_code : '') }}" placeholder="e.g. SBIN0001234">
                                 </div>
                             </div>
                         </div>
 
                         {{-- UPI field --}}
-                        <div id="upiFields" class="rtn-panel-details" style="{{ old('refund_method') === 'upi' ? '' : 'display:none;' }}">
+                        <div id="upiFields" class="rtn-panel-details" style="{{ $defaultRefundMethod === 'upi' ? '' : 'display:none;' }}">
                             <label class="rtn-input-label">UPI ID / VPA</label>
-                            <input type="text" name="upi_id" class="rtn-input" value="{{ old('upi_id') }}" placeholder="e.g. username@okhdfcbank">
+                            <input type="text" name="upi_id" id="rtnUpiId" class="rtn-input" value="{{ old('upi_id', optional($primaryRefundAccount)->type === 'upi' ? $primaryRefundAccount->upi_id : '') }}" placeholder="e.g. username@okhdfcbank">
+                        </div>
+
+                        <div class="rtn-save-checks" id="refundSaveOptions" style="{{ in_array($defaultRefundMethod, ['bank_transfer', 'upi'], true) ? '' : 'display:none;' }}">
+                            <label>
+                                <input type="checkbox" name="save_refund_account" value="1" {{ old('save_refund_account') ? 'checked' : '' }}>
+                                Save this refund detail for future refunds
+                            </label>
+                            <label>
+                                <input type="checkbox" name="make_primary_refund_account" value="1" {{ old('make_primary_refund_account') ? 'checked' : '' }}>
+                                Make this my primary refund detail
+                            </label>
                         </div>
                     </div>
 
@@ -633,9 +724,17 @@
                         <span>Payment Mode</span>
                         <span>{{ strtoupper($order->payment_method ?: 'ONLINE') }}</span>
                     </div>
+                    <div class="rtn-calc-row">
+                        <span>Order Paid Amount</span>
+                        <span>₹{{ number_format($order->total_amount) }}</span>
+                    </div>
+                    <div class="rtn-calc-row">
+                        <span>Delivery Charges (Non-refundable)</span>
+                        <span style="color:#be123c;">- ₹{{ number_format($order->non_refundable_shipping_charge) }}</span>
+                    </div>
                     <div class="rtn-calc-row total">
                         <span>Refundable Amount</span>
-                        <span style="color:#00285a;">₹{{ number_format($order->total_amount) }}</span>
+                        <span style="color:#00285a;">₹{{ number_format($order->refundable_amount) }}</span>
                     </div>
                 </div>
 
@@ -651,7 +750,7 @@
                     </div>
                     <div class="rtn-policy-item">
                         <i class="bi bi-check-circle"></i>
-                        <span>100% secure refund guarantee</span>
+                        <span>Refund includes product amount only; delivery charges are deducted</span>
                     </div>
                 </div>
 
@@ -662,6 +761,10 @@
 </div>
 
 <script>
+var rtnOriginalPaymentAvailable = @json($originalPaymentAvailable);
+var rtnOrderPaymentMethod = @json(strtoupper($order->payment_method ?: 'N/A'));
+var rtnOrderPaymentRef = @json($order->payment_id ?: $order->razorpay_order_id ?: optional($order->payment)->payment_id ?: optional($order->payment)->gateway_order_id ?: '');
+
 function rtnSelectType(type, el) {
     document.getElementById('rtnTypeInput').value = type;
     document.querySelectorAll('.rtn-type-btn').forEach(b => b.classList.remove('active'));
@@ -679,17 +782,118 @@ function rtnPickReason(val, el) {
 
 function rtnPickMethod(method, el) {
     document.getElementById('rtnMethodHidden').value = method;
+    document.getElementById('rtnRefundAccountId').value = '';
+    document.querySelectorAll('.rtn-saved-account').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.rtn-method-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
 
     document.getElementById('bankFields').style.display = (method === 'bank_transfer') ? 'block' : 'none';
     document.getElementById('upiFields').style.display  = (method === 'upi') ? 'block' : 'none';
+    document.getElementById('refundSaveOptions').style.display = (method === 'bank_transfer' || method === 'upi') ? 'flex' : 'none';
+}
+
+function rtnOriginalUnavailable() {
+    alert('Original Payment refund is not available for this order because payment method/reference details are missing. Please add UPI or bank details.');
+}
+
+function rtnUseSavedRefundAccount(el) {
+    var method = el.dataset.type || '';
+    document.getElementById('rtnRefundAccountId').value = el.dataset.id || '';
+    document.getElementById('rtnMethodHidden').value = method;
+
+    document.querySelectorAll('.rtn-saved-account').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+
+    document.querySelectorAll('.rtn-method-card').forEach(function(card) {
+        card.classList.remove('selected');
+        if (card.getAttribute('onclick') && card.getAttribute('onclick').indexOf("'" + method + "'") !== -1) {
+            card.classList.add('selected');
+        }
+    });
+
+    document.getElementById('bankFields').style.display = (method === 'bank_transfer') ? 'block' : 'none';
+    document.getElementById('upiFields').style.display = (method === 'upi') ? 'block' : 'none';
+    document.getElementById('refundSaveOptions').style.display = (method === 'bank_transfer' || method === 'upi') ? 'flex' : 'none';
+
+    document.getElementById('rtnUpiId').value = el.dataset.upi || '';
+    document.getElementById('rtnBankName').value = el.dataset.bank || '';
+    document.getElementById('rtnAccountNumber').value = el.dataset.account || '';
+    document.getElementById('rtnIfscCode').value = el.dataset.ifsc || '';
+    document.getElementById('rtnAccountHolder').value = el.dataset.holder || '';
+}
+
+function rtnRefundDestinationText() {
+    var method = document.getElementById('rtnMethodHidden').value;
+    if (method === 'original_payment') {
+        return 'Original Payment (' + rtnOrderPaymentMethod + (rtnOrderPaymentRef ? ', Ref: ' + rtnOrderPaymentRef : '') + ')';
+    }
+    if (method === 'bank_transfer') {
+        var bank = document.getElementById('rtnBankName').value.trim();
+        var account = document.getElementById('rtnAccountNumber').value.trim();
+        var holder = document.getElementById('rtnAccountHolder').value.trim();
+        var last4 = account ? account.slice(-4) : '';
+        return 'Bank Transfer - ' + (bank || 'Bank') + (last4 ? ' ****' + last4 : '') + (holder ? ' (' + holder + ')' : '');
+    }
+    if (method === 'upi') {
+        return 'UPI Transfer - ' + document.getElementById('rtnUpiId').value.trim();
+    }
+    if (method === 'store_credit') {
+        return 'Store Credit Wallet (+5%)';
+    }
+    return 'Selected refund method';
 }
 
 document.getElementById('rtnForm').addEventListener('submit', function(e) {
     if (!document.getElementById('rtnReasonHidden').value) {
         e.preventDefault();
         alert('Please select a reason for your request.');
+        return;
+    }
+    var requestType = document.getElementById('rtnTypeInput').value;
+    var method = document.getElementById('rtnMethodHidden').value;
+    if (requestType === 'exchange') {
+        var exchangeSize = document.getElementById('rtnExchangeSize');
+        var exchangeColor = document.getElementById('rtnExchangeColor');
+        if (!exchangeSize || !exchangeSize.value) {
+            e.preventDefault();
+            alert('Please select a valid required size for exchange.');
+            return;
+        }
+        if (exchangeColor && exchangeColor.dataset.hasColors === '1' && !exchangeColor.value) {
+            e.preventDefault();
+            alert('Please select a color for exchange.');
+            return;
+        }
+    }
+    if (requestType === 'return') {
+        if (method === 'original_payment' && !rtnOriginalPaymentAvailable) {
+            e.preventDefault();
+            rtnOriginalUnavailable();
+            return;
+        }
+        if (method === 'bank_transfer') {
+            var missingBank = !document.getElementById('rtnAccountHolder').value.trim()
+                || !document.getElementById('rtnBankName').value.trim()
+                || !document.getElementById('rtnAccountNumber').value.trim()
+                || !document.getElementById('rtnIfscCode').value.trim();
+            if (missingBank) {
+                e.preventDefault();
+                alert('Please enter complete bank details for refund.');
+                return;
+            }
+        }
+        if (method === 'upi' && !document.getElementById('rtnUpiId').value.trim()) {
+            e.preventDefault();
+            alert('Please enter your UPI ID for refund.');
+            return;
+        }
+        if (!confirm('Please confirm refund destination:\n\n' + rtnRefundDestinationText())) {
+            e.preventDefault();
+            return;
+        }
+    }
+    if (!confirm('Are you sure you want to submit this return/exchange request?')) {
+        e.preventDefault();
         return;
     }
     var btn = document.getElementById('rtnSubmitBtn');

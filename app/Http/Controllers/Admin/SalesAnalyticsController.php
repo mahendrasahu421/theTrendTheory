@@ -34,19 +34,39 @@ class SalesAnalyticsController extends Controller
                 case 'today':
                     $startDate = $now->copy()->startOfDay();
                     $endDate = $now->copy()->endOfDay();
-                    $rangeLabel = 'Today (' . $now->format('M d') . ')';
+                    $rangeLabel = 'Today (' . $now->format('M d, Y') . ')';
                     $prevStartDate = $now->copy()->subDay()->startOfDay();
                     $prevEndDate = $now->copy()->subDay()->endOfDay();
                     $periodDays = 1;
                     break;
+
                 case 'yesterday':
                     $startDate = $now->copy()->subDay()->startOfDay();
                     $endDate = $now->copy()->subDay()->endOfDay();
-                    $rangeLabel = 'Yesterday (' . $startDate->format('M d') . ')';
+                    $rangeLabel = 'Yesterday (' . $startDate->format('M d, Y') . ')';
                     $prevStartDate = $now->copy()->subDays(2)->startOfDay();
                     $prevEndDate = $now->copy()->subDays(2)->endOfDay();
                     $periodDays = 1;
                     break;
+
+                case 'this_week':
+                    $startDate = $now->copy()->startOfWeek();
+                    $endDate = $now->copy()->endOfDay();
+                    $rangeLabel = 'This Week (' . $startDate->format('M d') . ' - ' . $endDate->format('M d') . ')';
+                    $prevStartDate = $startDate->copy()->subWeek();
+                    $prevEndDate = $prevStartDate->copy()->addDays($startDate->diffInDays($endDate))->endOfDay();
+                    $periodDays = max(1, $startDate->diffInDays($endDate) + 1);
+                    break;
+
+                case 'last_week':
+                    $startDate = $now->copy()->subWeek()->startOfWeek();
+                    $endDate = $now->copy()->subWeek()->endOfWeek();
+                    $rangeLabel = 'Last Week (' . $startDate->format('M d') . ' - ' . $endDate->format('M d') . ')';
+                    $prevStartDate = $startDate->copy()->subWeek();
+                    $prevEndDate = $endDate->copy()->subWeek();
+                    $periodDays = 7;
+                    break;
+
                 case '7days':
                     $startDate = $now->copy()->subDays(6)->startOfDay();
                     $endDate = $now->copy()->endOfDay();
@@ -55,6 +75,7 @@ class SalesAnalyticsController extends Controller
                     $prevEndDate = $startDate->copy()->subSecond();
                     $periodDays = 7;
                     break;
+
                 case '30days':
                     $startDate = $now->copy()->subDays(29)->startOfDay();
                     $endDate = $now->copy()->endOfDay();
@@ -63,6 +84,7 @@ class SalesAnalyticsController extends Controller
                     $prevEndDate = $startDate->copy()->subSecond();
                     $periodDays = 30;
                     break;
+
                 case 'last_month':
                     $startDate = $now->copy()->subMonth()->startOfMonth();
                     $endDate = $now->copy()->subMonth()->endOfMonth();
@@ -71,6 +93,27 @@ class SalesAnalyticsController extends Controller
                     $prevEndDate = $startDate->copy()->subMonth()->endOfMonth();
                     $periodDays = $startDate->daysInMonth;
                     break;
+
+                case 'this_quarter':
+                    $startDate = $now->copy()->startOfQuarter();
+                    $endDate = $now->copy()->endOfDay();
+                    $quarterNum = ceil($now->month / 3);
+                    $rangeLabel = 'This Quarter (Q' . $quarterNum . ' ' . $now->year . ')';
+                    $prevStartDate = $startDate->copy()->subQuarter();
+                    $prevEndDate = $prevStartDate->copy()->addDays($startDate->diffInDays($endDate))->endOfDay();
+                    $periodDays = max(1, $startDate->diffInDays($endDate) + 1);
+                    break;
+
+                case 'last_quarter':
+                    $startDate = $now->copy()->subQuarter()->startOfQuarter();
+                    $endDate = $now->copy()->subQuarter()->endOfQuarter();
+                    $quarterNum = ceil($startDate->month / 3);
+                    $rangeLabel = 'Last Quarter (Q' . $quarterNum . ' ' . $startDate->year . ')';
+                    $prevStartDate = $startDate->copy()->subQuarter()->startOfQuarter();
+                    $prevEndDate = $startDate->copy()->subQuarter()->endOfQuarter();
+                    $periodDays = $startDate->diffInDays($endDate) + 1;
+                    break;
+
                 case 'this_year':
                     $startDate = $now->copy()->startOfYear();
                     $endDate = $now->copy()->endOfDay();
@@ -79,6 +122,26 @@ class SalesAnalyticsController extends Controller
                     $prevEndDate = $now->copy()->subYear()->endOfYear();
                     $periodDays = $startDate->diffInDays($endDate) + 1;
                     break;
+
+                case 'last_year':
+                    $startDate = $now->copy()->subYear()->startOfYear();
+                    $endDate = $now->copy()->subYear()->endOfYear();
+                    $rangeLabel = 'Last Year (' . $startDate->year . ')';
+                    $prevStartDate = $now->copy()->subYears(2)->startOfYear();
+                    $prevEndDate = $now->copy()->subYears(2)->endOfYear();
+                    $periodDays = $startDate->diffInDays($endDate) + 1;
+                    break;
+
+                case 'all_time':
+                    $firstOrder = Order::oldest()->first();
+                    $startDate = $firstOrder ? $firstOrder->created_at->copy()->startOfDay() : $now->copy()->subYears(3)->startOfYear();
+                    $endDate = $now->copy()->endOfDay();
+                    $rangeLabel = 'All Time (' . $startDate->format('M Y') . ' - Present)';
+                    $periodDays = max(1, $startDate->diffInDays($endDate) + 1);
+                    $prevStartDate = $startDate->copy()->subDays($periodDays);
+                    $prevEndDate = $startDate->copy()->subSecond();
+                    break;
+
                 case 'this_month':
                 default:
                     $startDate = $now->copy()->startOfMonth();
@@ -87,6 +150,7 @@ class SalesAnalyticsController extends Controller
                     $prevStartDate = $now->copy()->subMonth()->startOfMonth();
                     $prevEndDate = $now->copy()->subMonth()->endOfMonth();
                     $periodDays = max(1, $now->day);
+                    $range = 'this_month';
                     break;
             }
         }
@@ -151,12 +215,37 @@ class SalesAnalyticsController extends Controller
         $chartOrderCount = [];
 
         if (in_array($range, ['today', 'yesterday'])) {
-            // Hourly breakdown
+            // Hourly breakdown (00:00 - 23:00)
             for ($h = 0; $h < 24; $h++) {
                 $chartLabels[] = sprintf('%02d:00', $h);
                 $hourlyOrders = $orders->filter(fn($o) => $o->created_at->hour == $h);
                 $chartRevenue[] = (float) $hourlyOrders->where('status', '!=', 'cancelled')->sum('total_amount');
                 $chartOrderCount[] = $hourlyOrders->count();
+            }
+        } elseif ($periodDays > 120) {
+            // Monthly breakdown for yearly / all-time
+            $periodCursor = $startDate->copy()->startOfMonth();
+            while ($periodCursor->lte($endDate)) {
+                $monthKey = $periodCursor->format('Y-m');
+                $chartLabels[] = $periodCursor->format('M Y');
+                $monthOrders = $orders->filter(fn($o) => $o->created_at->format('Y-m') === $monthKey);
+                $chartRevenue[] = (float) $monthOrders->where('status', '!=', 'cancelled')->sum('total_amount');
+                $chartOrderCount[] = $monthOrders->count();
+                $periodCursor->addMonth();
+            }
+        } elseif ($periodDays > 45) {
+            // Weekly breakdown (every 7 days)
+            $periodCursor = $startDate->copy();
+            while ($periodCursor->lte($endDate)) {
+                $weekEnd = $periodCursor->copy()->addDays(6);
+                if ($weekEnd->gt($endDate)) $weekEnd = $endDate->copy();
+                $chartLabels[] = $periodCursor->format('M d') . ' - ' . $weekEnd->format('M d');
+                $startBound = $periodCursor->copy()->startOfDay();
+                $endBound = $weekEnd->copy()->endOfDay();
+                $weekOrders = $orders->filter(fn($o) => $o->created_at->gte($startBound) && $o->created_at->lte($endBound));
+                $chartRevenue[] = (float) $weekOrders->where('status', '!=', 'cancelled')->sum('total_amount');
+                $chartOrderCount[] = $weekOrders->count();
+                $periodCursor->addDays(7);
             }
         } else {
             // Daily breakdown

@@ -12,54 +12,6 @@
         margin: 0 auto;
     }
 
-    /* Top Studio Banner */
-    .gallery-hero-banner {
-        background: linear-gradient(135deg, #00285a 0%, #17376c 60%, #0a192f 100%);
-        border-radius: 20px;
-        padding: 26px 32px;
-        color: #ffffff;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 40, 90, 0.12);
-    }
-    .gallery-hero-glow {
-        position: absolute;
-        right: -50px;
-        top: -50px;
-        width: 220px;
-        height: 220px;
-        background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
-    }
-    .gallery-badge-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 4px 12px;
-        border-radius: 999px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.8px;
-        color: #ffd700;
-        text-transform: uppercase;
-    }
-    .gallery-hero-title {
-        font-family: 'Cinzel', serif;
-        font-size: 24px;
-        font-weight: 700;
-        color: #ffffff;
-        margin: 6px 0 4px;
-    }
-    .gallery-hero-sub {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.85);
-        margin: 0;
-        max-width: 600px;
-        line-height: 1.5;
-    }
 
     /* Buttons */
     .btn-studio-gold {

@@ -24,9 +24,17 @@ class ProductController extends Controller
             'variants.size',
         ]);
 
+        $colorImageUrls = $product->productImages
+            ->whereNotNull('color_id')
+            ->map(fn ($image) => $image->getImageUrl(900, 1100))
+            ->filter()
+            ->all();
+
         $gallery = collect()
-            ->merge($product->productImages->map(fn ($image) => $image->getImageUrl(900, 1100)))
-            ->merge($product->media->map(fn ($media) => $media->getImageUrl(900, 1100)))
+            ->merge($product->productImages->whereNull('color_id')->map(fn ($image) => $image->getImageUrl(900, 1100)))
+            ->merge($product->media
+                ->reject(fn ($media) => in_array($media->url, $colorImageUrls))
+                ->map(fn ($media) => $media->getImageUrl(900, 1100)))
             ->push($product->image_url)
             ->push($product->main_image)
             ->push($product->card_image)
@@ -53,7 +61,7 @@ class ProductController extends Controller
                 'slug' => $product->slug,
                 'url' => route('product.show', $product->slug),
                 'price' => (float) $product->price,
-                'original_price' => $product->original_price ? (float) $product->original_price : null,
+                'original_price' => $product->display_original_price ? (float) $product->display_original_price : null,
                 'discount_percent' => $product->discount_percent,
                 'image' => $gallery->first(),
                 'image_url' => $gallery->first(),

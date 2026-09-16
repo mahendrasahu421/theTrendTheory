@@ -239,9 +239,12 @@
 .pd-price-mrp {
     font-size: 15px;
     color: #94a3b8;
-    text-decoration: line-through;
     margin-left: 8px;
     font-weight: 500;
+}
+
+.pd-price-mrp del {
+    text-decoration: line-through;
 }
 
 .pd-disc-pill {
@@ -1599,8 +1602,10 @@
         ])
         ->values();
 
-    $hasDiscount = $product->original_price && $product->original_price > $product->price;
-    $discPct     = $hasDiscount ? (int)round((($product->original_price - $product->price) / $product->original_price) * 100) : 0;
+    $displayPrice = (float) $product->price;
+    $displayMrp = (float) ($product->original_price ?: 0);
+    $hasDiscount = $displayMrp > $displayPrice;
+    $discPct     = $hasDiscount ? (int)round((($displayMrp - $displayPrice) / $displayMrp) * 100) : 0;
     $inStock     = $product->has_variants ? $variants->sum('stock') > 0 : $product->stock > 0;
 
     $firstColor = $selectedColor
@@ -1610,9 +1615,13 @@
 
     $productImages = $product->productImages ?? collect();
     $mediaImages = $product->media ?? collect();
-    $fallbackImages = $productImages->isNotEmpty()
-        ? $productImages->map(fn($i) => ['url' => $i->url, 'is_primary' => $i->is_primary, 'side' => 'all', 'label' => 'Detail'])
-        : $mediaImages->map(fn($i) => ['url' => $i->url, 'is_primary' => $i->is_primary, 'side' => 'all', 'label' => 'Detail']);
+    $colorProductImages = $productImages->filter(fn($i) => !empty($i->color_id));
+    $colorProductImageUrls = $colorProductImages->pluck('url')->filter()->values();
+    $generalProductImages = $productImages->filter(fn($i) => empty($i->color_id));
+    $generalMediaImages = $mediaImages->reject(fn($i) => $colorProductImageUrls->contains($i->url));
+    $fallbackImages = $generalProductImages->isNotEmpty()
+        ? $generalProductImages->map(fn($i) => ['url' => $i->url, 'is_primary' => $i->is_primary, 'side' => 'all', 'label' => 'Detail'])
+        : $generalMediaImages->map(fn($i) => ['url' => $i->url, 'is_primary' => $i->is_primary, 'side' => 'all', 'label' => 'Detail']);
 
     // Front print images collection
     $frontImagesList = collect();
@@ -1699,7 +1708,7 @@
     }
 
     $printSidesMode = $product->available_print_sides ?: 'both';
-    $defaultDesignSide = null;
+    $defaultDesignSide = $printSidesMode === 'front_only' ? 'front' : ($printSidesMode === 'back_only' ? 'back' : null);
 
     // Both sides image stream (Default: shows both Front & Back images)
     $bothImagesList = collect();
@@ -1739,13 +1748,14 @@
 
     $colorImages = [];
     foreach ($colorVariants as $cv) {
-        $colorSpecific = $productImages->filter(function ($img) use ($cv) {
+        $colorSpecific = $colorProductImages->filter(function ($img) use ($cv) {
             return strcasecmp($img->color->name ?? '', $cv['color']) === 0
+                || strcasecmp($img->color?->name ?? '', $cv['color']) === 0
                 || stripos($img->alt_text ?? '', $cv['color']) !== false;
         });
 
         if ($colorSpecific->isEmpty()) {
-            $colorSpecific = $mediaImages->filter(fn($img) => stripos($img->alt_text ?? '', $cv['color']) !== false);
+            $colorSpecific = $generalMediaImages->filter(fn($img) => stripos($img->alt_text ?? '', $cv['color']) !== false);
         }
 
         $colorImages[$cv['color']] = $colorSpecific->isNotEmpty()
@@ -1784,6 +1794,27 @@
     }
     if (!$defaultSize && $sizes->isNotEmpty()) {
         $defaultSize = $sizes->first();
+    }
+
+    $displayVariant = null;
+    if ($product->has_variants && $variants->isNotEmpty()) {
+        if ($defaultSize) {
+            $displayVariant = $variants->where('size', $defaultSize)
+                ->when($selectedColor, fn($c) => $c->where('color', $selectedColor))
+                ->first()
+                ?? $variants->where('size', $defaultSize)->first();
+        }
+
+        $displayVariant = $displayVariant
+            ?? ($selectedColor ? $variants->where('color', $selectedColor)->first() : null)
+            ?? $variants->first();
+
+        if ($displayVariant) {
+            $displayPrice = (float) ($displayVariant->price ?: $product->price);
+            $displayMrp = (float) ($displayVariant->original_price ?: ($product->original_price ?: 0));
+            $hasDiscount = $displayMrp > $displayPrice;
+            $discPct = $hasDiscount ? (int) round((($displayMrp - $displayPrice) / $displayMrp) * 100) : 0;
+        }
     }
 @endphp
 
@@ -1869,11 +1900,11 @@
             {{-- Pricing --}}
             <div class="pd-pricing-box">
                 <div>
-                    <span class="pd-price-main" id="displayPrice">₹{{ number_format($product->price) }}</span>
-                    @if($hasDiscount)
-                        <del class="pd-price-mrp">₹{{ number_format($product->original_price) }}</del>
-                        <span class="pd-disc-pill">{{ $discPct }}% OFF</span>
-                    @endif
+                    <span class="pd-price-main" id="displayPrice">₹{{ number_format($displayPrice) }}</span>
+                    <span class="pd-price-mrp" id="displayMrpWrap" style="{{ $hasDiscount ? '' : 'display:none;' }}">
+                        MRP <del id="displayMrp">₹{{ number_format($displayMrp) }}</del>
+                    </span>
+                    <span class="pd-disc-pill" id="displayDiscount" style="{{ $hasDiscount ? '' : 'display:none;' }}">Save {{ $discPct }}%</span>
                 </div>
                 <div class="pd-tax-sub">Inclusive of all taxes · Free shipping above ₹999</div>
             </div>
@@ -1957,36 +1988,44 @@
             {{-- Print / Design Side Placement Selector --}}
             @php
                 $printSidesMode = $product->available_print_sides ?: 'both';
-                $defaultDesignSide = null;
+                $defaultDesignSide = $printSidesMode === 'front_only' ? 'front' : ($printSidesMode === 'back_only' ? 'back' : null);
+                $defaultDesignSideLabel = $defaultDesignSide === 'back' ? 'Back Side' : ($defaultDesignSide === 'front' ? 'Front Side' : 'Please Select');
             @endphp
             <div class="pd-design-side-box" id="designSideBox">
                 <div class="pd-side-header-row">
                     <div>
                         <i class="bi bi-aspect-ratio text-primary me-1"></i> Print Placement :
-                        <span id="selDesignSideLabel" class="current-side-tag" style="color: #ef4444; font-weight: 700;">
-                            Please Select
+                        <span id="selDesignSideLabel" class="current-side-tag" style="color: {{ $defaultDesignSide ? '#00285a' : '#ef4444' }}; font-weight: 700;">
+                            {{ $defaultDesignSideLabel }}
                         </span>
                     </div>
+                    @if(!$defaultDesignSide)
                     <span style="font-size: 11px; color: #ef4444; font-weight: 700; text-transform: none;">
                         * Selection Required
                     </span>
+                    @endif
                 </div>
 
                 <div class="pd-side-instruction-hint">
                     <i class="bi bi-info-circle-fill text-primary me-1"></i>
-                    <strong>Print Instruction:</strong> Graphic will be printed on one side only. Please select either <strong>Front</strong> or <strong>Back</strong> below.
+                    <strong>Print Instruction:</strong>
+                    @if($defaultDesignSide)
+                        Graphic will be printed on the <strong>{{ $defaultDesignSide === 'back' ? 'Back' : 'Front' }}</strong> side.
+                    @else
+                        Graphic will be printed on one side only. Please select either <strong>Front</strong> or <strong>Back</strong> below.
+                    @endif
                 </div>
 
                 <div class="pd-side-grid-boxes">
                     @if ($printSidesMode === 'both' || $printSidesMode === 'front_only')
-                        <button type="button" class="pd-side-btn" data-side="front" onclick="selectDesignSide('front', this)">
+                        <button type="button" class="pd-side-btn {{ $defaultDesignSide === 'front' ? 'active' : '' }}" data-side="front" onclick="selectDesignSide('front', this)">
                             <span class="pd-side-icon">👕</span>
                             <span class="pd-side-name">Front Side Print</span>
                             <span class="pd-side-hint">Graphic on Front Chest</span>
                         </button>
                     @endif
                     @if ($printSidesMode === 'both' || $printSidesMode === 'back_only')
-                        <button type="button" class="pd-side-btn" data-side="back" onclick="selectDesignSide('back', this)">
+                        <button type="button" class="pd-side-btn {{ $defaultDesignSide === 'back' ? 'active' : '' }}" data-side="back" onclick="selectDesignSide('back', this)">
                             <span class="pd-side-icon">🔄</span>
                             <span class="pd-side-name">Back Side Print</span>
                             <span class="pd-side-hint">Graphic on T-Shirt Back</span>
@@ -1994,9 +2033,9 @@
                     @endif
                 </div>
 
-                <div class="pd-side-confirm-badge" id="sideConfirmBadge" style="display:none;">
+                <div class="pd-side-confirm-badge" id="sideConfirmBadge" style="{{ $defaultDesignSide ? 'display:flex;' : 'display:none;' }}">
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <span>Selected: Graphic will be printed on the <strong id="sideConfirmText">FRONT</strong> of your T-Shirt.</span>
+                    <span>Selected: Graphic will be printed on the <strong id="sideConfirmText">{{ $defaultDesignSide === 'back' ? 'BACK' : 'FRONT' }}</strong> of your T-Shirt.</span>
                 </div>
 
                 <div class="pd-side-required-msg" id="designSideMsg">⚠️ Please select Front Side or Back Side print first!</div>
@@ -2528,6 +2567,7 @@
             'color' => $v->color,
             'stock' => $v->stock,
             'price' => (float) $v->price,
+            'original_price' => (float) ($v->original_price ?: 0),
             'color_hex' => $v->color_hex,
         ])->values(),
         'sizes' => $sizes->values(),
@@ -2541,7 +2581,8 @@
         'colorUrls' => $colorVariants->mapWithKeys(fn($cv) => [
             $cv['color'] => route('product.show.color', ['slug' => $product->slug, 'colorSlug' => $cv['slug']]),
         ]),
-        'basePrice' => (float) $product->price,
+        'basePrice' => (float) $displayPrice,
+        'baseOriginalPrice' => (float) ($displayMrp ?: $displayPrice),
         'frontImage' => $product->front_image ?: ($frontImagesList->first()['url'] ?? null),
         'backImage' => $product->back_image ?: ($backImagesList->first()['url'] ?? null),
         'availablePrintSides' => $printSidesMode,
@@ -2565,8 +2606,8 @@
         'drawerProduct' => [
             'name' => $displayName,
             'image' => $mainImg,
-            'price' => (float) $product->price,
-            'original_price' => (float) ($product->original_price ?: $product->price),
+            'price' => (float) $displayPrice,
+            'original_price' => (float) ($displayMrp ?: $displayPrice),
         ],
         'user' => [
             'name'    => $checkoutUserSafe->name ?? '',
@@ -2585,7 +2626,10 @@
 <script>
 window.TTT_PRODUCT_SHOW = @json($productShowConfig);
 
-window.selectedDesignSide = null;
+window.selectedDesignSide = (window.TTT_PRODUCT_SHOW && (
+    window.TTT_PRODUCT_SHOW.defaultDesignSide ||
+    (window.TTT_PRODUCT_SHOW.availablePrintSides === 'front_only' ? 'front' : (window.TTT_PRODUCT_SHOW.availablePrintSides === 'back_only' ? 'back' : null))
+)) || null;
 
 window.selectDesignSide = function (side, btn) {
     var cfg = window.TTT_PRODUCT_SHOW || {};
@@ -2709,6 +2753,10 @@ window.selectDesignSide = function (side, btn) {
         window.renderLightboxThumbs();
     }
 };
+
+if (window.selectedDesignSide) {
+    window.selectDesignSide(window.selectedDesignSide);
+}
 
 function toggleAccordionItem(btn) {
     const item = btn.closest('.pd-accordion-item');

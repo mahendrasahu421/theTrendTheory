@@ -678,16 +678,17 @@ function updateLivePreview() {
 
 /* Hero Banner */
 .notif-hero-banner {
-    background: linear-gradient(135deg, #00285a 0%, #1e3a8a 50%, #0f172a 100%);
-    border-radius: 20px;
-    padding: 28px 32px;
-    color: #ffffff;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px 24px;
+    color: #00285a;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 24px;
-    box-shadow: 0 10px 30px rgba(0, 40, 90, 0.15);
+    gap: 20px;
+    box-shadow: 0 4px 20px rgba(0, 40, 90, 0.04);
     position: relative;
     overflow: hidden;
 }
@@ -696,15 +697,15 @@ function updateLivePreview() {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px);
+    background: #eff6ff;
+    color: #1e40af;
     padding: 4px 12px;
     border-radius: 999px;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1px;
     margin-bottom: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid #dbeafe;
 }
 
 .hero-pulse {
@@ -718,13 +719,14 @@ function updateLivePreview() {
 .hero-title {
     font-size: 22px;
     font-weight: 800;
+    color: #00285a;
     margin: 0 0 6px;
     letter-spacing: -0.5px;
 }
 
 .hero-desc {
     font-size: 13px;
-    color: #cbd5e1;
+    color: #64748b;
     margin: 0;
     max-width: 600px;
     line-height: 1.5;
@@ -737,9 +739,8 @@ function updateLivePreview() {
 }
 
 .kpi-mini-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 14px;
     padding: 12px 18px;
     display: flex;
@@ -777,14 +778,14 @@ function updateLivePreview() {
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    color: #cbd5e1;
+    color: #64748b;
     letter-spacing: 0.5px;
 }
 
 .kpi-number {
     font-size: 18px;
     font-weight: 800;
-    color: #ffffff;
+    color: #00285a;
 }
 
 /* ─── Pill Tabs ─── */

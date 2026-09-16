@@ -515,30 +515,32 @@
         }
 
         .dash-header-banner {
-            background: linear-gradient(135deg, #00285a 0%, #1e3f75 60%, #0f172a 100%);
-            border-radius: 20px;
-            padding: 24px 30px;
-            color: #ffffff;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px 24px;
+            color: #00285a;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 16px;
-            box-shadow: 0 10px 30px rgba(0, 40, 90, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 40, 90, 0.04);
         }
 
         .live-pill {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.12);
+            background: #eff6ff;
+            color: #1e40af;
             padding: 4px 12px;
             border-radius: 999px;
             font-size: 10px;
             font-weight: 800;
             letter-spacing: 1px;
             margin-bottom: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid #dbeafe;
         }
 
         .live-dot-pulse {
@@ -550,15 +552,15 @@
         }
 
         .banner-title {
-            font-family: 'Cinzel', serif;
             font-size: 20px;
-            font-weight: 700;
+            font-weight: 800;
+            color: #00285a;
             margin: 0 0 4px;
         }
 
         .banner-desc {
             font-size: 12.5px;
-            color: #cbd5e1;
+            color: #64748b;
             margin: 0;
         }
 

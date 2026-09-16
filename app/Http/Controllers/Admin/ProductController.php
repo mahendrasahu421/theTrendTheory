@@ -27,27 +27,37 @@ class ProductController extends Controller
         $totalProducts = Product::count();
         $activeProducts = Product::where('is_active', true)->count();
         $draftProducts = Product::where('is_active', false)->count();
-        $lowStockProducts = Product::where('stock', '<=', 10)->count();
+        $lowStockProducts = Product::where('stock', '<=', 10)->where('stock', '>', 0)->count();
+        $outOfStockProducts = Product::where('stock', '<=', 0)->count();
+        $featuredProducts = Product::where('is_featured', true)->count();
 
         return view('admin.products.index', compact(
             'categories',
             'totalProducts',
             'activeProducts',
             'draftProducts',
-            'lowStockProducts'
+            'lowStockProducts',
+            'outOfStockProducts',
+            'featuredProducts'
         ));
     }
 
     // ── AJAX DataTable ───────────────────────────────
     public function ajax(Request $request)
     {
-        $perPageInput = $request->get('per_page', 20);
-        $perPage = $perPageInput === 'all' ? 5000 : max(1, min((int) $perPageInput, 5000));
-        $page = (int) $request->get('page', 1);
-        $search = trim($request->get('search', ''));
+        $isDataTablesRequest = $request->has('draw') || $request->has('start') || $request->has('length');
+        $perPageInput = $isDataTablesRequest ? $request->get('length', 10) : $request->get('per_page', 10);
+        $perPage = $perPageInput === 'all' || (int) $perPageInput === -1
+            ? 5000
+            : max(1, min((int) $perPageInput, 5000));
+        $page = $isDataTablesRequest
+            ? ((int) floor(((int) $request->get('start', 0)) / max(1, $perPage)) + 1)
+            : (int) $request->get('page', 1);
+        $search = trim($isDataTablesRequest ? data_get($request->input('search'), 'value', '') : $request->get('search', ''));
         $catId = $request->get('category', '');
         $status = $request->get('status', '');
         $sort = $request->get('sort', 'latest');
+        $recordsTotal = Product::count();
 
         $q = Product::with(['category', 'media']);
 
@@ -72,35 +82,49 @@ class ProductController extends Controller
         } elseif ($status === 'inactive' || $status === '0') {
             $q->where('is_active', false);
         } elseif ($status === 'low_stock') {
-            $q->where('stock', '<=', 10);
+            $q->where('stock', '<=', 10)->where('stock', '>', 0);
+        } elseif ($status === 'out_of_stock') {
+            $q->where('stock', '<=', 0);
         } elseif ($status === 'featured') {
             $q->where('is_featured', true);
         }
 
-        // Sorting
-        switch ($sort) {
-            case 'price_asc':
-                $q->orderBy('price', 'asc');
-                break;
-            case 'price_desc':
-                $q->orderBy('price', 'desc');
-                break;
-            case 'stock_asc':
-                $q->orderBy('stock', 'asc');
-                break;
-            case 'sold_desc':
-                $q->orderBy('total_sold', 'desc');
-                break;
-            case 'latest':
-            default:
-                $q->latest();
-                break;
+        if ($isDataTablesRequest && $request->filled('order.0.column')) {
+            $columns = [
+                0 => 'name',
+                2 => 'price',
+                3 => 'stock',
+                4 => 'total_sold',
+                5 => 'is_active',
+            ];
+            $column = $columns[(int) $request->input('order.0.column')] ?? 'created_at';
+            $dir = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
+            $q->orderBy($column, $dir);
+        } else {
+            // Sorting
+            switch ($sort) {
+                case 'price_asc':
+                    $q->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $q->orderBy('price', 'desc');
+                    break;
+                case 'stock_asc':
+                    $q->orderBy('stock', 'asc');
+                    break;
+                case 'sold_desc':
+                    $q->orderBy('total_sold', 'desc');
+                    break;
+                case 'latest':
+                default:
+                    $q->latest();
+                    break;
+            }
         }
 
         $result = $q->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json([
-            'data' => $result->map(function ($p) {
+        $data = $result->map(function ($p) {
                 $image = $this->productListImage($p);
 
                 $categoryName = '—';
@@ -138,7 +162,13 @@ class ProductController extends Controller
                     'show_url' => route('admin.products.show', $p),
                     'view_url' => route('product.show', $p->slug),
                 ];
-            }),
+            });
+
+        return response()->json([
+            'draw' => (int) $request->get('draw', 0),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $result->total(),
+            'data' => $data,
             'total' => $result->total(),
             'per_page' => $result->perPage(),
             'current_page' => $result->currentPage(),
@@ -146,6 +176,83 @@ class ProductController extends Controller
             'from' => $result->firstItem() ?? 0,
             'to' => $result->lastItem() ?? 0,
         ]);
+    }
+
+    // ── Bulk Actions ──────────────────────────────────
+    public function bulkAction(Request $request)
+    {
+        $action = $request->input('action');
+        $ids = $request->input('ids', []);
+
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'No products selected.'], 422);
+        }
+
+        switch ($action) {
+            case 'activate':
+                Product::whereIn('id', $ids)->update(['is_active' => true]);
+                return response()->json(['success' => true, 'message' => count($ids) . ' product(s) activated successfully.']);
+
+            case 'deactivate':
+                Product::whereIn('id', $ids)->update(['is_active' => false]);
+                return response()->json(['success' => true, 'message' => count($ids) . ' product(s) deactivated successfully.']);
+
+            case 'feature':
+                Product::whereIn('id', $ids)->update(['is_featured' => true]);
+                return response()->json(['success' => true, 'message' => count($ids) . ' product(s) marked as featured.']);
+
+            case 'unfeature':
+                Product::whereIn('id', $ids)->update(['is_featured' => false]);
+                return response()->json(['success' => true, 'message' => count($ids) . ' product(s) unfeatured.']);
+
+            case 'delete':
+                $count = count($ids);
+                Product::whereIn('id', $ids)->delete();
+                return response()->json(['success' => true, 'message' => $count . ' product(s) deleted successfully.']);
+
+            default:
+                return response()->json(['success' => false, 'message' => 'Invalid bulk action specified.'], 422);
+        }
+    }
+
+    // ── Export CSV ────────────────────────────────────
+    public function export(Request $request)
+    {
+        $products = Product::with('category')->latest()->get();
+        $filename = 'products_catalog_' . date('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return response()->stream(function () use ($products) {
+            $handle = fopen('php://output', 'w');
+            // Add UTF-8 BOM for Excel compatibility
+            fputs($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, ['ID', 'Name', 'SKU', 'Category', 'Price (INR)', 'Original Price (INR)', 'Stock', 'Total Sold', 'Status', 'Featured', 'Created At']);
+
+            foreach ($products as $p) {
+                fputcsv($handle, [
+                    $p->id,
+                    $p->name,
+                    $p->sku ?: '—',
+                    $p->category->name ?? 'Uncategorized',
+                    $p->price,
+                    $p->original_price ?: '',
+                    $p->stock,
+                    $p->total_sold ?? 0,
+                    $p->is_active ? 'Active' : 'Inactive',
+                    $p->is_featured ? 'Yes' : 'No',
+                    $p->created_at ? $p->created_at->format('Y-m-d H:i') : '',
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, $headers);
     }
 
     // ── Create ───────────────────────────────────────
@@ -275,7 +382,7 @@ class ProductController extends Controller
 
             if (empty($product->image)) {
                 $firstMedia = Media::where('model_type', Product::class)->where('model_id', $product->id)->first();
-                $firstProductImg = ProductImage::where('product_id', $product->id)->first();
+                $firstProductImg = ProductImage::where('product_id', $product->id)->whereNull('color_id')->first();
                 $fallback = $product->front_image ?: ($firstMedia?->url ?: ($firstProductImg?->url ?: $product->back_image));
                 if ($fallback) {
                     $product->updateQuietly(['image' => $fallback]);
@@ -325,9 +432,14 @@ class ProductController extends Controller
 
         $seenImageUrls = [];
         $images = collect();
+        $colorImageUrls = $product->productImages
+            ->whereNotNull('color_id')
+            ->pluck('url')
+            ->filter()
+            ->all();
 
         foreach ($product->productImages->sortByDesc('is_primary')->sortBy('sort_order') as $productImage) {
-            if (empty($productImage->url) || isset($seenImageUrls[$productImage->url])) {
+            if ($productImage->color_id || empty($productImage->url) || isset($seenImageUrls[$productImage->url])) {
                 continue;
             }
 
@@ -347,7 +459,7 @@ class ProductController extends Controller
         }
 
         foreach ($product->media->sortByDesc('is_primary')->sortBy('sort_order') as $media) {
-            if (empty($media->url) || isset($seenImageUrls[$media->url])) {
+            if (empty($media->url) || isset($seenImageUrls[$media->url]) || in_array($media->url, $colorImageUrls)) {
                 continue;
             }
 
@@ -366,7 +478,7 @@ class ProductController extends Controller
             ]);
         }
 
-        if (!empty($product->image) && !isset($seenImageUrls[$product->image])) {
+        if (!empty($product->image) && !isset($seenImageUrls[$product->image]) && !in_array($product->image, $colorImageUrls)) {
             $seenImageUrls[$product->image] = true;
             $images->prepend((object) [
                 'id' => 'main',
@@ -504,11 +616,11 @@ class ProductController extends Controller
                 'meta_description' => $request->meta_description,
                 'meta_keywords' => $request->meta_keywords,
                 'og_image' => $request->og_image ?? ($frontImage ?: $product->og_image),
-                'is_active' => $request->boolean('is_active'),
-                'is_featured' => $request->boolean('is_featured'),
-                'is_new' => $request->boolean('is_new'),
-                'is_trending' => $request->boolean('is_trending'),
-                'is_on_sale' => $request->boolean('is_on_sale'),
+                'is_active' => $request->has('is_active') ? $request->boolean('is_active') : (bool) $product->is_active,
+                'is_featured' => $request->has('is_featured') ? $request->boolean('is_featured') : (bool) $product->is_featured,
+                'is_new' => $request->has('is_new') ? $request->boolean('is_new') : (bool) $product->is_new,
+                'is_trending' => $request->has('is_trending') ? $request->boolean('is_trending') : (bool) $product->is_trending,
+                'is_on_sale' => $request->has('is_on_sale') ? $request->boolean('is_on_sale') : (bool) $product->is_on_sale,
                 'fabric' => $request->fabric,
                 'fit' => $request->fit,
                 'care_instructions' => $request->care_instructions,
@@ -634,7 +746,7 @@ class ProductController extends Controller
         }
     }
 
-    // ── Helper: sync stock+price from variants ────────
+    // ── Helper: sync stock+price+MRP from variants ────────
     private function syncVariants(Product $product): void
     {
         if (!Schema::hasTable('product_variants'))
@@ -645,9 +757,17 @@ class ProductController extends Controller
             ->selectRaw('COALESCE(SUM(stock), 0) as total_stock, MIN(price) as min_price')
             ->first();
 
+        $primaryVariant = $product->variants()
+            ->where('is_active', true)
+            ->whereNotNull('price')
+            ->orderBy('price')
+            ->orderByDesc('original_price')
+            ->first();
+
         $product->updateQuietly([
             'stock' => (int) ($variantSummary->total_stock ?? 0),
             'price' => $variantSummary->min_price ?? $product->price,
+            'original_price' => $primaryVariant?->original_price ?: null,
         ]);
     }
 
@@ -731,7 +851,10 @@ class ProductController extends Controller
                     continue;
                 }
 
-                $isDesignatedMain = ($request->filled('designated_main_image_name') && $request->input('designated_main_image_name') === $file->getClientOriginalName());
+                $isGeneralImage = empty($color?->id);
+                $isDesignatedMain = $isGeneralImage
+                    && $request->filled('designated_main_image_name')
+                    && $request->input('designated_main_image_name') === $file->getClientOriginalName();
 
                 $isColorPrimary = !ProductImage::where('product_id', $product->id)
                     ->where('color_id', $color?->id)
@@ -755,7 +878,7 @@ class ProductController extends Controller
                         ->count(),
                 ]);
 
-                if ($isDesignatedMain || !$product->image || !ProductImage::where('product_id', $product->id)->where('id', '!=', $image->id)->exists()) {
+                if ($isGeneralImage && ($isDesignatedMain || !$product->image || !ProductImage::where('product_id', $product->id)->whereNull('color_id')->where('id', '!=', $image->id)->exists())) {
                     $product->updateQuietly(['image' => $url]);
                 }
             }
@@ -1021,6 +1144,25 @@ class ProductController extends Controller
 
         $target = $request->input('target', 'main');
 
+        if ($source === 'product_image' && is_numeric($imageId)) {
+            $productImage = ProductImage::where('product_id', $product->id)->find($imageId);
+            if ($productImage && $productImage->color_id) {
+                ProductImage::where('product_id', $product->id)
+                    ->where('color_id', $productImage->color_id)
+                    ->update(['is_primary' => false]);
+
+                $productImage->update(['is_primary' => true]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Color image updated successfully!',
+                    'image_url' => $product->image,
+                    'main_url' => $product->image,
+                    'color_id' => $productImage->color_id,
+                ]);
+            }
+        }
+
         if ($target === 'front') {
             $product->updateQuietly(['front_image' => $url]);
             if (empty($product->image)) {
@@ -1201,6 +1343,7 @@ class ProductController extends Controller
 
         if ($wasMain) {
             $nextPi = ProductImage::where('product_id', $product->id)
+                ->whereNull('color_id')
                 ->orderByDesc('is_primary')
                 ->orderBy('sort_order')
                 ->first();

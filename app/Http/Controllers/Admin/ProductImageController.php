@@ -43,9 +43,14 @@ class ProductImageController extends Controller
     public function setPrimary(ProductImage $image)
     {
         ProductImage::where('product_id', $image->product_id)
+            ->where('color_id', $image->color_id)
             ->update(['is_primary' => false]);
         
         $image->update(['is_primary' => true]);
+
+        if ($image->color_id) {
+            return response()->json(['success' => true]);
+        }
 
         $image->product?->updateQuietly(['image' => $image->url]);
 
@@ -97,6 +102,7 @@ class ProductImageController extends Controller
 
         if ($wasMainImage && $product) {
             $next = ProductImage::where('product_id', $product->id)
+                ->whereNull('color_id')
                 ->orderByDesc('is_primary')
                 ->orderBy('sort_order')
                 ->first();

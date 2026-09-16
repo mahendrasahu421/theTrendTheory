@@ -722,6 +722,24 @@
                             <div style="font-size:11.5px;color:#166534;margin-top:2px;">Destination: <strong>{{ ucwords(str_replace('_',' ',$refund->method)) }}</strong></div>
                         </div>
 
+                        @if($return->order)
+                            <div class="rtn-bank-box" style="background:#fff7ed;border-color:#fed7aa;">
+                                <div style="font-size:11px;font-weight:800;color:#9a3412;text-transform:uppercase;margin-bottom:2px;">Refund Calculation</div>
+                                <div class="rtn-info-row">
+                                    <span class="rtn-info-label">Order Paid Amount</span>
+                                    <span class="rtn-info-val">₹{{ number_format($return->order->total_amount) }}</span>
+                                </div>
+                                <div class="rtn-info-row">
+                                    <span class="rtn-info-label">Delivery Charges (Non-refundable)</span>
+                                    <span class="rtn-info-val" style="color:#be123c;">- ₹{{ number_format($return->order->non_refundable_shipping_charge) }}</span>
+                                </div>
+                                <div class="rtn-info-row">
+                                    <span class="rtn-info-label">Product Refund Amount</span>
+                                    <span class="rtn-info-val" style="color:#15803d;">₹{{ number_format($return->order->refundable_amount) }}</span>
+                                </div>
+                            </div>
+                        @endif
+
                         {{-- Bank / UPI Destination Card --}}
                         @if($refund->method === 'bank_transfer')
                             <div class="rtn-bank-box">

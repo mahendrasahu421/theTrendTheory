@@ -341,10 +341,11 @@
             <div class="featured-grid">
                 @foreach ($featuredProducts as $product)
                     @php
-                        $hasDiscount = $product->original_price && $product->original_price > $product->price;
+                        $displayOriginalPrice = $product->display_original_price ?: $product->original_price;
+                        $hasDiscount = $displayOriginalPrice && $displayOriginalPrice > $product->price;
                         $discPct = $hasDiscount
                             ? (int) round(
-                                (($product->original_price - $product->price) / $product->original_price) * 100,
+                                (($displayOriginalPrice - $product->price) / $displayOriginalPrice) * 100,
                             )
                             : 0;
 
@@ -408,7 +409,7 @@ if (
                             <div>
                                 <span class="feat-card-price">₹{{ number_format($product->price) }}</span>
                                 @if ($hasDiscount)
-                                    <span class="feat-card-oldprice">₹{{ number_format($product->original_price) }}</span>
+                                    <span class="feat-card-oldprice">₹{{ number_format($displayOriginalPrice) }}</span>
                                 @endif
                             </div>
                         </div>

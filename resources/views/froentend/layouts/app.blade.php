@@ -1759,7 +1759,7 @@
             items.forEach(function(i) {
                 var q = Number(i.quantity || 1);
                 var p = Number(i.price || 0);
-                var mrp = Number(i.original_price || (p * 1.25));
+                var mrp = Number(i.original_price || p);
                 totalCount += q;
                 subtotal += (p * q);
                 totalMrp += (mrp * q);
@@ -1780,7 +1780,7 @@
                 itemsListEl.innerHTML = items.map(function(item, idx) {
                     var q = Number(item.quantity || 1);
                     var p = Number(item.price || 0);
-                    var orig = Number(item.original_price || (p * 1.25));
+                    var orig = Number(item.original_price || p);
                     var discPct = orig > p ? Math.round(((orig - p) / orig) * 100) : 0;
                     return '<div class="gco-item-card">' +
                         '<div class="gco-item-img-wrap">' +
@@ -2984,7 +2984,7 @@
 
                 var activeIndex = 0;
                 var x = 0;
-                track.style.transition = 'transform 0.35s ease';
+                track.style.transition = 'transform 0.4s cubic-bezier(0.22, 0.68, 0.32, 1)';
 
                 function getMaxOffset() {
                     return Math.max(0, track.scrollWidth - wrapper.clientWidth);
@@ -3005,6 +3005,16 @@
                     if (activeIndex < 0 || maxOffset === 0) activeIndex = 0;
                     x = -Math.min(slides[activeIndex].offsetLeft || 0, maxOffset);
                     track.style.transform = 'translateX(' + x + 'px)';
+
+                    // Update arrow opacity/visibility
+                    if (btnL) {
+                        btnL.style.opacity = activeIndex <= 0 ? '0.45' : '1';
+                        btnL.style.pointerEvents = activeIndex <= 0 ? 'auto' : 'auto';
+                    }
+                    if (btnR) {
+                        btnR.style.opacity = activeIndex >= maxIndex ? '0.45' : '1';
+                        btnR.style.pointerEvents = activeIndex >= maxIndex ? 'auto' : 'auto';
+                    }
                 }
 
                 function nextSlide() {
@@ -3021,22 +3031,97 @@
                     applyPosition();
                 }
 
-                if (btnL) btnL.addEventListener('click', function() {
+                if (btnL) btnL.addEventListener('click', function(e) {
+                    e.preventDefault();
                     prevSlide();
                 });
-                if (btnR) btnR.addEventListener('click', function() {
+                if (btnR) btnR.addEventListener('click', function(e) {
+                    e.preventDefault();
                     nextSlide();
                 });
+
+                // Touch / Swipe support for mobile & tablet
+                var touchStartX = 0;
+                var touchEndX = 0;
+                var isTouching = false;
+
+                wrapper.addEventListener('touchstart', function(e) {
+                    if (e.touches && e.touches.length === 1) {
+                        touchStartX = e.touches[0].clientX;
+                        isTouching = true;
+                    }
+                }, { passive: true });
+
+                wrapper.addEventListener('touchend', function(e) {
+                    if (!isTouching) return;
+                    isTouching = false;
+                    touchEndX = e.changedTouches[0].clientX;
+                    var diffX = touchStartX - touchEndX;
+                    if (Math.abs(diffX) > 40) {
+                        if (diffX > 0) {
+                            nextSlide();
+                        } else {
+                            prevSlide();
+                        }
+                    }
+                }, { passive: true });
 
                 window.addEventListener('resize', applyPosition);
                 applyPosition();
             }
+
+            window.makeSlider = makeSlider;
+            window.makeProductSlider = makeSlider;
+
+            // Global hover gallery auto-rotator for product cards
+            function initCardHoverGalleries() {
+                var galleries = Array.prototype.slice.call(document.querySelectorAll('.home-product-carousel [data-home-card-gallery]'));
+                if (!galleries.length) return;
+
+                galleries.forEach(function(gallery) {
+                    if (gallery.dataset.homeGalleryInited === 'true') return;
+                    var slides = Array.prototype.slice.call(gallery.querySelectorAll('.home-card-gallery-img'));
+                    if (slides.length < 2) return;
+
+                    gallery.dataset.homeGalleryInited = 'true';
+                    var hoverTimer = null;
+                    var activeIndex = slides.findIndex(function(slide) { return slide.classList.contains('active'); });
+                    if (activeIndex < 0) activeIndex = 0;
+
+                    function showImage(nextIndex) {
+                        activeIndex = (nextIndex + slides.length) % slides.length;
+                        slides.forEach(function(slide, idx) {
+                            slide.classList.toggle('active', idx === activeIndex);
+                        });
+                    }
+
+                    gallery.addEventListener('mouseenter', function() {
+                        if (hoverTimer) return;
+                        hoverTimer = setInterval(function() {
+                            if (document.hidden) return;
+                            showImage(activeIndex + 1);
+                        }, 900);
+                    });
+
+                    gallery.addEventListener('mouseleave', function() {
+                        if (!hoverTimer) return;
+                        clearInterval(hoverTimer);
+                        hoverTimer = null;
+                        showImage(0);
+                    });
+                });
+            }
+            window.initCardHoverGalleries = initCardHoverGalleries;
+
             document.addEventListener('DOMContentLoaded', function() {
                 makeSlider('heroSliderTrack', 'heroSliderWrapper', 'heroArrowLeft', 'heroArrowRight', 532);
                 makeSlider('mostSliderTrack', 'mostSliderWrapper', 'mostArrowLeft', 'mostArrowRight', 385);
                 makeSlider('menSliderTrack', 'menSliderWrapper', 'menArrowLeft', 'menArrowRight', 405);
                 makeSlider('womenSliderTrack', 'womenSliderWrapper', 'womenArrowLeft', 'womenArrowRight', 405);
                 makeSlider('newinSliderTrack', 'newinSliderWrapper', 'newinArrowLeft', 'newinArrowRight', 405);
+                makeSlider('recentSliderTrack', 'recentSliderWrapper', 'recentArrowLeft', 'recentArrowRight', 300);
+                makeSlider('relatedSliderTrack', 'relatedSliderWrapper', 'relatedArrowLeft', 'relatedArrowRight', 300);
+                initCardHoverGalleries();
             });
         })();
     </script>

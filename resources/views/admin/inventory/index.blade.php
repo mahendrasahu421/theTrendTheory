@@ -454,40 +454,7 @@
 
 <div class="inventory-wrap">
 
-    {{-- ── 1. Top Executive Banner ── --}}
-    <div class="inventory-banner">
-        <div class="inventory-banner-text">
-            <div class="inventory-banner-badge">
-                <span class="pulse-dot-cyan"></span>
-                <span>REAL-TIME WAREHOUSE &amp; STOCK STUDIO</span>
-            </div>
-            <h1 class="inventory-banner-title">Inventory &amp; Stock Manager</h1>
-            <p class="inventory-banner-desc">
-                Live inventory tracking across all collections. Monitor safety thresholds, track velocity, and execute instant 1-click quantity adjustments.
-            </p>
-        </div>
-
-        <div class="inventory-banner-art">
-            <svg width="220" height="130" viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Stacked Warehouse Isometric Box Art -->
-                <rect x="20" y="45" width="70" height="60" rx="10" fill="#ffffff" fill-opacity="0.15" stroke="#38bdf8" stroke-width="1.5" />
-                <rect x="30" y="55" width="20" height="8" rx="3" fill="#38bdf8" />
-                <rect x="30" y="70" width="45" height="4" rx="2" fill="#ffffff" fill-opacity="0.4" />
-                <rect x="30" y="80" width="35" height="4" rx="2" fill="#ffffff" fill-opacity="0.4" />
-                
-                <rect x="105" y="25" width="85" height="80" rx="12" fill="#ffffff" fill-opacity="0.22" stroke="#60a5fa" stroke-width="2" />
-                <circle cx="130" cy="50" r="12" fill="#38bdf8" fill-opacity="0.3" />
-                <path d="M125 50L129 54L136 46" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <rect x="150" y="42" width="28" height="6" rx="2" fill="#ffffff" />
-                <rect x="150" y="54" width="20" height="5" rx="2" fill="#38bdf8" />
-                <rect x="125" y="75" width="50" height="4" rx="2" fill="#ffffff" fill-opacity="0.4" />
-                <rect x="125" y="85" width="35" height="4" rx="2" fill="#ffffff" fill-opacity="0.4" />
-                
-                <circle cx="195" cy="35" r="4" fill="#fbbf24" />
-                <circle cx="15" cy="30" r="3" fill="#38bdf8" />
-            </svg>
-        </div>
-    </div>
+    
 
     {{-- ── 2. Top 4 Inventory KPIs ── --}}
     <div class="kpi-modern-grid">

@@ -798,164 +798,122 @@
     transition: color 0.15s ease;
 }
 
-/* Responsive Products Carousel / Grid */
-.products-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+/* ── Cart Product Sliders (Matching Home Page Carousel) ── */
+.cart-slider-section {
+    margin-top: 48px;
+    padding-top: 36px;
+    border-top: 1px solid #e2e8f0;
 }
 
-.rec-product-card {
+.cart-slider-section .collection-header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.cart-slider-section .collection-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #00285a;
+    margin: 0 0 6px;
+}
+
+.cart-slider-section .collection-header p {
+    font-size: 13px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0;
+}
+
+.cart-slider-section .slider-container-collection {
+    position: relative;
+    max-width: 100%;
+    padding: 0 45px;
+    overflow: hidden;
+}
+
+.cart-slider-section .collection-arrow {
+    width: 44px;
+    height: 44px;
     background: #ffffff;
-    border: 1px solid var(--tt-border);
-    border-radius: 16px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.25s ease;
-    position: relative;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
-}
-
-.rec-media-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3/4;
-    background: #f8fafc;
-    overflow: hidden;
-}
-
-.rec-media-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease;
-}
-
-.rec-wish-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 32px;
-    height: 32px;
+    color: #00285a;
+    border: 1.5px solid #e2e8f0;
+    font-size: 18px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(4px);
-    border: 0;
-    color: #475569;
+    box-shadow: 0 6px 20px rgba(0, 40, 90, 0.12);
+    z-index: 25;
+    position: absolute;
+    top: 42%;
+    transform: translateY(-50%);
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
     transition: all 0.2s ease;
-    z-index: 2;
-}.rec-wish-btn.wished {
-    background: #ffffff;
-    color: var(--tt-accent);
-    transform: scale(1.1);
 }
 
-.rec-flag-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: var(--tt-accent);
+.cart-slider-section .collection-arrow:hover {
+    background: #00285a;
     color: #ffffff;
-    font-size: 10.5px;
-    font-weight: 800;
-    padding: 2px 7px;
-    border-radius: 5px;
-    line-height: 1;
-    z-index: 2;
+    border-color: #00285a;
+    box-shadow: 0 10px 25px rgba(0, 40, 90, 0.25);
+    transform: translateY(-50%) scale(1.08);
 }
 
-.rec-flag-badge.new {
-    background: var(--tt-primary);
+.cart-slider-section .collection-arrow-left {
+    left: 4px;
 }
 
-.rec-flag-badge.hot {
-    background: #ea580c;
+.cart-slider-section .collection-arrow-right {
+    right: 4px;
 }
 
-/* Quick Add Hover Overlay Button */
-.rec-quick-add-wrap {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 12px;
-    background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 100%);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.25s ease;
-    display: flex;
-    justify-content: center;
-}
-
-.rec-quick-add-btn {
-    width: 100%;
-    height: 38px;
-    border-radius: 8px;
-    background: #ffffff;
-    color: var(--tt-primary);
-    font-size: 12px;
-    font-weight: 800;
-    border: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: all 0.18s ease;
-}
-
-.rec-info-wrap {
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.rec-product-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--tt-text-main);
-    text-decoration: none;
-    line-height: 1.35;
-    margin-bottom: 6px;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+.cart-slider-section .collection-slider-wrapper {
     overflow: hidden;
-    transition: color 0.15s ease;
+    width: 100%;
+    cursor: grab;
 }
 
-.rec-price-row {
+.cart-slider-section .collection-slider-wrapper:active {
+    cursor: grabbing;
+}
+
+.cart-slider-section .collection-track {
     display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: auto;
+    gap: 22px;
+    width: max-content;
+    transition: transform 0.4s cubic-bezier(0.22, 0.68, 0.32, 1);
+    will-change: transform;
+    padding: 6px 2px 16px;
 }
 
-.rec-curr-price {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--tt-primary);
+.cart-slider-section .collection-slide {
+    width: 280px;
+    flex-shrink: 0;
 }
 
-.rec-orig-price {
-    font-size: 12px;
-    color: #94a3b8;
-    text-decoration: line-through;
-}
-
-.rec-disc-pill {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--tt-emerald);
+@media (max-width: 768px) {
+    .cart-slider-section .slider-container-collection {
+        padding: 0 24px;
+    }
+    .cart-slider-section .collection-slide {
+        width: 72vw;
+        max-width: 270px;
+    }
+    .cart-slider-section .collection-arrow {
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+    }
+    .cart-slider-section .collection-arrow-left {
+        left: 0;
+    }
+    .cart-slider-section .collection-arrow-right {
+        right: 0;
+    }
 }
 
 /* ── Responsive Media Queries ── */
@@ -966,19 +924,12 @@
     .cart-summary-card {
         position: static;
     }
-    .products-cards-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
     .cart-perks-strip {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 768px) {
-    .products-cards-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
-    }
     .cart-item-row-card {
         grid-template-columns: 85px 1fr;
         gap: 14px;
@@ -1061,7 +1012,7 @@
             $totalItemsCount = collect($cart)->sum('quantity');
             $totalMrp = collect($cart)->sum(function($item) {
                 $p = (float)($item['price'] ?? 0);
-                $orig = (float)($item['original_price'] ?? ($p * 1.25));
+                $orig = (float)($item['original_price'] ?? $p);
                 return $orig * (int)($item['quantity'] ?? 1);
             });
             $discountOnMrp = max(0, $totalMrp - $subtotal);
@@ -1113,7 +1064,7 @@
                         @php
                             $q = (int) ($item['quantity'] ?? 1);
                             $p = (float) ($item['price'] ?? 0);
-                            $orig = (float) ($item['original_price'] ?? ($p * 1.25));
+                            $orig = (float) ($item['original_price'] ?? $p);
                             $disc = $orig > $p ? round((($orig - $p) / $orig) * 100) : 0;
                             $itemSlug = $item['slug'] ?? '';
                             $itemUrl = $itemSlug ? route('product.show', $itemSlug) : '#';
@@ -1297,151 +1248,70 @@
     @endif
 
     {{-- ═══════════════════════════════════════════════════════════
-         NEW SECTION 1: RECENTLY VIEWED PRODUCTS
+         NEW SECTION 1: RECENTLY VIEWED PRODUCTS SLIDER
          ═══════════════════════════════════════════════════════════ --}}
     @if(isset($recentlyViewedProducts) && $recentlyViewedProducts->count() > 0)
-        <section class="cart-recommendations-section" aria-label="Recently Viewed Products">
-            <div class="section-title-wrap">
-                <div class="title-area">
-                    <h3><i class="bi bi-clock-history text-primary"></i> RECENTLY VIEWED</h3>
+        <section class="collection-slider-section home-product-carousel cart-slider-section" aria-label="Recently Viewed Products">
+            <div class="container-fluid position-relative px-0">
+                <div class="collection-header text-center">
+                    <h2>RECENTLY VIEWED</h2>
                     <p>Pick up right where you left off</p>
                 </div>
-                <a href="{{ route('shop.index') }}" class="view-all-link">
-                    Explore Shop <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-
-            <div class="products-cards-grid">
-                @foreach($recentlyViewedProducts->take(8) as $recProduct)
-                    @php
-                        $recImg = $recProduct->card_image ?: ($recProduct->image_url ?: asset('images/placeholder-product.jpg'));
-                        $recHasDisc = $recProduct->original_price && $recProduct->original_price > $recProduct->price;
-                        $recDiscPct = $recHasDisc ? (int)round((($recProduct->original_price - $recProduct->price) / $recProduct->original_price) * 100) : 0;
-                        $recIsOos = ($recProduct->stock <= 0) || ($recProduct->stock_status === 'out_of_stock');
-                    @endphp
-                    <div class="rec-product-card">
-                        <div class="rec-media-wrap">
-                            <a href="{{ route('product.show', $recProduct->slug) }}">
-                                <img src="{{ $recImg }}" alt="{{ $recProduct->name }}" loading="lazy" onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
-                            </a>
-
-                            {{-- Wishlist Button --}}
-                            <button type="button" class="rec-wish-btn {{ in_array($recProduct->id, session('wishlist', [])) ? 'wished' : '' }}"
-                                onclick="toggleWishlist({{ $recProduct->id }}, this)" aria-label="Wishlist">
-                                <i class="bi {{ in_array($recProduct->id, session('wishlist', [])) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
-                            </button>
-
-                            {{-- Flags --}}
-                            @if($recHasDisc && $recDiscPct > 0)
-                                <span class="rec-flag-badge">-{{ $recDiscPct }}%</span>
-                            @elseif($recProduct->is_new)
-                                <span class="rec-flag-badge new">NEW</span>
-                            @elseif($recProduct->is_trending)
-                                <span class="rec-flag-badge hot">HOT</span>
-                            @endif
-
-                            {{-- Quick Add Overlay --}}
-                            <div class="rec-quick-add-wrap">
-                                <button type="button" class="rec-quick-add-btn open-product-slider"
-                                    data-product-id="{{ $recProduct->id }}"
-                                    data-product-name="{{ $recProduct->name }}"
-                                    data-product-price="{{ $recProduct->price }}"
-                                    data-product-image="{{ $recImg }}"
-                                    {{ $recIsOos ? 'disabled' : '' }}>
-                                    <i class="bi bi-bag-plus"></i> {{ $recIsOos ? 'OUT OF STOCK' : 'QUICK ADD' }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="rec-info-wrap">
-                            <a href="{{ route('product.show', $recProduct->slug) }}" class="rec-product-title">
-                                {{ $recProduct->name }}
-                            </a>
-                            <div class="rec-price-row">
-                                <span class="rec-curr-price">₹{{ number_format($recProduct->price) }}</span>
-                                @if($recHasDisc)
-                                    <span class="rec-orig-price">₹{{ number_format($recProduct->original_price) }}</span>
-                                    <span class="rec-disc-pill">{{ $recDiscPct }}% OFF</span>
-                                @endif
-                            </div>
+                <div class="slider-container-collection position-relative">
+                    <button type="button" class="collection-arrow collection-arrow-left" id="recentArrowLeft" aria-label="Previous">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="collection-arrow collection-arrow-right" id="recentArrowRight" aria-label="Next">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <div class="collection-slider-wrapper" id="recentSliderWrapper">
+                        <div class="collection-track" id="recentSliderTrack">
+                            @foreach($recentlyViewedProducts as $product)
+                                @include('froentend.partials.product-card', [
+                                    'product' => $product,
+                                    'type' => 'collection',
+                                ])
+                            @endforeach
                         </div>
                     </div>
-                @endforeach
+                </div>
             </div>
         </section>
     @endif
 
     {{-- ═══════════════════════════════════════════════════════════
-         NEW SECTION 2: RELATED PRODUCTS / YOU MAY ALSO LIKE
+         NEW SECTION 2: RELATED PRODUCTS / YOU MAY ALSO LIKE SLIDER
          ═══════════════════════════════════════════════════════════ --}}
     @if(isset($relatedProducts) && $relatedProducts->count() > 0)
-        <section class="cart-recommendations-section" aria-label="Related Products">
-            <div class="section-title-wrap">
-                <div class="title-area">
-                    <h3><i class="bi bi-stars text-warning"></i> YOU MAY ALSO LIKE</h3>
-                    <p>Curated streetwear styles handpicked for you</p>
+        <section class="collection-slider-section home-product-carousel cart-slider-section" aria-label="You May Also Like">
+            <div class="container-fluid position-relative px-0">
+                <div class="collection-header text-center">
+                    <h2>YOU MAY ALSO LIKE</h2>
+                    <p>Curated luxury streetwear pieces handpicked for your style</p>
                 </div>
-                <a href="{{ route('shop.new-arrivals') }}" class="view-all-link">
-                    View New Drops <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-
-            <div class="products-cards-grid">
-                @foreach($relatedProducts->take(8) as $relProduct)
-                    @php
-                        $relImg = $relProduct->card_image ?: ($relProduct->image_url ?: asset('images/placeholder-product.jpg'));
-                        $relHasDisc = $relProduct->original_price && $relProduct->original_price > $relProduct->price;
-                        $relDiscPct = $relHasDisc ? (int)round((($relProduct->original_price - $relProduct->price) / $relProduct->original_price) * 100) : 0;
-                        $relIsOos = ($relProduct->stock <= 0) || ($relProduct->stock_status === 'out_of_stock');
-                    @endphp
-                    <div class="rec-product-card">
-                        <div class="rec-media-wrap">
-                            <a href="{{ route('product.show', $relProduct->slug) }}">
-                                <img src="{{ $relImg }}" alt="{{ $relProduct->name }}" loading="lazy" onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
-                            </a>
-
-                            {{-- Wishlist Button --}}
-                            <button type="button" class="rec-wish-btn {{ in_array($relProduct->id, session('wishlist', [])) ? 'wished' : '' }}"
-                                onclick="toggleWishlist({{ $relProduct->id }}, this)" aria-label="Wishlist">
-                                <i class="bi {{ in_array($relProduct->id, session('wishlist', [])) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
-                            </button>
-
-                            {{-- Flags --}}
-                            @if($relHasDisc && $relDiscPct > 0)
-                                <span class="rec-flag-badge">-{{ $relDiscPct }}%</span>
-                            @elseif($relProduct->is_new)
-                                <span class="rec-flag-badge new">NEW</span>
-                            @elseif($relProduct->is_trending)
-                                <span class="rec-flag-badge hot">HOT</span>
-                            @endif
-
-                            {{-- Quick Add Overlay --}}
-                            <div class="rec-quick-add-wrap">
-                                <button type="button" class="rec-quick-add-btn open-product-slider"
-                                    data-product-id="{{ $relProduct->id }}"
-                                    data-product-name="{{ $relProduct->name }}"
-                                    data-product-price="{{ $relProduct->price }}"
-                                    data-product-image="{{ $relImg }}"
-                                    {{ $relIsOos ? 'disabled' : '' }}>
-                                    <i class="bi bi-bag-plus"></i> {{ $relIsOos ? 'OUT OF STOCK' : 'QUICK ADD' }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="rec-info-wrap">
-                            <a href="{{ route('product.show', $relProduct->slug) }}" class="rec-product-title">
-                                {{ $relProduct->name }}
-                            </a>
-                            <div class="rec-price-row">
-                                <span class="rec-curr-price">₹{{ number_format($relProduct->price) }}</span>
-                                @if($relHasDisc)
-                                    <span class="rec-orig-price">₹{{ number_format($relProduct->original_price) }}</span>
-                                    <span class="rec-disc-pill">{{ $relDiscPct }}% OFF</span>
-                                @endif
-                            </div>
+                <div class="slider-container-collection position-relative">
+                    <button type="button" class="collection-arrow collection-arrow-left" id="relatedArrowLeft" aria-label="Previous">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="collection-arrow collection-arrow-right" id="relatedArrowRight" aria-label="Next">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <div class="collection-slider-wrapper" id="relatedSliderWrapper">
+                        <div class="collection-track" id="relatedSliderTrack">
+                            @foreach($relatedProducts as $product)
+                                @include('froentend.partials.product-card', [
+                                    'product' => $product,
+                                    'type' => 'collection',
+                                ])
+                            @endforeach
                         </div>
                     </div>
-                @endforeach
+                </div>
+                <div class="collection-footer text-center mt-3">
+                    <a href="{{ route('shop.index') }}" class="section-btn" style="text-decoration:none;">
+                        VIEW ALL DROPS <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
             </div>
         </section>
     @endif
@@ -1573,11 +1443,11 @@
             var qty = qtyEl ? parseInt(qtyEl.textContent) || 1 : 1;
             var mrpEl = card.querySelector('.cart-price-mrp');
             var unitPriceEl = card.querySelector('.cart-price-current');
-            var mrp = mrpEl ? parseFloat(mrpEl.textContent.replace(/[^\d.]/g, '')) : (unitPriceEl ? parseFloat(unitPriceEl.textContent.replace(/[^\d.]/g, '')) * 1.25 : 0);
+            var mrp = mrpEl ? parseFloat(mrpEl.textContent.replace(/[^\d.]/g, '')) : (unitPriceEl ? parseFloat(unitPriceEl.textContent.replace(/[^\d.]/g, '')) : 0);
             totalMrp += (mrp * qty);
         });
 
-        if (totalMrp < subtotal) totalMrp = subtotal * 1.25;
+        if (totalMrp < subtotal) totalMrp = subtotal;
         var discountOnMrp = Math.max(0, totalMrp - subtotal);
         var prepaidDiscount = Math.round(subtotal * 0.05 * 100) / 100;
         var grandTotal = Math.max(0, subtotal + shipping - discount - prepaidDiscount);
@@ -1740,7 +1610,7 @@
                 name: nameEl ? nameEl.textContent.trim() : 'Product',
                 image: imgEl ? imgEl.src : '',
                 price: price,
-                original_price: price * 1.25,
+                original_price: price,
                 quantity: qty,
                 size: sizeEl ? sizeEl.textContent.replace(/Size:/i, '').trim() : 'Free Size'
             });
@@ -1751,6 +1621,23 @@
             count: cartItems.reduce(function(acc, i) { return acc + i.quantity; }, 0)
         });
     };
+
+    // Initialize Cart Carousels (Recently Viewed & You May Also Like)
+    function initCartSliders() {
+        if (typeof window.makeSlider === 'function') {
+            window.makeSlider('recentSliderTrack', 'recentSliderWrapper', 'recentArrowLeft', 'recentArrowRight', 300);
+            window.makeSlider('relatedSliderTrack', 'relatedSliderWrapper', 'relatedArrowLeft', 'relatedArrowRight', 300);
+        }
+        if (typeof window.initCardHoverGalleries === 'function') {
+            window.initCardHoverGalleries();
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCartSliders);
+    } else {
+        initCartSliders();
+    }
 })();
 </script>
 @endpush

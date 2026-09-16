@@ -618,30 +618,32 @@
 
 /* Header Banner */
 .dash-header-banner {
-    background: linear-gradient(135deg, #00285a 0%, #1e3f75 60%, #0f172a 100%);
-    border-radius: 20px;
-    padding: 24px 30px;
-    color: #ffffff;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px 24px;
+    color: #00285a;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 16px;
-    box-shadow: 0 10px 30px rgba(0, 40, 90, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 40, 90, 0.04);
 }
 
 .live-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.12);
+    background: #eff6ff;
+    color: #1e40af;
     padding: 4px 12px;
     border-radius: 999px;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1px;
     margin-bottom: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid #dbeafe;
 }
 
 .live-dot-pulse {
@@ -653,15 +655,15 @@
 }
 
 .banner-title {
-    font-family: 'Cinzel', serif;
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 800;
+    color: #00285a;
     margin: 0 0 4px;
 }
 
 .banner-desc {
-    font-size: 12.5px;
-    color: #cbd5e1;
+    font-size: 13px;
+    color: #64748b;
     margin: 0;
 }
 
@@ -673,9 +675,10 @@
 
 .filter-pills-wrap {
     display: flex;
-    background: rgba(255, 255, 255, 0.12);
+    background: #f1f5f9;
     padding: 4px;
     border-radius: 12px;
+    border: 1px solid #e2e8f0;
     gap: 4px;
 }
 
@@ -684,28 +687,29 @@
     border-radius: 8px;
     font-size: 11.5px;
     font-weight: 700;
-    color: #cbd5e1;
+    color: #64748b;
     text-decoration: none;
     transition: all 0.15s ease;
 }
 
 .time-tab:hover {
-    color: #ffffff;
+    color: #00285a;
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .time-tab.active {
-    background: #ffffff;
-    color: #00285a;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: #00285a;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 40, 90, 0.15);
 }
 
 .btn-export-pdf {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #00285a;
     font-size: 15px;
     cursor: pointer;
     display: flex;
@@ -715,8 +719,11 @@
 }
 
 .btn-export-pdf:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: #00285a;
+    color: #ffffff;
+    border-color: #00285a;
 }
+
 
 /* Dividers */
 .sec-divider {

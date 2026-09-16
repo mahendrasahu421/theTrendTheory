@@ -132,6 +132,10 @@ class Product extends Model
     public function getMainImageAttribute(): string
     {
         if (!empty($this->image) && $this->image) {
+            $colorImageUrls = $this->relationLoaded('productImages')
+                ? $this->productImages->whereNotNull('color_id')->pluck('url')->filter()->all()
+                : $this->productImages()->whereNotNull('color_id')->pluck('url')->filter()->all();
+            if (!in_array($this->image, $colorImageUrls)) {
             if (filter_var($this->image, FILTER_VALIDATE_URL)) {
                 return $this->image;
             }
@@ -139,9 +143,10 @@ class Product extends Model
                 return url('/storage/' . $this->image);
             }
             return $this->image;
+            }
         }
 
-        $primaryImage = $this->productImages()->where('is_primary', true)->first();
+        $primaryImage = $this->productImages()->whereNull('color_id')->where('is_primary', true)->first();
         if ($primaryImage && $primaryImage->url) {
             return $primaryImage->getImageUrl(400, 500);
         }
@@ -162,6 +167,10 @@ class Product extends Model
     public function getCardImageAttribute(): string
     {
         if (!empty($this->image) && $this->image) {
+            $colorImageUrls = $this->relationLoaded('productImages')
+                ? $this->productImages->whereNotNull('color_id')->pluck('url')->filter()->all()
+                : $this->productImages()->whereNotNull('color_id')->pluck('url')->filter()->all();
+            if (!in_array($this->image, $colorImageUrls)) {
             if (filter_var($this->image, FILTER_VALIDATE_URL)) {
                 return $this->image;
             }
@@ -169,9 +178,10 @@ class Product extends Model
                 return url('/storage/' . $this->image);
             }
             return $this->image;
+            }
         }
 
-        $primaryImage = $this->productImages()->where('is_primary', true)->first();
+        $primaryImage = $this->productImages()->whereNull('color_id')->where('is_primary', true)->first();
         if ($primaryImage && $primaryImage->url) {
             return $primaryImage->getImageUrl(300, 380);
         }
@@ -193,6 +203,10 @@ class Product extends Model
     public function getImageUrlAttribute(): string
     {
         if (!empty($this->image) && $this->image) {
+            $colorImageUrls = $this->relationLoaded('productImages')
+                ? $this->productImages->whereNotNull('color_id')->pluck('url')->filter()->all()
+                : $this->productImages()->whereNotNull('color_id')->pluck('url')->filter()->all();
+            if (!in_array($this->image, $colorImageUrls)) {
             if (filter_var($this->image, FILTER_VALIDATE_URL)) {
                 return $this->image;
             }
@@ -200,6 +214,7 @@ class Product extends Model
                 return url('/storage/' . $this->image);
             }
             return $this->image;
+            }
         }
 
         // First try: card_image
@@ -230,15 +245,23 @@ class Product extends Model
     {
         $list = [];
 
+        $pImages = $this->relationLoaded('productImages') ? $this->productImages : $this->productImages()->orderByDesc('is_primary')->orderBy('sort_order')->get();
+        $colorImageUrls = $pImages
+            ->whereNotNull('color_id')
+            ->pluck('url')
+            ->filter()
+            ->all();
+
         // 1. Base image from product table
         if (!empty($this->image)) {
             $url = filter_var($this->image, FILTER_VALIDATE_URL) ? $this->image : (str_starts_with($this->image, '/') ? $this->image : url('/storage/' . $this->image));
-            $list[] = $url;
+            if (!in_array($url, $colorImageUrls)) {
+                $list[] = $url;
+            }
         }
 
         // 2. ProductImage records
-        $pImages = $this->relationLoaded('productImages') ? $this->productImages : $this->productImages()->orderByDesc('is_primary')->orderBy('sort_order')->get();
-        foreach ($pImages as $pi) {
+        foreach ($pImages->whereNull('color_id') as $pi) {
             if (!empty($pi->url) && !in_array($pi->url, $list)) {
                 $list[] = $pi->url;
             }
@@ -248,7 +271,7 @@ class Product extends Model
         $mediaItems = $this->relationLoaded('media') ? $this->media : $this->media()->orderByDesc('is_primary')->orderBy('sort_order')->get();
         foreach ($mediaItems as $m) {
             $mUrl = $m->getUrl();
-            if (!empty($mUrl) && !in_array($mUrl, $list)) {
+            if (!empty($mUrl) && !in_array($mUrl, $colorImageUrls) && !in_array($mUrl, $list)) {
                 $list[] = $mUrl;
             }
         }
@@ -263,12 +286,37 @@ class Product extends Model
 
     public function getHasDiscountAttribute(): bool
     {
-        return $this->original_price && $this->original_price > $this->price;
+        return $this->display_original_price && $this->display_original_price > $this->price;
     }
 
     public function getDiscountPercentAttribute(): int
     {
-        return $this->has_discount ? (int) round((($this->original_price - $this->price) / $this->original_price) * 100) : 0;
+        $originalPrice = $this->display_original_price;
+
+        return $originalPrice && $originalPrice > $this->price
+            ? (int) round((($originalPrice - $this->price) / $originalPrice) * 100)
+            : 0;
+    }
+
+    public function getDisplayOriginalPriceAttribute(): ?float
+    {
+        $currentPrice = (float) ($this->attributes['price'] ?? 0);
+        $productMrp = (float) ($this->attributes['original_price'] ?? 0);
+
+        if ($productMrp > $currentPrice) {
+            return $productMrp;
+        }
+
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants
+            : $this->variants()->where('is_active', true)->orderBy('price')->get();
+
+        $variant = $variants
+            ->filter(fn($v) => (float) ($v->original_price ?? 0) > (float) ($v->price ?? 0))
+            ->sortBy(fn($v) => (float) ($v->price ?? 0))
+            ->first();
+
+        return $variant ? (float) $variant->original_price : null;
     }
 
     public function getAvgRatingAttribute(): float

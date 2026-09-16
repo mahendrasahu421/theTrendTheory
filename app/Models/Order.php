@@ -37,6 +37,16 @@ class Order extends Model
         return match($this->status) { 'pending'=>'badge-warning','confirmed'=>'badge-success','cancelled'=>'badge-danger',default=>'badge-gray' };
     }
 
+    public function getRefundableAmountAttribute(): float
+    {
+        return max(0, round((float) $this->total_amount - (float) $this->shipping_charge, 2));
+    }
+
+    public function getNonRefundableShippingChargeAttribute(): float
+    {
+        return max(0, (float) $this->shipping_charge);
+    }
+
     public function setShippingNameAttribute($value) {
         $this->attributes['shipping_name'] = !empty($value) ? mb_convert_case(trim($value), MB_CASE_TITLE, "UTF-8") : $value;
     }

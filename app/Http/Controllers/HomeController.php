@@ -47,7 +47,7 @@ class HomeController extends Controller
             // 1. FETCH MOST PURCHASED (BEST SELLERS)
             // ─────────────────────────────────────────────────────────
             $mostPurchasedRaw = Product::active()
-                ->with(['productImages', 'media'])
+                ->with(['productImages', 'media', 'variants'])
                 ->where('total_sold', '>', 0)
                 ->orderByDesc('total_sold')
                 ->limit(10)
@@ -55,7 +55,7 @@ class HomeController extends Controller
 
             if ($mostPurchasedRaw->isEmpty()) {
                 $mostPurchasedRaw = Product::active()
-                    ->with(['productImages', 'media'])
+                    ->with(['productImages', 'media', 'variants'])
                     ->where('is_featured', true)
                     ->orderByDesc('created_at')
                     ->limit(10)
@@ -84,7 +84,7 @@ class HomeController extends Controller
 
             $mensProductsRaw = Product::whereIn('category_id', $menCategoryIds)
                 ->active()
-                ->with(['category', 'productImages', 'media'])
+                ->with(['category', 'productImages', 'media', 'variants'])
                 ->orderByDesc('created_at')
                 ->limit(8)
                 ->get();
@@ -111,7 +111,7 @@ class HomeController extends Controller
 
             $womensProductsRaw = Product::whereIn('category_id', $womenCategoryIds)
                 ->active()
-                ->with(['category', 'productImages', 'media'])
+                ->with(['category', 'productImages', 'media', 'variants'])
                 ->orderByDesc('created_at')
                 ->limit(8)
                 ->get();
@@ -120,11 +120,30 @@ class HomeController extends Controller
             // 4. FETCH NEW ARRIVALS
             // ─────────────────────────────────────────────────────────
             $newArrivalsRaw = Product::active()
-                ->with(['productImages', 'media'])
+                ->with(['productImages', 'media', 'variants'])
                 ->where('is_new', true)
                 ->orderByDesc('created_at')
                 ->limit(8)
                 ->get();
+
+            $fillWithLatestActive = function ($products, int $limit) {
+                if ($products->count() >= $limit) {
+                    return $products->take($limit)->values();
+                }
+
+                $existingIds = $products->pluck('id')->all();
+                $fillers = Product::active()
+                    ->with(['category', 'productImages', 'media', 'variants'])
+                    ->when(!empty($existingIds), fn($q) => $q->whereNotIn('id', $existingIds))
+                    ->orderByDesc('created_at')
+                    ->limit($limit - $products->count())
+                    ->get();
+
+                return $products->concat($fillers)->take($limit)->values();
+            };
+
+            $mostPurchasedRaw = $fillWithLatestActive($mostPurchasedRaw, 10);
+            $newArrivalsRaw = $fillWithLatestActive($newArrivalsRaw, 8);
 
             // ─────────────────────────────────────────────────────────
             // 5. LOG FOR DEBUG
@@ -209,7 +228,7 @@ class HomeController extends Controller
                         'name' => $product->name,
                         'slug' => $product->slug,
                         'price' => $product->price,
-                        'original_price' => $product->original_price,
+                        'original_price' => $product->display_original_price,
                         'has_discount' => $product->has_discount,
                         'discount_percentage' => $product->discount_percent,
                         'stock' => $product->stock,
@@ -234,7 +253,7 @@ class HomeController extends Controller
                         'name' => $product->name,
                         'slug' => $product->slug,
                         'price' => $product->price,
-                        'original_price' => $product->original_price,
+                        'original_price' => $product->display_original_price,
                         'has_discount' => $product->has_discount,
                         'discount_percentage' => $product->discount_percent,
                         'stock' => $product->stock,
@@ -260,7 +279,7 @@ class HomeController extends Controller
                         'name' => $product->name,
                         'slug' => $product->slug,
                         'price' => $product->price,
-                        'original_price' => $product->original_price,
+                        'original_price' => $product->display_original_price,
                         'has_discount' => $product->has_discount,
                         'discount_percentage' => $product->discount_percent,
                         'stock' => $product->stock,
@@ -286,7 +305,7 @@ class HomeController extends Controller
                         'name' => $product->name,
                         'slug' => $product->slug,
                         'price' => $product->price,
-                        'original_price' => $product->original_price,
+                        'original_price' => $product->display_original_price,
                         'has_discount' => $product->has_discount,
                         'discount_percentage' => $product->discount_percent,
                         'stock' => $product->stock,

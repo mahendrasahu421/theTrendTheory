@@ -249,6 +249,10 @@ class AnalyticsController extends Controller
     {
         $eventType = $request->query('event_type');
         $search = $request->query('search');
+        $perPage = (int) $request->query('per_page', 30);
+        if (!in_array($perPage, [15, 30, 50, 100])) {
+            $perPage = 30;
+        }
 
         $query = \App\Models\UserActivity::with('user')
             ->orderByDesc('created_at');
@@ -270,7 +274,7 @@ class AnalyticsController extends Controller
             });
         }
 
-        $activities = $query->paginate(30)->withQueryString();
+        $activities = $query->paginate($perPage)->withQueryString();
 
         $eventCounts = [
             'all'               => \App\Models\UserActivity::count(),
@@ -280,7 +284,31 @@ class AnalyticsController extends Controller
             'order_placed'      => \App\Models\UserActivity::where('event_type', 'order_placed')->count(),
         ];
 
-        return view('admin.analytics.activities', compact('activities', 'eventType', 'search', 'eventCounts'));
+        if ($request->ajax() || $request->wantsJson()) {
+            $first = $activities->firstItem() ?? 0;
+            $last = $activities->lastItem() ?? 0;
+            $total = $activities->total();
+            $showingText = $total > 0
+                ? "Showing <b>{$first}–{$last}</b> of <b>{$total}</b> activity events"
+                : "Showing <b>0</b> activity events";
+            $showingFooter = $total > 0
+                ? "Showing <strong>{$first}</strong> to <strong>{$last}</strong> of <strong>{$total}</strong> activities"
+                : "Showing <strong>0</strong> activities";
+
+            return response()->json([
+                'success'         => true,
+                'list_html'       => view('admin.analytics.partials.activities_list', compact('activities'))->render(),
+                'pagination_html' => view('admin.analytics.partials.pagination', compact('activities'))->render(),
+                'total_count'     => $total,
+                'current_page'    => $activities->currentPage(),
+                'last_page'       => $activities->lastPage(),
+                'showing_text'    => $showingText,
+                'showing_footer'  => $showingFooter,
+                'event_counts'    => $eventCounts,
+            ]);
+        }
+
+        return view('admin.analytics.activities', compact('activities', 'eventType', 'search', 'eventCounts', 'perPage'));
     }
 
     /**

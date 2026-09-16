@@ -25,29 +25,115 @@
     $deviceCounts = $topDeviceTypes->pluck('total')->toJson();
 @endphp
 
+<style>
+    .analytics-header-bar {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: 0 4px 20px rgba(0, 40, 90, 0.04);
+        margin-bottom: 4px;
+    }
+    .analytics-clean-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #00285a;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+    .analytics-clean-sub {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0;
+    }
+    .analytics-live-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #ecfdf5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+    .analytics-filter-pills {
+        display: inline-flex;
+        align-items: center;
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+        gap: 4px;
+    }
+    .analytics-filter-tab {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .analytics-filter-tab.active {
+        background: #00285a;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 40, 90, 0.2);
+    }
+    .analytics-filter-tab:hover:not(.active) {
+        color: #00285a;
+        background: rgba(255, 255, 255, 0.6);
+    }
+    .btn-analytics-export {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #ffffff;
+        color: #00285a;
+        border: 1px solid #cbd5e1;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .btn-analytics-export:hover {
+        background: #f8fafc;
+        border-color: #00285a;
+        color: #00285a;
+    }
+</style>
+
 <div class="dash-master-wrap">
 
-    {{-- ── 1. Top Executive Banner ── --}}
-    <div class="dash-header-banner">
-        <div class="banner-left">
-            <div class="live-pill">
-                <span class="live-dot-pulse"></span>
-                <span>REAL-TIME TRAFFIC RADAR &amp; VISITOR GEO INTELLIGENCE</span>
+    {{-- ── 1. Top Executive Header Bar ── --}}
+    <div class="analytics-header-bar">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h1 class="analytics-clean-title">Traffic &amp; User Acquisition Radar</h1>
+                <span class="analytics-live-pill">
+                    <span class="live-dot-pulse"></span> Live Radar
+                </span>
             </div>
-            <h1 class="banner-title">Traffic &amp; User Acquisition Radar</h1>
-            <p class="banner-desc">Real-time visitor telemetry, geographic distribution, devices breakdown &amp; landing pages.</p>
+            <p class="analytics-clean-sub">Real-time visitor telemetry, geographic distribution, devices breakdown &amp; landing pages.</p>
         </div>
 
-        <div class="banner-right">
-            <div class="filter-pills-wrap">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="analytics-filter-pills">
                 @foreach (['today' => 'Today', 'yesterday' => 'Yesterday', '7days' => '7 Days', '30days' => '30 Days', 'this_month' => 'Month'] as $fKey => $fLabel)
-                    <a href="?range={{ $fKey }}" class="time-tab {{ $range === $fKey ? 'active' : '' }}">
+                    <a href="?range={{ $fKey }}" class="analytics-filter-tab {{ $range === $fKey ? 'active' : '' }}">
                         {{ $fLabel }}
                     </a>
                 @endforeach
             </div>
-            <a href="{{ route('admin.analytics.export') }}" class="btn-export-pdf" title="Export Analytics Report">
-                <i class="bi bi-download"></i>
+            <a href="{{ route('admin.analytics.export') }}" class="btn-analytics-export" title="Export Analytics Report">
+                <i class="bi bi-download"></i> Export
             </a>
         </div>
     </div>

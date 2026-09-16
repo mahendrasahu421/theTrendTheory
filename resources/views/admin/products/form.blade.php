@@ -1414,7 +1414,7 @@
 
             <div class="step-actions">
                 <button type="button" class="btn-back" onclick="goStep(2)"><i class="bi bi-arrow-left"></i> Back</button>
-                <button type="button" class="btn-next" onclick="goStep(4)">Status & SEO <i class="bi bi-arrow-right"></i></button>
+                <button type="button" class="btn-next" onclick="goStep(4); return false;">Status & SEO <i class="bi bi-arrow-right"></i></button>
             </div>
         </div>
 
@@ -1427,43 +1427,43 @@
             <div class="pc">
                 <div class="ph"><div class="pt">VISIBILITY</div></div>
 
-                <input type="hidden" name="is_active" value="0">
-                <input type="hidden" name="is_new" value="0">
-                <input type="hidden" name="is_featured" value="0">
-                <input type="hidden" name="is_trending" value="0">
-                <input type="hidden" name="is_on_sale" value="0">
+                <input type="hidden" name="is_active" id="status_is_active" value="{{ old('is_active', $isEdit ? $product->is_active ?? true : true) ? 1 : 0 }}">
+                <input type="hidden" name="is_new" id="status_is_new" value="{{ old('is_new', $isEdit ? $product->is_new ?? false : true) ? 1 : 0 }}">
+                <input type="hidden" name="is_featured" id="status_is_featured" value="{{ old('is_featured', $isEdit ? $product->is_featured ?? false : false) ? 1 : 0 }}">
+                <input type="hidden" name="is_trending" id="status_is_trending" value="{{ old('is_trending', $isEdit ? $product->is_trending ?? false : false) ? 1 : 0 }}">
+                <input type="hidden" name="is_on_sale" id="status_is_on_sale" value="{{ old('is_on_sale', $isEdit ? $product->is_on_sale ?? false : false) ? 1 : 0 }}">
 
                 <div class="status-grid">
                     <label class="status-toggle {{ old('is_active', $isEdit ? $product->is_active ?? true : true) ? 'on' : '' }}" id="tog_active">
-                        <input type="checkbox" name="is_active" value="1" onchange="updateToggleStyle(this,'tog_active')"
+                        <input type="checkbox" value="1" onchange="updateToggleStyle(this,'tog_active','status_is_active')"
                                {{ old('is_active', $isEdit ? $product->is_active ?? true : true) ? 'checked' : '' }}>
                         <span class="status-icon">✅</span>
                         <div><div class="status-name">Active</div><div class="help" style="margin:0">Visible on site</div></div>
                     </label>
 
                     <label class="status-toggle {{ old('is_new', $isEdit ? $product->is_new ?? false : true) ? 'on' : '' }}" id="tog_new">
-                        <input type="checkbox" name="is_new" value="1" onchange="updateToggleStyle(this,'tog_new')"
+                        <input type="checkbox" value="1" onchange="updateToggleStyle(this,'tog_new','status_is_new')"
                                {{ old('is_new', $isEdit ? $product->is_new ?? false : true) ? 'checked' : '' }}>
                         <span class="status-icon">🆕</span>
                         <div><div class="status-name">New Arrival</div><div class="help" style="margin:0">Shows in New Arrivals</div></div>
                     </label>
 
                     <label class="status-toggle {{ old('is_featured', $isEdit ? $product->is_featured ?? false : false) ? 'on' : '' }}" id="tog_featured">
-                        <input type="checkbox" name="is_featured" value="1" onchange="updateToggleStyle(this,'tog_featured')"
+                        <input type="checkbox" value="1" onchange="updateToggleStyle(this,'tog_featured','status_is_featured')"
                                {{ old('is_featured', $isEdit ? $product->is_featured ?? false : false) ? 'checked' : '' }}>
                         <span class="status-icon">⭐</span>
                         <div><div class="status-name">Featured</div><div class="help" style="margin:0">Homepage featured section</div></div>
                     </label>
 
                     <label class="status-toggle {{ old('is_trending', $isEdit ? $product->is_trending ?? false : false) ? 'on' : '' }}" id="tog_trending">
-                        <input type="checkbox" name="is_trending" value="1" onchange="updateToggleStyle(this,'tog_trending')"
+                        <input type="checkbox" value="1" onchange="updateToggleStyle(this,'tog_trending','status_is_trending')"
                                {{ old('is_trending', $isEdit ? $product->is_trending ?? false : false) ? 'checked' : '' }}>
                         <span class="status-icon">🔥</span>
                         <div><div class="status-name">Trending</div><div class="help" style="margin:0">Shows in Trending Now</div></div>
                     </label>
 
                     <label class="status-toggle {{ old('is_on_sale', $isEdit ? $product->is_on_sale ?? false : false) ? 'on' : '' }}" id="tog_sale">
-                        <input type="checkbox" name="is_on_sale" value="1" onchange="updateToggleStyle(this,'tog_sale')"
+                        <input type="checkbox" value="1" onchange="updateToggleStyle(this,'tog_sale','status_is_on_sale')"
                                {{ old('is_on_sale', $isEdit ? $product->is_on_sale ?? false : false) ? 'checked' : '' }}>
                         <span class="status-icon">🏷️</span>
                         <div><div class="status-name">On Sale</div><div class="help" style="margin:0">Shows sale badge</div></div>
@@ -1609,12 +1609,17 @@ function goStep(n) {
     if (n > currentStep && !validateStep(currentStep)) return;
 
     document.querySelectorAll('.wiz-panel').forEach(function(p) { p.style.display = 'none'; });
-    document.getElementById('step' + n).style.display = 'block';
+    var targetPanel = document.getElementById('step' + n);
+    if (!targetPanel) {
+        return;
+    }
+    targetPanel.style.display = 'block';
 
     // Update nav
     for (var i = 1; i <= 4; i++) {
         var nav = document.getElementById('wn' + i);
         var num = document.getElementById('wnum' + i);
+        if (!nav || !num) continue;
         nav.className = 'wiz-step';
         if (i < n) { nav.classList.add('done'); num.innerHTML = '<i class="bi bi-check-lg"></i>'; }
         else if (i === n) { nav.classList.add('active'); num.textContent = i; }
@@ -1625,7 +1630,7 @@ function goStep(n) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Sync image tabs when entering step 3
-    if (n === 3) syncImageTabs();
+    if (n === 3 && typeof syncImageTabs === 'function') syncImageTabs();
 }
 
 // ── Validation ────────────────────────────────────────────
@@ -1859,8 +1864,11 @@ function applyBulk() {
 }
 
 // ── Visibility Toggles ────────────────────────────────────
-function updateToggleStyle(input, id) {
-    document.getElementById(id).classList.toggle('on', input.checked);
+function updateToggleStyle(input, id, hiddenId) {
+    var wrap = document.getElementById(id);
+    if (wrap) wrap.classList.toggle('on', input.checked);
+    var hidden = hiddenId ? document.getElementById(hiddenId) : null;
+    if (hidden) hidden.value = input.checked ? '1' : '0';
 }
 
 // ── Print Sides (Front & Back) Management ─────────────────
@@ -2260,7 +2268,7 @@ function removeSideFile(input, side, fileName, thumbElement) {
     }
 
     if (wasCover) {
-        var anyFirstThumb = document.querySelector('.new-img-thumb');
+        var anyFirstThumb = document.querySelector('.new-img-thumb:not([data-color-id]), .new-img-thumb[data-color-id=""]');
         if (anyFirstThumb) {
             setNewDesignatedMain(anyFirstThumb.getAttribute('data-file-name'));
         } else {
@@ -2433,12 +2441,16 @@ function previewNewImages(input, colorId) {
         var thumb = document.createElement('div');
         thumb.className = 'new-img-thumb';
         thumb.setAttribute('data-file-name', file.name);
+        thumb.setAttribute('data-color-id', colorId || '');
 
         var mainInput = document.getElementById('designatedMainImageName');
         var isDesignatedMain = (mainInput && mainInput.value === file.name);
-        if (mainInput && !mainInput.value) {
+        if (!colorId && mainInput && !mainInput.value) {
             mainInput.value = file.name;
             isDesignatedMain = true;
+        }
+        if (colorId) {
+            isDesignatedMain = false;
         }
 
         if (isDesignatedMain) {
@@ -2460,7 +2472,7 @@ function previewNewImages(input, colorId) {
         mainBtn.type = 'button';
         mainBtn.className = 'new-img-btn-main';
         mainBtn.style.flex = '1';
-        mainBtn.style.display = isDesignatedMain ? 'none' : '';
+        mainBtn.style.display = colorId || isDesignatedMain ? 'none' : '';
         mainBtn.innerHTML = '<i class="bi bi-star-fill"></i> Set Cover';
         mainBtn.onclick = function() {
             setNewDesignatedMain(file.name);
@@ -2490,11 +2502,18 @@ function previewNewImages(input, colorId) {
 }
 
 function setNewDesignatedMain(fileName) {
+    var targetThumb = Array.from(document.querySelectorAll('.new-img-thumb')).find(function(t) {
+        return t.getAttribute('data-file-name') === fileName && !t.getAttribute('data-color-id');
+    });
+    if (!targetThumb) {
+        return;
+    }
+
     var mainInput = document.getElementById('designatedMainImageName');
     if (mainInput) mainInput.value = fileName;
 
     document.querySelectorAll('.new-img-thumb').forEach(function(t) {
-        var isThis = (t.getAttribute('data-file-name') === fileName);
+        var isThis = (t.getAttribute('data-file-name') === fileName && !t.getAttribute('data-color-id'));
         t.classList.toggle('is-cover', isThis);
 
         // General/color queue badge
@@ -2518,7 +2537,7 @@ function setNewDesignatedMain(fileName) {
     });
 
     document.querySelectorAll('[id^="step2_colorQueue_"] .new-img-thumb').forEach(function(t) {
-        var isThis = (t.getAttribute('data-file-name') === fileName);
+        var isThis = false;
         t.classList.toggle('is-cover', isThis);
         t.classList.toggle('main', isThis);
         var b = t.querySelector('.new-img-badge');
@@ -2556,7 +2575,7 @@ function removeNewFile(input, key, fileName, thumbElement) {
     thumbElement.remove();
 
     if (wasCover) {
-        var anyFirstThumb = document.querySelector('.new-img-thumb');
+        var anyFirstThumb = document.querySelector('.new-img-thumb:not([data-color-id]), .new-img-thumb[data-color-id=""]');
         if (anyFirstThumb) {
             setNewDesignatedMain(anyFirstThumb.getAttribute('data-file-name'));
         } else {
@@ -2611,7 +2630,7 @@ function uploadFiles(files) {
         fd.append('model_type', 'product');
         fd.append('model_id', PRODUCT_ID);
         fd.append('collection', 'default');
-        fd.append('is_primary', document.querySelectorAll('#igrid .icard').length === 0 ? '1' : '0');
+        fd.append('is_primary', !window._currentUploadColorId && document.querySelectorAll('#igrid .icard').length === 0 ? '1' : '0');
         if (window._currentUploadColorId) {
             fd.append('color_id', window._currentUploadColorId);
             fd.append('alt_text', window._currentUploadColorName);
@@ -2631,6 +2650,35 @@ function uploadFiles(files) {
 }
 
 function addImageCard(media) {
+    var imgUrl = media.thumb_url || media.url;
+
+    if (media.color_id) {
+        var cGrid = document.getElementById('colorGrid_' + media.color_id);
+        if (cGrid && !document.getElementById('cimg_' + media.id)) {
+            var cCard = document.createElement('div');
+            cCard.className = 'icard' + (media.is_primary ? ' main is-cover' : '');
+            cCard.id = 'cimg_' + media.id;
+            cCard.setAttribute('data-id', media.id);
+            cCard.setAttribute('data-url', media.url);
+            cCard.style.aspectRatio = '1';
+            cCard.style.borderRadius = '8px';
+            cCard.innerHTML = `
+                <img src="${imgUrl}" alt="${media.alt_text || 'Color photo'}">
+                <div class="ibadge-cover" ${media.is_primary ? '' : 'style="display:none;"'}>â˜… COVER</div>
+                <div class="iact" style="padding:2px">
+                    <button type="button" class="iab iab-cover js-set-cover" ${media.is_primary ? 'style="display:none;"' : ''} style="font-size:8.5px;padding:2px" onclick="setMain('${media.id}', '${media.url}', 'product_image')">
+                        Cover
+                    </button>
+                    <button type="button" class="iab iab-del" style="font-size:8.5px;padding:2px" onclick="deleteColorImageAjax('${media.id}', '${media.url}', ${media.color_id})">
+                        Del
+                    </button>
+                </div>
+            `;
+            cGrid.appendChild(cCard);
+        }
+        return;
+    }
+
     var emptyNote = document.getElementById('imgEmptyNote');
     if (emptyNote) emptyNote.remove();
 
@@ -2646,7 +2694,6 @@ function addImageCard(media) {
     div.setAttribute('data-source', 'media');
     div.setAttribute('data-color-id', media.color_id || '');
 
-    var imgUrl = media.thumb_url || media.url;
     var mainDisplay = isMain ? 'style="display:none;"' : '';
     var badgeDisplay = isMain ? '' : 'style="display:none;"';
 
@@ -3210,13 +3257,12 @@ function renderStep2ColorQueue(colorId) {
     var dt = _fileTransfers[key];
     if (!dt || !dt.files.length) return;
 
-    var mainName = document.getElementById('designatedMainImageName')?.value || '';
-
     Array.from(dt.files).forEach(function(file) {
-        var isCover = (mainName && mainName === file.name);
+        var isCover = false;
         var thumb = document.createElement('div');
         thumb.className = 'new-img-thumb' + (isCover ? ' is-cover main' : '');
         thumb.setAttribute('data-file-name', file.name);
+        thumb.setAttribute('data-color-id', colorId || '');
         thumb.style.aspectRatio = '1';
 
         var img = document.createElement('img');
@@ -3238,7 +3284,7 @@ function renderStep2ColorQueue(colorId) {
         btnCover.style.fontSize = '8.5px';
         btnCover.style.padding = '2px 4px';
         btnCover.innerHTML = '<i class="bi bi-star"></i> Cover';
-        btnCover.style.display = isCover ? 'none' : '';
+        btnCover.style.display = 'none';
         btnCover.onclick = function() {
             setNewDesignatedMain(file.name);
             renderStep2ColorQueue(colorId);
@@ -3287,7 +3333,7 @@ function removeStep2ColorFile(colorId, fileName) {
 
     var mainInput = document.getElementById('designatedMainImageName');
     if (mainInput && mainInput.value === fileName) {
-        var anyThumb = document.querySelector('.new-img-thumb');
+        var anyThumb = document.querySelector('.new-img-thumb:not([data-color-id]), .new-img-thumb[data-color-id=""]');
         if (anyThumb) {
             setNewDesignatedMain(anyThumb.getAttribute('data-file-name'));
         } else {

@@ -45,7 +45,8 @@ class MediaController extends Controller
                 'products'
             );
 
-            $isPrimary = $request->boolean('is_primary', false);
+            $isColorUpload = $modelClass === \App\Models\Product::class && $request->filled('color_id');
+            $isPrimary = !$isColorUpload && $request->boolean('is_primary', false);
             if ($isPrimary) {
                 Media::where('model_type', $modelClass)
                     ->where('model_id', $request->model_id)
@@ -69,8 +70,8 @@ class MediaController extends Controller
             ]);
 
             $productImage = null;
-            if ($modelClass === \App\Models\Product::class && $request->filled('color_id')) {
-                $isColorPrimary = $isPrimary || !ProductImage::where('product_id', $request->model_id)
+            if ($isColorUpload) {
+                $isColorPrimary = $request->boolean('is_primary', false) || !ProductImage::where('product_id', $request->model_id)
                     ->where('color_id', $request->color_id)
                     ->exists();
 

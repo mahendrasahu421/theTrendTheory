@@ -19,6 +19,10 @@ class CartController extends Controller
     public function index()
     {
         $cart = session()->get('cart', []);
+        if (!empty($cart)) {
+            $cart = $this->normalizeCartPricing($cart);
+            session()->put('cart', $cart);
+        }
         $subtotal = 0;
 
         foreach ($cart as $item) {
@@ -51,6 +55,18 @@ class CartController extends Controller
                 ->values();
         }
 
+        // Fill recently viewed with active catalog items if user has browsed few/no products
+        if ($recentlyViewedProducts->count() < 10) {
+            $excludeRecentIds = $cartProductIds->merge($recentlyViewedProducts->pluck('id'))->unique();
+            $recentFallback = Product::with(['images', 'media', 'variants', 'productImages', 'category'])
+                ->where('is_active', true)
+                ->whereNotIn('id', $excludeRecentIds)
+                ->orderByDesc('id')
+                ->limit(10 - $recentlyViewedProducts->count())
+                ->get();
+            $recentlyViewedProducts = $recentlyViewedProducts->merge($recentFallback)->values();
+        }
+
         // 2. Related Products / Recommendations based on cart or top catalog items
         $categoryIds = collect();
         if ($cartProductIds->isNotEmpty()) {
@@ -60,21 +76,23 @@ class CartController extends Controller
                 ->unique();
         }
 
+        $excludeRelatedIds = $cartProductIds->merge($recentlyViewedProducts->pluck('id'))->unique();
+
         $relatedProducts = Product::with(['images', 'media', 'variants', 'productImages', 'category'])
             ->where('is_active', true)
-            ->whereNotIn('id', $cartProductIds)
+            ->whereNotIn('id', $excludeRelatedIds)
             ->when($categoryIds->isNotEmpty(), fn($q) => $q->whereIn('category_id', $categoryIds))
             ->inRandomOrder()
-            ->limit(8)
+            ->limit(10)
             ->get();
 
-        if ($relatedProducts->count() < 8) {
-            $excludeIds = $cartProductIds->merge($relatedProducts->pluck('id'))->unique();
+        if ($relatedProducts->count() < 10) {
+            $fallbackExclude = $excludeRelatedIds->merge($relatedProducts->pluck('id'))->unique();
             $fallback = Product::with(['images', 'media', 'variants', 'productImages', 'category'])
                 ->where('is_active', true)
-                ->whereNotIn('id', $excludeIds)
+                ->whereNotIn('id', $fallbackExclude)
                 ->inRandomOrder()
-                ->limit(8 - $relatedProducts->count())
+                ->limit(10 - $relatedProducts->count())
                 ->get();
             $relatedProducts = $relatedProducts->merge($fallback)->values();
         }
@@ -172,23 +190,29 @@ class CartController extends Controller
             $chosenImage = $product->front_image;
         }
 
+        $pricing = $this->cartPricingForSelection($product, $size, $color);
+        $cartPrice = $pricing['price'];
+        $cartOriginalPrice = $pricing['original_price'];
+
         if (isset($cart[$key])) {
             if ($setQuantity) {
                 $cart[$key]['quantity'] = $qty;
             } else {
                 $cart[$key]['quantity'] = $this->clampQuantity(((int) $cart[$key]['quantity']) + $qty);
             }
-            $cart[$key]['price'] = (float) $product->price;
-            $cart[$key]['original_price'] = (float) ($product->original_price ?: $product->price);
+            $cart[$key]['price'] = $cartPrice;
+            $cart[$key]['original_price'] = $cartOriginalPrice;
             $cart[$key]['image'] = $chosenImage;
+            $cart[$key]['size'] = $size;
+            $cart[$key]['color'] = $color;
             $cart[$key]['design_side'] = $designSide;
         } else {
             $cart[$key] = [
                 'id' => $product->id,
                 'name' => $product->name,
                 'slug' => $product->slug,
-                'price' => (float) $product->price,
-                'original_price' => (float) ($product->original_price ?: $product->price),
+                'price' => $cartPrice,
+                'original_price' => $cartOriginalPrice,
                 'image' => $chosenImage,
                 'size' => $size,
                 'color' => $color,
@@ -205,7 +229,7 @@ class CartController extends Controller
         \App\Helpers\ActivityLogger::log('cart_added', "Added to Bag: {$product->name}" . ($size ? " (Size: {$size})" : ''), [
             'product_id'    => $product->id,
             'product_name'  => $product->name,
-            'price'         => (float) $product->price,
+            'price'         => $cartPrice,
             'size'          => $size,
             'color'         => $color,
             'quantity'      => $qty,
@@ -241,6 +265,75 @@ class CartController extends Controller
         return null;
     }
 
+    private function shippingAddressWithLandmark(?string $address, ?string $landmark): string
+    {
+        $address = trim((string) $address);
+        $landmark = trim((string) $landmark);
+
+        if ($landmark === '') {
+            return $address;
+        }
+
+        return $address . "\nLandmark: " . $landmark;
+    }
+
+    private function cartPricingForSelection(Product $product, ?string $size = '', ?string $color = ''): array
+    {
+        $size = trim((string) $size);
+        $color = trim((string) $color);
+        $variant = null;
+
+        if ($product->has_variants || $product->variants()->exists()) {
+            $query = $product->variants()->where('is_active', true);
+
+            if ($size !== '') {
+                $query->where('size', $size);
+            }
+
+            if ($color !== '') {
+                $query->where('color', $color);
+            }
+
+            $variant = $query->orderBy('price')->first();
+
+            if (!$variant && $size !== '') {
+                $variant = $product->variants()
+                    ->where('is_active', true)
+                    ->where('size', $size)
+                    ->orderBy('price')
+                    ->first();
+            }
+
+            if (!$variant && $color !== '') {
+                $variant = $product->variants()
+                    ->where('is_active', true)
+                    ->where('color', $color)
+                    ->orderBy('price')
+                    ->first();
+            }
+
+            if (!$variant) {
+                $variant = $product->variants()
+                    ->where('is_active', true)
+                    ->orderBy('price')
+                    ->first();
+            }
+        }
+
+        $price = (float) ($variant?->price ?? $product->price ?? 0);
+        $originalPrice = (float) ($variant?->original_price ?? 0);
+
+        if ($originalPrice <= $price) {
+            $productMrp = (float) ($product->original_price ?? 0);
+            $originalPrice = $productMrp > $price ? $productMrp : $price;
+        }
+
+        return [
+            'price' => $price,
+            'original_price' => $originalPrice,
+        ];
+    }
+
     private function clampQuantity($quantity): int
     {
         return max(1, min(10, (int) $quantity));
@@ -248,23 +341,16 @@ class CartController extends Controller
 
     private function cartSummary(array $cart): array
     {
-        $productIds = collect($cart)
-            ->map(fn ($item, $key) => (int) ($item['id'] ?? $item['product_id'] ?? $key))
-            ->filter(fn ($id) => $id > 0)
-            ->unique();
-        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $cart = $this->normalizeCartPricing($cart);
         $subtotal = collect($cart)->sum(fn ($item) => ((float) $item['price']) * ((int) $item['quantity']));
         $shipping = $subtotal >= 999 ? 0 : 50;
         $discount = 0;
         $total = max(0, $subtotal + $shipping - $discount);
 
         return [
-            'items' => collect($cart)->map(function ($item, $key) use ($products) {
+            'items' => collect($cart)->map(function ($item, $key) {
                 $productId = $item['id'] ?? $item['product_id'] ?? $key;
-                $product = $products->get((int) $productId);
                 $item['id'] = $item['id'] ?? $productId;
-                $item['price'] = (float) ($item['price'] ?? optional($product)->price ?? 0);
-                $item['original_price'] = (float) ($item['original_price'] ?? optional($product)->original_price ?? $item['price']);
                 $item['key'] = $key;
                 return $item;
             })->values()->all(),
@@ -275,6 +361,39 @@ class CartController extends Controller
             'total' => $total,
             'savings' => $discount,
         ];
+    }
+
+    private function normalizeCartPricing(array $cart): array
+    {
+        $productIds = collect($cart)
+            ->map(fn ($item, $key) => (int) ($item['id'] ?? $item['product_id'] ?? $key))
+            ->filter(fn ($id) => $id > 0)
+            ->unique();
+
+        if ($productIds->isEmpty()) {
+            return $cart;
+        }
+
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        foreach ($cart as $key => $item) {
+            $productId = (int) ($item['id'] ?? $item['product_id'] ?? $key);
+            $product = $products->get($productId);
+
+            if (!$product) {
+                $price = (float) ($item['price'] ?? 0);
+                $cart[$key]['price'] = $price;
+                $cart[$key]['original_price'] = (float) ($item['original_price'] ?? $price);
+                continue;
+            }
+
+            $pricing = $this->cartPricingForSelection($product, $item['size'] ?? '', $item['color'] ?? '');
+            $cart[$key]['id'] = $cart[$key]['id'] ?? $productId;
+            $cart[$key]['price'] = $pricing['price'];
+            $cart[$key]['original_price'] = $pricing['original_price'];
+        }
+
+        return $cart;
     }
 
     // ── PATCH /cart/update/{key} ───────────────────────────
@@ -353,6 +472,10 @@ class CartController extends Controller
     public function checkout()
     {
         $cart = session()->get('cart', []);
+        if (!empty($cart)) {
+            $cart = $this->normalizeCartPricing($cart);
+            session()->put('cart', $cart);
+        }
 
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
@@ -386,6 +509,7 @@ class CartController extends Controller
             'name'       => 'required|string|max:150',
             'phone'      => 'required|string|max:20',
             'address'    => 'required|string|max:255',
+            'landmark'   => 'nullable|string|max:120',
             'city'       => 'required|string|max:100',
             'state'      => 'required|string|max:100',
             'pincode'    => 'required|string|max:10',
@@ -479,7 +603,7 @@ class CartController extends Controller
             'status'           => 'confirmed',
             'shipping_name'    => $request->name,
             'shipping_phone'   => $request->phone,
-            'shipping_address' => $request->address,
+            'shipping_address' => $this->shippingAddressWithLandmark($request->address, $request->landmark),
             'shipping_city'    => $request->city,
             'shipping_state'   => $request->state,
             'shipping_pincode' => $request->pincode,
@@ -706,7 +830,7 @@ class CartController extends Controller
             'status'           => 'confirmed',
             'shipping_name'    => $orderData['name']    ?? '',
             'shipping_phone'   => $orderData['phone']   ?? '',
-            'shipping_address' => $orderData['address'] ?? '',
+            'shipping_address' => $this->shippingAddressWithLandmark($orderData['address'] ?? '', $orderData['landmark'] ?? ''),
             'shipping_city'    => $orderData['city']    ?? '',
             'shipping_state'   => $orderData['state']   ?? '',
             'shipping_pincode' => $orderData['pincode'] ?? '',
@@ -801,6 +925,7 @@ class CartController extends Controller
             'name'       => 'required|string|max:150',
             'phone'      => 'required|string|max:20',
             'address'    => 'required|string|max:255',
+            'landmark'   => 'nullable|string|max:120',
             'city'       => 'required|string|max:100',
             'state'      => 'required|string|max:100',
             'pincode'    => 'required|string|max:10',
@@ -864,6 +989,7 @@ class CartController extends Controller
             'name'            => $request->name,
             'phone'           => $request->phone,
             'address'         => $request->address,
+            'landmark'        => $request->landmark,
             'city'            => $request->city,
             'state'           => $request->state,
             'pincode'         => $request->pincode,
@@ -943,7 +1069,7 @@ class CartController extends Controller
                 'status'           => 'confirmed',
                 'shipping_name'    => $pendingData['name'],
                 'shipping_phone'   => $pendingData['phone'],
-                'shipping_address' => $pendingData['address'],
+                'shipping_address' => $this->shippingAddressWithLandmark($pendingData['address'], $pendingData['landmark'] ?? ''),
                 'shipping_city'    => $pendingData['city'],
                 'shipping_state'   => $pendingData['state'],
                 'shipping_pincode' => $pendingData['pincode'],

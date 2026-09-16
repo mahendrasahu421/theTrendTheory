@@ -1,8 +1,9 @@
 {{-- resources/views/froentend/shop/partials/product-cards.blade.php --}}
 @foreach ($products as $product)
     @php
-        $hasDiscount = $product->original_price && $product->original_price > $product->price;
-        $discPct = $hasDiscount ? (int) round((($product->original_price - $product->price) / $product->original_price) * 100) : 0;
+        $displayOriginalPrice = $product->display_original_price ?: $product->original_price;
+        $hasDiscount = $displayOriginalPrice && $displayOriginalPrice > $product->price;
+        $discPct = $hasDiscount ? (int) round((($displayOriginalPrice - $product->price) / $displayOriginalPrice) * 100) : 0;
         $inWishlist = in_array($product->id, session('wishlist', []));
         $imagesList = $product->all_images_list;
         $hasMultiple = count($imagesList) > 1;
@@ -62,7 +63,7 @@
             <div class="shop-card-pricing">
                 <span class="shop-card-price">₹{{ number_format($product->price) }}</span>
                 @if ($hasDiscount)
-                    <span class="shop-card-mrp">₹{{ number_format($product->original_price) }}</span>
+                    <span class="shop-card-mrp">₹{{ number_format($displayOriginalPrice) }}</span>
                     <span class="shop-card-save">{{ $discPct }}% OFF</span>
                 @endif
             </div>

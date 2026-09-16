@@ -13,9 +13,9 @@
    ULTRA-LUXURY MODERN CHECKOUT SYSTEM - Vayu
    ═══════════════════════════════════════════════════════════ */
 :root {
-    --co-navy: #00285a;
-    --co-navy-dark: #001c3f;
-    --co-navy-light: #0f4c81;
+    --co-navy: #14213d;
+    --co-navy-dark: #0b1020;
+    --co-navy-light: #2563eb;
     --co-accent: #ff3f6c;
     --co-accent-hover: #e62e5b;
     --co-emerald: #059669;
@@ -879,6 +879,385 @@
     line-height: 1.5;
 }
 
+/* Checkout refresh: clean, focused, scan-friendly */
+.checkout-main-wrapper {
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f6f8fb 42%, #f3f6fa 100%);
+    padding: 24px 0 88px;
+}
+
+.checkout-container {
+    max-width: 1180px;
+}
+
+.checkout-header-bar {
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    border: 1px solid #e6eaf0;
+    box-shadow: none;
+}
+
+.checkout-brand-title {
+    font-family: inherit !important;
+    font-size: 22px;
+    letter-spacing: 0;
+}
+
+.checkout-secure-badge,
+.stepper-pill,
+.pm-offer-pill,
+.co-summary-edit-link,
+.co-item-pill {
+    border-radius: 7px;
+    letter-spacing: 0;
+}
+
+.checkout-secure-badge {
+    background: #f0fdf4;
+    color: #047857;
+    padding: 6px 10px;
+}
+
+.checkout-stepper-pills {
+    gap: 8px;
+}
+
+.stepper-pill {
+    padding: 8px 11px;
+    font-size: 12px;
+}
+
+.stepper-pill.active {
+    background: #14213d;
+    box-shadow: none;
+}
+
+.checkout-two-columns {
+    grid-template-columns: minmax(0, 1fr) 390px;
+    gap: 22px;
+}
+
+.co-panel,
+.co-sidebar-summary {
+    border-radius: 10px;
+    border: 1px solid #e6eaf0;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.045);
+}
+
+.co-panel {
+    padding: 22px;
+    margin-bottom: 18px;
+}
+
+.co-panel-head,
+.co-summary-header {
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.co-panel-title,
+.co-summary-title,
+.co-final-total-val,
+.btn-checkout-primary-cta,
+.order-place-loader__title {
+    font-family: inherit !important;
+    letter-spacing: 0;
+}
+
+.co-panel-title,
+.co-summary-title {
+    font-size: 15px;
+    text-transform: none;
+    color: #111827;
+}
+
+.co-panel-icon-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    box-shadow: none;
+}
+
+.co-form-row {
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.co-input-group {
+    gap: 7px;
+    margin-bottom: 14px;
+}
+
+.co-input-label {
+    color: #334155;
+    font-size: 12px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.co-input-field,
+.co-textarea-field {
+    border-radius: 8px;
+    border: 1px solid #dbe2ea;
+    background: #fbfcfe;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.co-input-field {
+    height: 48px;
+}
+
+.co-input-field:focus,
+.co-textarea-field:focus,
+.co-coupon-input-row input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.co-input-wrapper:focus-within .co-input-icon {
+    color: #2563eb;
+}
+
+.payment-selector-stack {
+    gap: 12px;
+}
+
+.payment-method-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #dbe2ea;
+    box-shadow: none;
+}
+
+.payment-method-card.active {
+    border-color: #2563eb;
+    background: #f8fbff;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+}
+
+.payment-method-card.active::before {
+    width: 4px;
+    background: #2563eb;
+}
+
+.payment-method-card.active .pm-radio-disc {
+    border-color: #2563eb;
+    background: #2563eb;
+}
+
+.pm-details h4 {
+    font-size: 14.5px;
+}
+
+.pm-details p {
+    color: #64748b;
+}
+
+.pm-brand-logos-row {
+    padding-top: 10px;
+}
+
+.pm-brand-badge {
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+.co-faq-panel {
+    padding: 18px;
+}
+
+.co-faq-accordion-list {
+    gap: 8px;
+}
+
+.co-faq-item {
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.co-faq-item.open {
+    box-shadow: none;
+}
+
+.co-faq-btn {
+    padding: 12px 14px;
+    font-size: 13px;
+}
+
+.co-faq-body {
+    padding: 0 14px 14px 38px;
+}
+
+.co-sidebar-summary {
+    top: 18px;
+    padding: 20px;
+}
+
+.co-cart-items-scroll {
+    max-height: 310px;
+}
+
+.co-cart-item-row {
+    grid-template-columns: 54px 1fr auto;
+    gap: 11px;
+    border-radius: 8px;
+    background: #fbfcfe;
+}
+
+.co-cart-item-thumb {
+    width: 54px;
+    border-radius: 7px;
+}
+
+.co-cart-item-meta {
+    flex-wrap: wrap;
+}
+
+.co-coupon-apply-wrap,
+.co-bill-breakdown-box,
+.co-savings-highlight-banner {
+    border-radius: 8px;
+}
+
+.co-savings-highlight-banner {
+    background: #ecfdf5;
+}
+
+.co-bill-breakdown-box {
+    gap: 10px;
+    padding: 15px 0;
+}
+
+.co-bill-row {
+    font-size: 13px;
+}
+
+.co-final-total-row {
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.co-final-total-label {
+    font-size: 13px;
+    text-transform: none;
+}
+
+.co-final-total-val {
+    font-size: 27px;
+    color: #111827;
+}
+
+.btn-checkout-primary-cta {
+    height: 54px;
+    border-radius: 8px;
+    background: #111827;
+    box-shadow: 0 14px 28px rgba(17, 24, 39, 0.16);
+    font-size: 14px;
+}
+
+.btn-checkout-primary-cta:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.co-trust-strip {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+}
+
+@media (max-width: 992px) {
+    .checkout-main-wrapper {
+        padding-top: 14px;
+    }
+
+    .checkout-two-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-right-column {
+        order: -1;
+    }
+
+    .co-sidebar-summary {
+        position: static;
+    }
+}
+
+@media (max-width: 640px) {
+    .checkout-container {
+        padding: 0 12px;
+    }
+
+    .checkout-header-bar {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .checkout-brand-title-wrap {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .checkout-secure-badge {
+        font-size: 10px;
+        padding: 5px 7px;
+    }
+
+    .checkout-stepper-pills {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    .stepper-pill {
+        white-space: nowrap;
+        font-size: 11px;
+    }
+
+    .co-panel,
+    .co-sidebar-summary {
+        padding: 16px;
+    }
+
+    .co-panel-head,
+    .co-summary-header {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .co-panel-title {
+        font-size: 14px;
+    }
+
+    .pm-card-top-row,
+    .pm-left-side {
+        gap: 10px;
+    }
+
+    .pm-brand-logos-row {
+        gap: 6px;
+    }
+
+    .co-final-total-val {
+        font-size: 23px;
+    }
+
+    .btn-checkout-primary-cta {
+        height: auto;
+        min-height: 52px;
+        padding: 12px;
+        font-size: 12.5px;
+        line-height: 1.3;
+    }
+}
+
 @keyframes coSpin {
     100% { transform: rotate(360deg); }
 }
@@ -974,7 +1353,18 @@
                             </label>
                             <div class="co-input-wrapper">
                                 <i class="bi bi-house-door-fill co-input-icon"></i>
-                                <textarea id="co_address" name="address" class="co-textarea-field" rows="2" placeholder="House No, Apartment/Building, Street, Landmark" required>{{ old('address', $user->address ?? '') }}</textarea>
+                                <textarea id="co_address" name="address" class="co-textarea-field" rows="2" placeholder="House No, Apartment/Building, Street" required>{{ old('address', $user->address ?? '') }}</textarea>
+                            </div>
+                        </div>
+
+                        {{-- Nearby Landmark --}}
+                        <div class="co-input-group">
+                            <label class="co-input-label" for="co_landmark">
+                                <span>Nearby Landmark <span style="color:#94a3b8; font-weight:700;">(Optional)</span></span>
+                            </label>
+                            <div class="co-input-wrapper">
+                                <i class="bi bi-geo-alt-fill co-input-icon"></i>
+                                <input type="text" id="co_landmark" name="landmark" class="co-input-field" value="{{ old('landmark') }}" placeholder="Example: near metro station, school, temple">
                             </div>
                         </div>
 
@@ -1591,6 +1981,7 @@ if (checkoutForm) {
             const name = document.getElementById('co_name').value.trim();
             const phone = document.getElementById('co_phone').value.trim();
             const address = document.getElementById('co_address').value.trim();
+            const landmark = document.getElementById('co_landmark') ? document.getElementById('co_landmark').value.trim() : '';
             const pincode = document.getElementById('co_pincode').value.trim();
             const state = document.getElementById('co_state').value.trim();
             const city = document.getElementById('co_city').value.trim();
@@ -1663,6 +2054,7 @@ if (checkoutForm) {
                                     name: name,
                                     phone: phone,
                                     address: address,
+                                    landmark: landmark,
                                     pincode: pincode,
                                     state: state,
                                     city: city,

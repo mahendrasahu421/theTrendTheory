@@ -5,211 +5,112 @@
 @section('content')
 <div class="ttt-activity-root">
 
-    {{-- ── 1. Top Hero Banner ── --}}
-    <div class="activity-hero-banner">
-        <div class="hero-text-wrap">
-            <div class="hero-tag">
-                <span class="hero-live-dot"></span>
-                <span>CUSTOMER INTENT &amp; OUTREACH HUB</span>
-            </div>
-            <h1 class="hero-title">Live Action Stream &amp; Outreach</h1>
-            <p class="hero-subtitle">
-                Track customer events in real-time (product views, bag additions, checkout drop-offs) and connect instantly via WhatsApp or Email.
-            </p>
-        </div>
-
-        <div class="hero-nav-pill-group">
-            <a href="{{ route('admin.analytics.index') }}" class="btn-hero-nav">
-                <i class="bi bi-geo-alt-fill"></i> Visitor Traffic &amp; Geo
-            </a>
-            <a href="{{ route('admin.analytics.activities') }}" class="btn-hero-nav active">
-                <i class="bi bi-activity"></i> Live Activity Feed
-            </a>
+    {{-- ── 1. Clean Page Header ── --}}
+    <div class="activity-clean-header">
+        <div>
+            <h1 class="activity-clean-title">Live Action Stream &amp; Outreach</h1>
+            <p class="activity-clean-sub">Track customer events in real-time (product views, bag additions, checkout drop-offs) and connect instantly via WhatsApp or Email.</p>
         </div>
     </div>
 
     {{-- ── 2. Event Filter Pills ── --}}
     <div class="event-filter-ribbon">
-        <a href="{{ route('admin.analytics.activities') }}" class="event-filter-btn {{ !$eventType ? 'active' : '' }}">
-            <i class="bi bi-grid-fill"></i> All Events <span class="badge-count">{{ $eventCounts['all'] }}</span>
+        <a href="{{ route('admin.analytics.activities') }}" 
+           class="event-filter-btn {{ !$eventType ? 'active' : '' }}"
+           data-event-type=""
+           onclick="event.preventDefault(); selectEventType('');">
+            <i class="bi bi-grid-fill"></i> All Events <span class="badge-count" id="countAll">{{ $eventCounts['all'] }}</span>
         </a>
-        <a href="{{ route('admin.analytics.activities', ['event_type' => 'checkout_started']) }}" class="event-filter-btn {{ $eventType === 'checkout_started' ? 'active' : '' }}">
-            <i class="bi bi-cart-x-fill text-amber"></i> Checkout Drop-Offs <span class="badge-count bg-amber-badge">{{ $eventCounts['checkout_started'] }}</span>
+        <a href="{{ route('admin.analytics.activities', ['event_type' => 'checkout_started']) }}" 
+           class="event-filter-btn {{ $eventType === 'checkout_started' ? 'active' : '' }}"
+           data-event-type="checkout_started"
+           onclick="event.preventDefault(); selectEventType('checkout_started');">
+            <i class="bi bi-cart-x-fill text-amber"></i> Checkout Drop-Offs <span class="badge-count bg-amber-badge" id="countCheckout">{{ $eventCounts['checkout_started'] }}</span>
         </a>
-        <a href="{{ route('admin.analytics.activities', ['event_type' => 'cart_added']) }}" class="event-filter-btn {{ $eventType === 'cart_added' ? 'active' : '' }}">
-            <i class="bi bi-bag-plus-fill text-indigo"></i> Added to Bag <span class="badge-count bg-indigo-badge">{{ $eventCounts['cart_added'] }}</span>
+        <a href="{{ route('admin.analytics.activities', ['event_type' => 'cart_added']) }}" 
+           class="event-filter-btn {{ $eventType === 'cart_added' ? 'active' : '' }}"
+           data-event-type="cart_added"
+           onclick="event.preventDefault(); selectEventType('cart_added');">
+            <i class="bi bi-bag-plus-fill text-indigo"></i> Added to Bag <span class="badge-count bg-indigo-badge" id="countCart">{{ $eventCounts['cart_added'] }}</span>
         </a>
-        <a href="{{ route('admin.analytics.activities', ['event_type' => 'product_viewed']) }}" class="event-filter-btn {{ $eventType === 'product_viewed' ? 'active' : '' }}">
-            <i class="bi bi-eye-fill text-blue"></i> Product Views <span class="badge-count bg-blue-badge">{{ $eventCounts['product_viewed'] }}</span>
+        <a href="{{ route('admin.analytics.activities', ['event_type' => 'product_viewed']) }}" 
+           class="event-filter-btn {{ $eventType === 'product_viewed' ? 'active' : '' }}"
+           data-event-type="product_viewed"
+           onclick="event.preventDefault(); selectEventType('product_viewed');">
+            <i class="bi bi-eye-fill text-blue"></i> Product Views <span class="badge-count bg-blue-badge" id="countProduct">{{ $eventCounts['product_viewed'] }}</span>
         </a>
-        <a href="{{ route('admin.analytics.activities', ['event_type' => 'order_placed']) }}" class="event-filter-btn {{ $eventType === 'order_placed' ? 'active' : '' }}">
-            <i class="bi bi-check-circle-fill text-emerald"></i> Orders Placed <span class="badge-count bg-emerald-badge">{{ $eventCounts['order_placed'] }}</span>
+        <a href="{{ route('admin.analytics.activities', ['event_type' => 'order_placed']) }}" 
+           class="event-filter-btn {{ $eventType === 'order_placed' ? 'active' : '' }}"
+           data-event-type="order_placed"
+           onclick="event.preventDefault(); selectEventType('order_placed');">
+            <i class="bi bi-check-circle-fill text-emerald"></i> Orders Placed <span class="badge-count bg-emerald-badge" id="countOrder">{{ $eventCounts['order_placed'] }}</span>
         </a>
     </div>
 
     {{-- ── 3. Main Stream Card ── --}}
     <div class="premium-card">
+        {{-- Loading Overlay --}}
+        <div class="table-loading-overlay" id="activitiesLoadingOverlay" style="display: none;">
+            <div class="spinner-border text-primary" role="status" style="width: 2.2rem; height: 2.2rem; color: #00285a !important;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
         {{-- Filter Row --}}
         <div class="stream-filter-bar">
-            <form method="GET" action="{{ route('admin.analytics.activities') }}" class="stream-search-form">
-                @if($eventType)
-                    <input type="hidden" name="event_type" value="{{ $eventType }}">
-                @endif
+            <form id="activitiesFilterForm" onsubmit="handleActivitiesSearch(event)" class="stream-search-form">
+                <input type="hidden" name="event_type" id="filterEventType" value="{{ $eventType }}">
                 <div class="search-input-box">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Search customer, phone, email, product, city or IP..." class="input-styled">
+                    <input type="text" 
+                           name="search" 
+                           id="activitiesSearchInput" 
+                           value="{{ $search }}" 
+                           placeholder="Search customer, phone, email, product, city or IP..." 
+                           class="input-styled"
+                           oninput="handleSearchDebounce(this.value)">
                 </div>
                 <button type="submit" class="btn-primary-gradient btn-sm">Search</button>
-                @if($search || $eventType)
-                    <a href="{{ route('admin.analytics.activities') }}" class="btn-clear-filter">
-                        <i class="bi bi-x-circle"></i> Clear
-                    </a>
-                @endif
+                <button type="button" 
+                        id="btnResetFilters" 
+                        class="btn-clear-filter" 
+                        onclick="resetAllFilters()" 
+                        style="{{ ($search || $eventType) ? '' : 'display:none;' }}">
+                    <i class="bi bi-x-circle"></i> Clear
+                </button>
             </form>
 
-            <div class="stream-stats-text">
-                Showing <b>{{ $activities->total() }}</b> activity events
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="per-page-wrap">
+                    <span class="font-xs text-muted fw-bold">Per page:</span>
+                    <select id="activitiesPerPageSelect" class="per-page-select" onchange="handlePerPageChange(this.value)">
+                        <option value="15" {{ ($perPage ?? 30) == 15 ? 'selected' : '' }}>15</option>
+                        <option value="30" {{ ($perPage ?? 30) == 30 ? 'selected' : '' }}>30</option>
+                        <option value="50" {{ ($perPage ?? 30) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ ($perPage ?? 30) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+
+                <div class="stream-stats-text" id="activitiesShowingStats">
+                    Showing <b>{{ $activities->firstItem() ?? 0 }}–{{ $activities->lastItem() ?? 0 }}</b> of <b>{{ $activities->total() }}</b> activity events
+                </div>
             </div>
         </div>
 
         {{-- Timeline Stream List --}}
-        <div class="stream-list">
-            @forelse($activities as $act)
-                @php
-                    $u = $act->user;
-                    $phone = $u ? $u->phone : null;
-                    $cleanPhone = $phone ? preg_replace('/[^0-9]/', '', $phone) : '';
-                    if ($cleanPhone && strlen($cleanPhone) === 10) {
-                        $cleanPhone = '91' . $cleanPhone;
-                    }
-
-                    // Smart auto-draft message for WhatsApp
-                    $waText = "Hi " . ($u ? $u->name : 'there') . "! Welcome to Vayu.";
-                    if ($act->event_type === 'checkout_started') {
-                        $waText = "Hi " . ($u ? $u->name : '') . "! We noticed you left items in your shopping bag at Vayu. Complete your order today and get an EXTRA 10% OFF with code TREND10: " . url('/checkout');
-                    } elseif ($act->event_type === 'cart_added') {
-                        $waText = "Hi " . ($u ? $u->name : '') . "! Thank you for adding items to your bag at Vayu. Need any help with size or fast delivery? We are here to help: " . url('/cart');
-                    } elseif ($act->event_type === 'product_viewed') {
-                        $waText = "Hi " . ($u ? $u->name : '') . "! We saw you checking out our streetwear drop at Vayu. Let us know if you need any assistance with styling or sizing: " . ($act->url ?: url('/shop'));
-                    }
-                @endphp
-
-                <div class="stream-item-row {{ $act->event_type === 'checkout_started' ? 'highlight-abandoned' : '' }}">
-                    
-                    {{-- Col 1: Icon & Relative Time --}}
-                    <div class="stream-col-time">
-                        <div class="stream-icon-box {{ $act->event_badge_class }}">
-                            <i class="bi {{ $act->event_icon }}"></i>
-                        </div>
-                        <div class="stream-time-text">
-                            <strong>{{ $act->created_at->diffForHumans() }}</strong>
-                            <small>{{ $act->created_at->format('M d, h:i A') }}</small>
-                        </div>
-                    </div>
-
-                    {{-- Col 2: Event Details & Context Tags --}}
-                    <div class="stream-col-info">
-                        <div class="stream-title-line">
-                            <span class="event-type-badge {{ $act->event_badge_class }}">
-                                {{ $act->event_label }}
-                            </span>
-                            <h4 class="event-title-text">{{ $act->event_title }}</h4>
-                        </div>
-
-                        {{-- Metadata Pills --}}
-                        <div class="stream-meta-pills">
-                            @if($u)
-                                <span class="meta-tag tag-user">
-                                    <i class="bi bi-person-check-fill text-emerald"></i>
-                                    <b>{{ $u->name }}</b> ({{ $u->phone ?: $u->email }})
-                                </span>
-                            @else
-                                <span class="meta-tag tag-guest">
-                                    <i class="bi bi-person-circle"></i> Guest ({{ $act->ip_address }})
-                                </span>
-                            @endif
-
-                            <span class="meta-tag">
-                                <i class="bi bi-geo-alt-fill text-rose"></i> {{ $act->city ?: 'India' }}, {{ $act->state ?: '' }} 🇮🇳
-                            </span>
-
-                            <span class="meta-tag tag-source">
-                                <i class="bi bi-share"></i> {{ $act->source ?: 'Direct' }}
-                            </span>
-
-                            <span class="meta-tag">
-                                <i class="bi bi-phone text-indigo"></i> {{ $act->device_brand ?: 'Device' }} {{ $act->device_model ? '(' . $act->device_model . ')' : '' }}
-                            </span>
-                        </div>
-
-                        {{-- Event Data Preview (JSON Items) --}}
-                        @if(!empty($act->event_details))
-                            <div class="stream-details-box">
-                                @if(isset($act->event_details['price']))
-                                    <span>Price: <b>₹{{ number_format($act->event_details['price']) }}</b></span>
-                                @endif
-                                @if(isset($act->event_details['size']) && $act->event_details['size'])
-                                    <span>Size: <b>{{ $act->event_details['size'] }}</b></span>
-                                @endif
-                                @if(isset($act->event_details['total']))
-                                    <span>Cart Total: <b class="text-emerald">₹{{ number_format($act->event_details['total']) }}</b></span>
-                                @endif
-                                @if(isset($act->event_details['items_count']))
-                                    <span>Items: <b>{{ $act->event_details['items_count'] }}</b></span>
-                                @endif
-                            </div>
-                        @endif
-
-                        @if($act->contacted_at)
-                            <div class="contacted-note">
-                                <i class="bi bi-check2-all text-emerald"></i> Contacted via <b>{{ strtoupper($act->contacted_channel) }}</b> {{ $act->contacted_at->diffForHumans() }}
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- Col 3: Direct Outreach Buttons --}}
-                    <div class="stream-col-actions">
-                        @if($cleanPhone)
-                            <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($waText) }}" 
-                               target="_blank" 
-                               class="btn-outreach btn-whatsapp-outreach" 
-                               title="Chat on WhatsApp">
-                                <i class="bi bi-whatsapp"></i> WhatsApp
-                            </a>
-                        @else
-                            <button type="button" class="btn-outreach btn-disabled" disabled>
-                                <i class="bi bi-whatsapp"></i> WhatsApp
-                            </button>
-                        @endif
-
-                        @if($u && $u->email)
-                            <button type="button" 
-                                    class="btn-outreach btn-email-outreach" 
-                                    onclick="openEmailModal('{{ $u->id }}', '{{ $u->name }}', '{{ $u->email }}', '{{ $act->id }}', '{{ addslashes($act->event_title) }}')">
-                                <i class="bi bi-envelope-fill"></i> Send Email
-                            </button>
-                        @else
-                            <button type="button" class="btn-outreach btn-disabled" disabled>
-                                <i class="bi bi-envelope"></i> Send Email
-                            </button>
-                        @endif
-                    </div>
-
-                </div>
-            @empty
-                <div class="empty-stream-state">
-                    <i class="bi bi-inbox text-muted" style="font-size:36px;display:block;margin-bottom:10px;"></i>
-                    <h4>No activity logs found</h4>
-                    <p class="text-muted">User activities like product views, additions to bag, and checkout drop-offs will appear here in real time.</p>
-                </div>
-            @endforelse
+        <div class="stream-list" id="activitiesStreamList">
+            @include('admin.analytics.partials.activities_list', ['activities' => $activities])
         </div>
 
-        @if($activities->hasPages())
-            <div class="table-pagination-footer">
-                {{ $activities->links() }}
+        {{-- Luxury Pagination Footer --}}
+        <div class="table-pagination-footer" id="activitiesPaginationContainer" style="{{ $activities->hasPages() || $activities->total() > 0 ? '' : 'display:none;' }}">
+            <div class="stream-showing-footer" id="activitiesShowingFooter">
+                Showing <strong>{{ $activities->firstItem() ?? 0 }}</strong> to <strong>{{ $activities->lastItem() ?? 0 }}</strong> of <strong>{{ $activities->total() }}</strong> activities
             </div>
-        @endif
+            <div id="activitiesPaginationWrap">
+                @include('admin.analytics.partials.pagination', ['activities' => $activities])
+            </div>
+        </div>
     </div>
 
 </div>
@@ -269,7 +170,203 @@
 
 <script>
 var currentCustomerName = '';
+var activitiesAjaxUrl = "{{ route('admin.analytics.activities') }}";
+var searchDebounceTimer = null;
+var activitiesRequestSeq = 0;
 
+function showActivitiesLoader() {
+    var overlay = document.getElementById('activitiesLoadingOverlay');
+    if (overlay) overlay.style.display = 'flex';
+}
+
+function hideActivitiesLoader() {
+    var overlay = document.getElementById('activitiesLoadingOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function scrollToTableTop() {
+    var card = document.querySelector('.premium-card');
+    if (card) {
+        var cardTop = card.getBoundingClientRect().top + window.pageYOffset - 80;
+        if (window.pageYOffset > cardTop + 40) {
+            window.scrollTo({ top: cardTop, behavior: 'smooth' });
+        }
+    }
+}
+
+function buildActivitiesParams(page) {
+    var params = new URLSearchParams();
+    if (page) params.set('page', page);
+
+    var eventType = document.getElementById('filterEventType') ? document.getElementById('filterEventType').value : '';
+    if (eventType) params.set('event_type', eventType);
+
+    var search = document.getElementById('activitiesSearchInput') ? document.getElementById('activitiesSearchInput').value.trim() : '';
+    if (search) params.set('search', search);
+
+    var perPage = document.getElementById('activitiesPerPageSelect') ? document.getElementById('activitiesPerPageSelect').value : '30';
+    if (perPage && perPage !== '30') params.set('per_page', perPage);
+
+    return params;
+}
+
+function loadActivitiesUrl(url, pushState) {
+    if (typeof pushState === 'undefined') pushState = true;
+    showActivitiesLoader();
+    var currentSeq = ++activitiesRequestSeq;
+
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+    })
+    .then(function(data) {
+        if (currentSeq !== activitiesRequestSeq) return;
+        hideActivitiesLoader();
+
+        if (data.success) {
+            // 1. Update Stream List HTML
+            var listEl = document.getElementById('activitiesStreamList');
+            if (listEl) listEl.innerHTML = data.list_html;
+
+            // 2. Update Pagination HTML
+            var pagWrap = document.getElementById('activitiesPaginationWrap');
+            if (pagWrap) {
+                pagWrap.innerHTML = data.pagination_html || '';
+            }
+
+            // 3. Update Showing Info & Stats
+            var footerEl = document.getElementById('activitiesShowingFooter');
+            if (footerEl && data.showing_footer) {
+                footerEl.innerHTML = data.showing_footer;
+            }
+            var statsEl = document.getElementById('activitiesShowingStats');
+            if (statsEl && data.showing_text) {
+                statsEl.innerHTML = data.showing_text;
+            }
+
+            var pagContainer = document.getElementById('activitiesPaginationContainer');
+            if (pagContainer) {
+                pagContainer.style.display = (data.total_count > 0) ? 'flex' : 'none';
+            }
+
+            // 4. Update Event Counts in Ribbon
+            if (data.event_counts) {
+                if (document.getElementById('countAll')) document.getElementById('countAll').textContent = data.event_counts.all;
+                if (document.getElementById('countCheckout')) document.getElementById('countCheckout').textContent = data.event_counts.checkout_started;
+                if (document.getElementById('countCart')) document.getElementById('countCart').textContent = data.event_counts.cart_added;
+                if (document.getElementById('countProduct')) document.getElementById('countProduct').textContent = data.event_counts.product_viewed;
+                if (document.getElementById('countOrder')) document.getElementById('countOrder').textContent = data.event_counts.order_placed;
+            }
+
+            // 5. Update Clear button visibility
+            var hasSearch = document.getElementById('activitiesSearchInput') && document.getElementById('activitiesSearchInput').value.trim() !== '';
+            var hasEvent = document.getElementById('filterEventType') && document.getElementById('filterEventType').value !== '';
+            var clearBtn = document.getElementById('btnResetFilters');
+            if (clearBtn) {
+                clearBtn.style.display = (hasSearch || hasEvent) ? 'inline-flex' : 'none';
+            }
+
+            // 6. Push history state
+            if (pushState) {
+                window.history.pushState({}, '', url);
+            }
+
+            // 7. Scroll to table top
+            scrollToTableTop();
+        }
+    })
+    .catch(function(err) {
+        if (currentSeq !== activitiesRequestSeq) return;
+        hideActivitiesLoader();
+        console.error('Activities AJAX load error:', err);
+    });
+}
+
+function fetchActivitiesPage(page, pushState) {
+    if (typeof pushState === 'undefined') pushState = true;
+    var params = buildActivitiesParams(page);
+    var url = activitiesAjaxUrl + (params.toString() ? '?' + params.toString() : '');
+    loadActivitiesUrl(url, pushState);
+}
+
+function handleActivitiesSearch(e) {
+    if (e) e.preventDefault();
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+    fetchActivitiesPage(1);
+}
+
+function handleSearchDebounce(val) {
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(function() {
+        fetchActivitiesPage(1);
+    }, 350);
+}
+
+function handlePerPageChange(val) {
+    fetchActivitiesPage(1);
+}
+
+function selectEventType(eventType) {
+    document.getElementById('filterEventType').value = eventType;
+    document.querySelectorAll('.event-filter-btn').forEach(function(btn) {
+        var btnType = btn.getAttribute('data-event-type') || '';
+        if (btnType === eventType) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    fetchActivitiesPage(1);
+}
+
+function resetAllFilters() {
+    if (document.getElementById('activitiesSearchInput')) {
+        document.getElementById('activitiesSearchInput').value = '';
+    }
+    if (document.getElementById('filterEventType')) {
+        document.getElementById('filterEventType').value = '';
+    }
+    document.querySelectorAll('.event-filter-btn').forEach(function(btn) {
+        var btnType = btn.getAttribute('data-event-type') || '';
+        if (btnType === '') {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    fetchActivitiesPage(1);
+}
+
+// Handle Back / Forward Browser History
+window.addEventListener('popstate', function() {
+    var params = new URLSearchParams(window.location.search);
+    var eventType = params.get('event_type') || '';
+    var search = params.get('search') || '';
+    var perPage = params.get('per_page') || '30';
+
+    if (document.getElementById('filterEventType')) document.getElementById('filterEventType').value = eventType;
+    if (document.getElementById('activitiesSearchInput')) document.getElementById('activitiesSearchInput').value = search;
+    if (document.getElementById('activitiesPerPageSelect')) document.getElementById('activitiesPerPageSelect').value = perPage;
+
+    document.querySelectorAll('.event-filter-btn').forEach(function(btn) {
+        var btnType = btn.getAttribute('data-event-type') || '';
+        if (btnType === eventType) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    loadActivitiesUrl(window.location.href, false);
+});
+
+// Email modal logic
 function openEmailModal(userId, userName, userEmail, activityId, activityTitle) {
     currentCustomerName = userName || 'Valued Customer';
     document.getElementById('modalUserId').value = userId || '';
@@ -342,7 +439,7 @@ function handleSendEmail(e) {
             status.innerHTML = '<i class="bi bi-check-circle-fill"></i> ' + data.message;
             setTimeout(function() {
                 closeEmailModal();
-                window.location.reload();
+                loadActivitiesUrl(window.location.href, false);
             }, 1200);
         } else {
             status.style.color = '#dc2626';
@@ -367,42 +464,27 @@ function handleSendEmail(e) {
     gap: 20px;
 }
 
-.activity-hero-banner {
-    background: linear-gradient(135deg, #00285a 0%, #1e3a8a 50%, #0f172a 100%);
-    border-radius: 20px;
-    padding: 28px 32px;
-    color: #ffffff;
+.activity-clean-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 24px;
-    box-shadow: 0 10px 30px rgba(0, 40, 90, 0.15);
+    gap: 12px;
+    margin-bottom: 4px;
 }
 
-.hero-nav-pill-group {
-    display: flex;
-    gap: 8px;
-}
-
-.btn-hero-nav {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.15);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 12.5px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.btn-hero-nav.active, .btn-hero-nav:hover {
-    background: #ffffff;
+.activity-clean-title {
+    font-size: 22px;
+    font-weight: 800;
     color: #00285a;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.activity-clean-sub {
+    font-size: 13px;
+    color: #64748b;
+    margin: 3px 0 0 0;
 }
 
 /* Ribbon Filters */
@@ -425,6 +507,7 @@ function handleSendEmail(e) {
     color: #475569;
     text-decoration: none;
     transition: all 0.15s ease;
+    cursor: pointer;
 }
 
 .event-filter-btn:hover {
@@ -458,7 +541,33 @@ function handleSendEmail(e) {
 .bg-blue-badge { background: #eff6ff; color: #1d4ed8; }
 .bg-emerald-badge { background: #d1fae5; color: #047857; }
 
-/* Stream List */
+/* Stream List & Main Card */
+.premium-card {
+    position: relative;
+    min-height: 250px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 40, 90, 0.04);
+    overflow: hidden;
+}
+
+.table-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    border-radius: 16px;
+    transition: opacity 0.2s ease;
+}
+
 .stream-filter-bar {
     display: flex;
     justify-content: space-between;
@@ -476,6 +585,27 @@ function handleSendEmail(e) {
     gap: 8px;
     flex: 1;
     max-width: 500px;
+}
+
+.per-page-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.per-page-select {
+    padding: 4px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #00285a;
+    background-color: #ffffff;
+    cursor: pointer;
+    outline: none;
+}
+.per-page-select:focus {
+    border-color: #00285a;
 }
 
 .stream-stats-text {
@@ -524,28 +654,28 @@ function handleSendEmail(e) {
     flex-shrink: 0;
 }
 
+.badge-checkout_started { background: #fef3c7; color: #b45309; }
+.badge-cart_added { background: #e0e7ff; color: #4338ca; }
+.badge-product_viewed { background: #eff6ff; color: #1d4ed8; }
+.badge-order_placed { background: #d1fae5; color: #047857; }
+
 .stream-time-text strong {
-    font-size: 12px;
-    color: #0f172a;
     display: block;
+    font-size: 12.5px;
+    color: #1e293b;
 }
 
 .stream-time-text small {
-    font-size: 10.5px;
+    font-size: 11px;
     color: #94a3b8;
 }
 
-.stream-col-info {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
+/* Col Info */
 .stream-title-line {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
+    margin-bottom: 6px;
 }
 
 .event-type-badge {
@@ -553,63 +683,72 @@ function handleSendEmail(e) {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 2px 7px;
-    border-radius: 999px;
+    padding: 3px 8px;
+    border-radius: 6px;
 }
 
 .event-title-text {
-    font-size: 13.5px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 700;
     color: #00285a;
     margin: 0;
 }
 
 .stream-meta-pills {
     display: flex;
-    align-items: center;
-    gap: 8px;
     flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
 }
 
 .meta-tag {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    font-size: 11.5px;
     background: #f1f5f9;
     color: #475569;
-    font-size: 11px;
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 6px;
 }
 
-.tag-user { background: #ecfdf5; color: #047857; }
-.tag-guest { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
-.tag-source { background: #eff6ff; color: #1d4ed8; }
+.meta-tag.tag-user {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.meta-tag.tag-guest {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
 
 .stream-details-box {
     display: flex;
     gap: 12px;
-    font-size: 11px;
+    margin-top: 6px;
+    font-size: 11.5px;
     color: #64748b;
-    background: rgba(0, 40, 90, 0.03);
-    padding: 3px 8px;
-    border-radius: 4px;
+    background: #f8fafc;
+    padding: 4px 10px;
+    border-radius: 6px;
     width: fit-content;
 }
 
 .contacted-note {
-    font-size: 11px;
+    margin-top: 6px;
+    font-size: 11.5px;
     color: #059669;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    font-weight: 600;
 }
 
-/* Outreach Buttons */
+/* Actions */
 .stream-col-actions {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    align-items: flex-end;
 }
 
 .btn-outreach {
@@ -617,6 +756,7 @@ function handleSendEmail(e) {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    width: 130px;
     padding: 7px 12px;
     border-radius: 8px;
     font-size: 12px;
@@ -659,6 +799,76 @@ function handleSendEmail(e) {
     text-align: center;
 }
 
+/* Luxury Pagination Footer */
+.table-pagination-footer {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eef2f6;
+    background: #ffffff;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.stream-showing-footer {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.stream-showing-footer strong {
+    color: #00285a;
+    font-weight: 700;
+}
+
+.custom-pagination-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.page-nav-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #334155;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+}
+
+.page-nav-btn:hover:not(.disabled):not(.active) {
+    background: #f1f5f9;
+    color: #00285a;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+}
+
+.page-nav-btn.active {
+    background: #00285a !important;
+    color: #ffffff !important;
+    border-color: #00285a !important;
+    box-shadow: 0 4px 12px rgba(0, 40, 90, 0.25);
+}
+
+.page-nav-btn.disabled {
+    background: #f8fafc;
+    color: #cbd5e1;
+    border-color: #f1f5f9;
+    cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
     .stream-item-row {
         grid-template-columns: 1fr;
@@ -666,6 +876,17 @@ function handleSendEmail(e) {
     }
     .stream-col-actions {
         flex-direction: row;
+        align-items: flex-start;
+    }
+    .table-pagination-footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .custom-pagination-wrap {
+        margin-left: 0;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
 </style>
