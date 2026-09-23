@@ -6,15 +6,15 @@
         if (!filter_var($ogImg, FILTER_VALIDATE_URL)) {
             $ogImg = url($ogImg);
         }
-        $pageTitle = ($product->meta_title ?: $product->name) . (isset($selectedColor) && $selectedColor ? ' (' . $selectedColor . ')' : '') . ' | VAYU';
-        $pageDesc = $product->meta_description ?: ($product->short_description ?: 'Buy ' . $product->name . ' at ₹' . number_format($product->price) . '. 100% Cotton, Drop Shoulder Oversized Fit from VAYU.');
+        $pageTitle = ($product->meta_title ?: $product->name) . (isset($selectedColor) && $selectedColor ? ' (' . $selectedColor . ')' : '') . ' | THE TREND THEORY';
+        $pageDesc = $product->meta_description ?: ($product->short_description ?: 'Buy ' . $product->name . ' at ₹' . number_format($product->price) . '. 100% Cotton, Drop Shoulder Oversized Fit from THE TREND THEORY.');
     @endphp
     <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ $pageDesc }}">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Open Graph (WhatsApp, Facebook, Telegram, iMessage) -->
-    <meta property="og:site_name" content="VAYU">
+    <meta property="og:site_name" content="THE TREND THEORY">
     <meta property="og:type" content="product">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="{{ $pageTitle }}">
@@ -29,7 +29,7 @@
     <meta property="product:price:amount" content="{{ $product->price }}">
     <meta property="product:price:currency" content="INR">
     <meta property="product:availability" content="{{ $product->stock > 0 ? 'in stock' : 'out of stock' }}">
-    <meta property="product:brand" content="VAYU">
+    <meta property="product:brand" content="THE TREND THEORY">
     <meta property="product:category" content="{{ $product->category?->name ?? 'Streetwear' }}">
 
     <!-- Twitter / X Cards -->
@@ -45,7 +45,7 @@
 <link href="{{ asset('frontend/product-show.min.css') }}?v={{ filemtime(public_path('frontend/product-show.min.css')) }}" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Vayu - LUXURY PRODUCT DETAILS STYLES
+   THE TREND THEORY - LUXURY PRODUCT DETAILS STYLES
    ═══════════════════════════════════════════════════════════════════ */
 :root {
     --ttt-navy: #00285a;
@@ -1569,6 +1569,19 @@
     font-weight: 500;
 }
 
+/* ── Hide mobile drawer, backdrop & sticky bar on Desktop ── */
+.mobile-sticky-wrapper,
+.mobile-variant-drawer,
+.mobile-accordion-backdrop,
+.mobile-sticky-bar {
+    display: none !important;
+}
+
+#checkoutPop:not(.is-open),
+.checkout-pop:not(.is-open) {
+    display: none !important;
+}
+
 @media (max-width: 991px) {
     .pd-grid {
         grid-template-columns: 1fr;
@@ -1579,6 +1592,567 @@
     }
     #checkoutPop .cart-drawer-panel {
         max-width: 100%;
+    }
+    .pd-wrap {
+        padding-bottom: 120px !important;
+    }
+
+    .mobile-sticky-wrapper {
+        display: block !important;
+    }
+
+    /* ── Backdrop (tap to dismiss) ── */
+    .mobile-accordion-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.32);
+        z-index: 1040;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .mobile-accordion-backdrop:not(.is-open) {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+    }
+    .mobile-accordion-backdrop.is-open {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+    }
+
+    /* ── The Collapsible Drawer (Compact, Single-Step View) ── */
+    .mobile-variant-drawer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 84vh;
+        background: #ffffff;
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+        box-shadow: 0 -10px 45px rgba(0, 20, 50, 0.25);
+        z-index: 1055;
+        transform: translateY(115%);
+        opacity: 0;
+        pointer-events: none;
+        display: flex !important;
+        flex-direction: column;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+        border: 1px solid #e2e8f0;
+        border-bottom: none;
+        overflow: hidden;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+    .mobile-variant-drawer:not(.is-open) {
+        transform: translateY(115%) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+    }
+    .mobile-variant-drawer.is-open {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+    }
+
+    /* Accordion Drag Handle */
+    .drawer-drag-pill {
+        width: 42px;
+        height: 4px;
+        border-radius: 999px;
+        background: #cbd5e1;
+        margin: 8px auto 4px;
+        cursor: pointer;
+    }
+
+    /* Drawer Header with Product Thumbnail Image */
+    .drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px 10px;
+        border-bottom: 1px solid #f1f5f9;
+        background: #ffffff;
+        gap: 10px;
+    }
+    .drawer-product-summary {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+    }
+    .drawer-thumb-wrap {
+        width: 62px;
+        height: 62px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1.5px solid #e2e8f0;
+        flex-shrink: 0;
+        background: #f8fafc;
+    }
+    .drawer-thumb-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.2s ease;
+    }
+    .drawer-meta-wrap {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1;
+    }
+    .drawer-prod-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+        margin-bottom: 2px;
+    }
+    .drawer-price-wrap {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+    .drawer-price-val {
+        font-size: 15px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+    .drawer-mrp-val {
+        font-size: 11.5px;
+        color: #94a3b8;
+        text-decoration: line-through;
+    }
+    .drawer-disc-tag {
+        font-size: 10.5px;
+        font-weight: 800;
+        color: #059669;
+        background: #ecfdf5;
+        padding: 1px 5px;
+        border-radius: 4px;
+    }
+    .drawer-selected-chips {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 3px;
+        font-size: 10.5px;
+        white-space: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .chip-item {
+        color: #64748b;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 1px 4px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+    }
+    .chip-item.active {
+        color: #00285a;
+        font-weight: 800;
+        background: #eff6ff;
+    }
+    .chip-sep {
+        color: #cbd5e1;
+        font-size: 8px;
+    }
+    .drawer-close-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+    }
+    .drawer-close-btn:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+
+    /* Step Navigation Tabs */
+    .drawer-step-nav {
+        display: flex;
+        align-items: center;
+        padding: 6px 12px;
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        gap: 6px;
+    }
+    .step-nav-tab {
+        flex: 1;
+        padding: 6px 4px;
+        border: none;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .step-nav-tab .tab-num {
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #475569;
+        font-size: 10px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+    }
+    .step-nav-tab.active {
+        background: #ffffff;
+        color: #00285a;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .step-nav-tab.active .tab-num {
+        background: #00285a;
+        color: #ffffff;
+    }
+    .step-nav-tab.completed .tab-num {
+        background: #10b981;
+        color: #ffffff;
+    }
+
+    /* Drawer Scrollable Body: Single Step Active Panel */
+    .drawer-body {
+        padding: 12px 14px 16px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-height: calc(75vh - 120px);
+    }
+    .drawer-single-panel {
+        animation: fadeInStep 0.2s ease both;
+    }
+    @keyframes fadeInStep {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .panel-section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 11.5px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+    }
+    .panel-section-title .title-text {
+        color: #475569;
+    }
+    .panel-section-title .title-val {
+        color: #00285a;
+        font-weight: 800;
+        background: #eff6ff;
+        padding: 2px 8px;
+        border-radius: 6px;
+    }
+
+    /* Color Grid in Drawer */
+    .drawer-color-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+        gap: 9px;
+    }
+    .drawer-color-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 6px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+    .drawer-color-card.active {
+        border-color: #00285a;
+        background: #f8fafc;
+        box-shadow: 0 4px 12px rgba(0, 40, 90, 0.12);
+    }
+    .drawer-color-img {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f1f5f9;
+        margin-bottom: 5px;
+    }
+    .drawer-color-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .drawer-color-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #1e293b;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    .drawer-check-icon {
+        display: none;
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        color: #00285a;
+        font-size: 14px;
+        background: #ffffff;
+        border-radius: 50%;
+    }
+    .drawer-color-card.active .drawer-check-icon {
+        display: block;
+    }
+
+    /* Size Section in Drawer */
+    .drawer-size-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+        gap: 8px;
+    }
+    .drawer-size-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 4px;
+        border-radius: 10px;
+        border: 1.5px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+    .drawer-size-btn .size-name {
+        font-size: 13px;
+        font-weight: 800;
+    }
+    .drawer-size-btn .size-stock-tag {
+        font-size: 9px;
+        color: #ef4444;
+        font-weight: 700;
+        margin-top: 1px;
+    }
+    .drawer-size-btn.active {
+        background: #00285a;
+        border-color: #00285a;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 40, 90, 0.2);
+    }
+    .drawer-size-btn.active .size-stock-tag {
+        color: #fca5a5;
+    }
+    .drawer-size-btn.oos {
+        opacity: 0.4;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+
+    /* Print Placement Side Selector in Drawer */
+    .drawer-side-instruction {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 8px;
+    }
+    .drawer-side-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .drawer-side-btn {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1.5px solid #cbd5e1;
+        background: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.15s ease;
+        text-align: left;
+    }
+    .side-btn-icon {
+        font-size: 18px;
+    }
+    .side-btn-text {
+        display: flex;
+        flex-direction: column;
+    }
+    .side-btn-text strong {
+        font-size: 12px;
+        color: #0f172a;
+    }
+    .side-btn-text span {
+        font-size: 10px;
+        color: #64748b;
+    }
+    .drawer-side-btn.active {
+        background: #eff6ff;
+        border-color: #00285a;
+        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.12);
+    }
+    .drawer-side-btn.active .side-btn-text strong {
+        color: #00285a;
+    }
+
+    /* Feedback Alert */
+    .drawer-feedback-msg {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+        animation: pulseWarning 0.3s ease;
+    }
+    @keyframes pulseWarning {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+
+    /* Drawer Confirm Button */
+    .drawer-confirm-box {
+        margin-top: 4px;
+    }
+    .drawer-confirm-btn {
+        width: 100%;
+        height: 48px;
+        border-radius: 12px;
+        border: none;
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #00285a;
+        color: #ffffff;
+        box-shadow: 0 4px 16px rgba(0, 40, 90, 0.25);
+    }
+    .drawer-confirm-btn.btn-pending {
+        background: #f1f5f9;
+        color: #64748b;
+        box-shadow: none;
+        border: 1.5px dashed #cbd5e1;
+    }
+    .drawer-confirm-btn.btn-ready-cart {
+        background: #000000;
+        color: #ffffff;
+    }
+    .drawer-confirm-btn.btn-ready-buy {
+        background: linear-gradient(135deg, #00285a 0%, #1e40af 100%);
+        color: #ffffff;
+    }
+    .drawer-confirm-btn.btn-success {
+        background: #10b981 !important;
+        color: #ffffff !important;
+    }
+
+    /* ── The Fixed Sticky Bottom Bar ── */
+    .mobile-sticky-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 64px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+        z-index: 1046;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+    .sticky-btn-atc {
+        flex: 1;
+        height: 44px;
+        padding: 0 12px;
+        border-radius: 12px;
+        border: 1.5px solid #0f172a;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+    }
+    .sticky-btn-atc:active {
+        background: #f1f5f9;
+        transform: scale(0.98);
+    }
+    .sticky-btn-buy {
+        flex: 1;
+        height: 44px;
+        padding: 0 16px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #00285a 0%, #1e40af 100%);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        box-shadow: 0 3px 12px rgba(0, 40, 90, 0.25);
+        transition: all 0.15s ease;
+    }
+    .sticky-btn-buy:active {
+        transform: scale(0.98);
+    }
+    .sticky-btn-atc[disabled], .sticky-btn-buy[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }
 </style>
@@ -2286,6 +2860,218 @@
     </section>
     @endif
 </div>
+</div> {{-- /pd-wrap --}}
+
+{{-- ════════════════════════════════════════════════════════════════ --}}
+{{-- MOBILE FIXED BOTTOM ACTION BAR & VARIANT ACCORDION DRAWER         --}}
+@php
+    $hasPrintSidesChoice = ($printSidesMode === 'both');
+@endphp
+<div class="mobile-sticky-wrapper" id="mobileStickyWrapper">
+    
+    {{-- Backdrop (tap to dismiss) --}}
+    <div class="mobile-accordion-backdrop" id="mobileAccordionBackdrop" onclick="collapseMobileDrawer()"></div>
+
+    {{-- Collapsible Drawer / Single-Step Variant Drawer --}}
+    <div class="mobile-variant-drawer" id="mobileVariantDrawer">
+        {{-- Drag handle --}}
+        <div class="drawer-drag-pill" onclick="collapseMobileDrawer()"></div>
+        
+        {{-- Product Summary Header with Live Preview Image --}}
+        <div class="drawer-head">
+            <div class="drawer-product-summary">
+                <div class="drawer-thumb-wrap">
+                    @php
+                        $drawerThumb = $colorImages[$selectedColor][0]['url'] ?? ($product->card_image ?? ($product->main_image ?? asset('images/placeholder-product.jpg')));
+                    @endphp
+                    <img src="{{ $drawerThumb }}" alt="{{ $displayName }}" id="drawerThumbImg" onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
+                </div>
+                <div class="drawer-meta-wrap">
+                    <div class="drawer-prod-title">{{ Str::limit($displayName, 32) }}</div>
+                    <div class="drawer-price-wrap">
+                        <span class="drawer-price-val" id="drawerPriceVal">₹{{ number_format($displayPrice) }}</span>
+                        @if($hasDiscount)
+                            <span class="drawer-mrp-val">₹{{ number_format($displayMrp) }}</span>
+                            <span class="drawer-disc-tag">{{ $discPct }}% OFF</span>
+                        @endif
+                    </div>
+                    <div class="drawer-selected-chips" id="drawerSelectedChips">
+                        <span class="chip-item active" id="chipColor" onclick="goToDrawerStep('color')">{{ $selectedColor ?: 'Color' }}</span>
+                        <span class="chip-sep">&bull;</span>
+                        <span class="chip-item" id="chipSize" onclick="goToDrawerStep('size')">{{ $defaultSize ? 'Size ' . $defaultSize : 'Size' }}</span>
+                        @if($hasPrintSidesChoice)
+                            <span class="chip-sep">&bull;</span>
+                            <span class="chip-item" id="chipSide" onclick="goToDrawerStep('side')">{{ $defaultDesignSide ? ucfirst($defaultDesignSide) : 'Print Side' }}</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="drawer-close-btn" onclick="collapseMobileDrawer()" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        {{-- Step Navigation Tabs (Shows 1 active step at a time) --}}
+        <div class="drawer-step-nav" id="drawerStepNav">
+            <button type="button" class="step-nav-tab active" id="tabStepColor" onclick="goToDrawerStep('color')">
+                <span class="tab-num" id="tabNumColor">1</span> Choose Color
+            </button>
+            <button type="button" class="step-nav-tab" id="tabStepSize" onclick="goToDrawerStep('size')">
+                <span class="tab-num" id="tabNumSize">2</span> Choose Size
+            </button>
+            @if($hasPrintSidesChoice)
+            <button type="button" class="step-nav-tab" id="tabStepSide" onclick="goToDrawerStep('side')">
+                <span class="tab-num" id="tabNumSide">3</span> Print Side
+            </button>
+            @endif
+        </div>
+
+        {{-- Scrollable / Inner Content: ONLY ONE STEP AT A TIME --}}
+        <div class="drawer-body">
+            
+            {{-- ═══ STEP 1: COLOR ONLY ═══ --}}
+            <div class="drawer-single-panel" id="panelStepColor">
+                <div class="panel-section-title">
+                    <span class="title-text">SELECT COLOR</span>
+                    <span class="title-val" id="panelColorVal">{{ $selectedColor ?: 'Select' }}</span>
+                </div>
+                <div class="drawer-color-grid" id="drawerColorGrid">
+                    @if(isset($linkedColorProducts) && $linkedColorProducts->count() > 1)
+                        @foreach($linkedColorProducts as $lp)
+                            <div class="drawer-color-card {{ (int)$lp->id === (int)$product->id ? 'active' : '' }}"
+                                 onclick="onMobileSelectLinkedColor('{{ $lp->slug }}', '{{ addslashes($lp->color_name ?: $lp->name) }}', this)"
+                                 data-color="{{ $lp->color_name ?: $lp->name }}"
+                                 data-img="{{ $lp->card_image }}">
+                                <div class="drawer-color-img">
+                                    <img src="{{ $lp->card_image }}" alt="{{ $lp->color_name ?: $lp->name }}"
+                                         onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
+                                </div>
+                                <span class="drawer-color-label">{{ $lp->color_name ?: Str::limit($lp->name, 12) }}</span>
+                                <i class="bi bi-check-circle-fill drawer-check-icon"></i>
+                            </div>
+                        @endforeach
+                    @elseif($colorVariants->count() > 0)
+                        @foreach($colorVariants as $cv)
+                            @php
+                                $cImg = collect($colorImages[$cv['color']] ?? [])->first();
+                                $cImgUrl = $cImg['url'] ?? asset('images/placeholder-product.jpg');
+                            @endphp
+                            <div class="drawer-color-card {{ $cv['color'] === $selectedColor ? 'active' : '' }}"
+                                 onclick="onMobileSelectColor('{{ addslashes($cv['color']) }}', '{{ $cv['hex'] ?? '#ccc' }}', this)"
+                                 data-color="{{ $cv['color'] }}"
+                                 data-img="{{ $cImgUrl }}">
+                                <div class="drawer-color-img">
+                                    <img src="{{ $cImgUrl }}" alt="{{ $cv['color'] }}"
+                                         onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
+                                </div>
+                                <span class="drawer-color-label">{{ $cv['color'] }}</span>
+                                <i class="bi bi-check-circle-fill drawer-check-icon"></i>
+                            </div>
+                        @endforeach
+                    @else
+                        {{-- Single color / Default --}}
+                        <div class="drawer-color-card active" data-color="Default" onclick="onMobileSelectColor('Default', '#000', this)" data-img="{{ $product->card_image ?? $product->main_image }}">
+                            <div class="drawer-color-img">
+                                <img src="{{ $product->card_image ?? $product->main_image }}" alt="Default"
+                                     onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
+                            </div>
+                            <span class="drawer-color-label">Default</span>
+                            <i class="bi bi-check-circle-fill drawer-check-icon"></i>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- ═══ STEP 2: SIZE ONLY ═══ --}}
+            <div class="drawer-single-panel" id="panelStepSize" style="display: none;">
+                <div class="panel-section-title">
+                    <span class="title-text">SELECT SIZE</span>
+                    <span class="title-val" id="panelSizeVal">{{ $defaultSize ? 'Size: ' . $defaultSize : 'Select' }}</span>
+                </div>
+                @if($sizes->count() > 0)
+                    <div class="drawer-size-grid" id="drawerSizeGrid">
+                        @foreach($sizes as $size)
+                            @php
+                                $selCol = $colorVariants->first()['color'] ?? null;
+                                $sv = $variants->where('size', $size)->when($selCol, fn($c) => $c->where('color', $selCol))->first()
+                                    ?? $variants->where('size', $size)->first();
+                                $sStock = $sv ? $sv->stock : 0;
+                                $isDef = ($size === ($defaultSize ?? null) && $sStock > 0);
+                            @endphp
+                            <button type="button"
+                                    class="drawer-size-btn {{ $sStock <= 0 ? 'oos' : '' }} {{ $isDef ? 'active' : '' }}"
+                                    data-size="{{ $size }}"
+                                    data-stock="{{ $sStock }}"
+                                    {{ $sStock <= 0 ? 'disabled' : '' }}
+                                    onclick="onMobileSelectSize('{{ $size }}', this)">
+                                <span class="size-name">{{ $size }}</span>
+                                <span class="size-stock-tag">{{ $sStock <= 0 ? 'OOS' : ($sStock <= 5 ? 'Only ' . $sStock . ' left' : '') }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="drawer-size-grid">
+                        <button type="button" class="drawer-size-btn active" data-size="Regular" onclick="onMobileSelectSize('Regular', this)">
+                            <span class="size-name">Standard Free Size</span>
+                        </button>
+                    </div>
+                @endif
+            </div>
+
+            {{-- ═══ STEP 3: PRINT PLACEMENT ONLY ═══ --}}
+            @if($hasPrintSidesChoice)
+            <div class="drawer-single-panel" id="panelStepSide" style="display: none;">
+                <div class="panel-section-title">
+                    <span class="title-text">CHOOSE PRINT PLACEMENT</span>
+                    <span class="title-val" id="panelSideVal">{{ $defaultDesignSide ? ucfirst($defaultDesignSide) . ' Side' : 'Required' }}</span>
+                </div>
+                <div class="drawer-side-instruction">
+                    <i class="bi bi-info-circle-fill text-primary me-1"></i> Choose where your graphic is printed:
+                </div>
+                <div class="drawer-side-grid">
+                    <button type="button" class="drawer-side-btn {{ $defaultDesignSide === 'front' ? 'active' : '' }}" data-side="front" onclick="onMobileSelectDesignSide('front', this)">
+                        <span class="side-btn-icon">👕</span>
+                        <div class="side-btn-text">
+                            <strong>Front Side Print</strong>
+                            <span>Chest placement</span>
+                        </div>
+                    </button>
+                    <button type="button" class="drawer-side-btn {{ $defaultDesignSide === 'back' ? 'active' : '' }}" data-side="back" onclick="onMobileSelectDesignSide('back', this)">
+                        <span class="side-btn-icon">🔄</span>
+                        <div class="side-btn-text">
+                            <strong>Back Side Print</strong>
+                            <span>Full back graphic</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            @endif
+
+            {{-- Feedback Alert / Hint --}}
+            <div class="drawer-feedback-msg" id="drawerFeedbackMsg" style="display: none;"></div>
+
+            {{-- Drawer Primary Confirm Action Button --}}
+            <div class="drawer-confirm-box">
+                <button type="button" class="drawer-confirm-btn" id="drawerConfirmBtn" onclick="onMobileConfirmAction()">
+                    <span class="confirm-btn-spinner" id="drawerConfirmSpinner" style="display:none;"><i class="bi bi-arrow-repeat spin"></i></span>
+                    <span class="confirm-btn-text" id="drawerConfirmText">Select Options to Proceed</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- The Fixed Sticky Bottom Bar --}}
+    <div class="mobile-sticky-bar" id="mobileStickyBar">
+        <button type="button" class="sticky-btn-atc" id="mobileStickyAtcBtn" onclick="openMobileVariantDrawer('cart')" {{ !$inStock ? 'disabled':'' }}>
+            <i class="bi bi-bag-plus me-1"></i> {{ !$inStock ? 'OUT OF STOCK' : 'ADD TO CART' }}
+        </button>
+        <button type="button" class="sticky-btn-buy" id="mobileStickyBuyBtn" onclick="openMobileVariantDrawer('buy')" {{ !$inStock ? 'disabled':'' }}>
+            <i class="bi bi-lightning-charge-fill me-1"></i> BUY IT NOW
+        </button>
+    </div>
+
+</div>
 
 {{-- Lightbox Gallery --}}
 <div class="pd-lightbox" id="productLightbox" aria-hidden="true">
@@ -2765,8 +3551,8 @@ function toggleAccordionItem(btn) {
 }
 
 function shareProduct() {
-    var shareTitle = '{{ addslashes($product->name) }} | VAYU';
-    var shareText = 'Check out {{ addslashes($product->name) }} (₹{{ number_format($product->price) }}) on VAYU:';
+    var shareTitle = '{{ addslashes($product->name) }} | THE TREND THEORY';
+    var shareText = 'Check out {{ addslashes($product->name) }} (₹{{ number_format($product->price) }}) on THE TREND THEORY:';
     var shareUrl = window.location.href;
 
     if (navigator.share) {
@@ -2843,6 +3629,524 @@ function checkDeliveryPincode() {
         res.innerHTML = `✓ Delivery available to <b>${pin}</b> in <b>3-5 Business Days</b>`;
     });
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE VARIANT ACCORDION & FIXED BOTTOM ACTIONS
+   ═══════════════════════════════════════════════════════════════════ */
+window.mobileIntent = 'cart'; // 'cart' or 'buy'
+window.mobileCurrentStep = 'color'; // 'color', 'size', or 'side'
+window.mobileSelectedColor = @json($selectedColor ?? ($colorVariants->first()['color'] ?? null));
+window.mobileSelectedSize = @json($defaultSize ?? null);
+window.mobileSelectedDesignSide = window.selectedDesignSide || @json($defaultDesignSide ?? null);
+
+function goToDrawerStep(stepName) {
+    window.mobileCurrentStep = stepName;
+    var panelColor = document.getElementById('panelStepColor');
+    var panelSize = document.getElementById('panelStepSize');
+    var panelSide = document.getElementById('panelStepSide');
+
+    if (panelColor) panelColor.style.display = (stepName === 'color') ? 'block' : 'none';
+    if (panelSize) panelSize.style.display = (stepName === 'size') ? 'block' : 'none';
+    if (panelSide) panelSide.style.display = (stepName === 'side') ? 'block' : 'none';
+
+    var tabColor = document.getElementById('tabStepColor');
+    var tabSize = document.getElementById('tabStepSize');
+    var tabSide = document.getElementById('tabStepSide');
+
+    if (tabColor) tabColor.classList.toggle('active', stepName === 'color');
+    if (tabSize) tabSize.classList.toggle('active', stepName === 'size');
+    if (tabSide) tabSide.classList.toggle('active', stepName === 'side');
+
+    var chipColor = document.getElementById('chipColor');
+    var chipSize = document.getElementById('chipSize');
+    var chipSide = document.getElementById('chipSide');
+
+    if (chipColor) chipColor.classList.toggle('active', stepName === 'color');
+    if (chipSize) chipSize.classList.toggle('active', stepName === 'size');
+    if (chipSide) chipSide.classList.toggle('active', stepName === 'side');
+
+    updateMobileDrawerState();
+}
+
+function openMobileVariantDrawer(intent) {
+    window.mobileIntent = intent || 'cart';
+    var drawer = document.getElementById('mobileVariantDrawer');
+    var backdrop = document.getElementById('mobileAccordionBackdrop');
+    if (!drawer) return;
+
+    drawer.classList.add('is-open');
+    if (backdrop) backdrop.classList.add('is-open');
+
+    // Update thumbnail image to match selected color or main image
+    var thumb = document.getElementById('drawerThumbImg');
+    if (thumb && window.mobileSelectedColor) {
+        var colImgs = (window.TTT_PRODUCT_SHOW && window.TTT_PRODUCT_SHOW.colorImages) || {};
+        var list = colImgs[window.mobileSelectedColor] || [];
+        if (list.length > 0 && list[0].url) {
+            thumb.src = list[0].url;
+        }
+    }
+
+    // Determine starting step (focus on first incomplete step)
+    var hasColor = !!window.mobileSelectedColor;
+    var hasSize = !!window.mobileSelectedSize;
+    var cfg = window.TTT_PRODUCT_SHOW || {};
+    var hasSideStep = (cfg.availablePrintSides === 'both') && document.getElementById('panelStepSide');
+    var hasSide = !hasSideStep || !!window.mobileSelectedDesignSide;
+
+    if (!hasColor) {
+        goToDrawerStep('color');
+    } else if (!hasSize) {
+        goToDrawerStep('size');
+    } else if (!hasSide) {
+        goToDrawerStep('side');
+    } else {
+        goToDrawerStep('color');
+    }
+
+    updateMobileDrawerState();
+}
+
+function collapseMobileDrawer() {
+    var drawer = document.getElementById('mobileVariantDrawer');
+    var backdrop = document.getElementById('mobileAccordionBackdrop');
+    if (drawer) drawer.classList.remove('is-open');
+    if (backdrop) backdrop.classList.remove('is-open');
+}
+
+function toggleMobileDrawer() {
+    var drawer = document.getElementById('mobileVariantDrawer');
+    if (drawer && drawer.classList.contains('is-open')) {
+        collapseMobileDrawer();
+    } else {
+        openMobileVariantDrawer('cart');
+    }
+}
+
+function updateMobileDrawerState() {
+    var hasColor = !!window.mobileSelectedColor;
+    var hasSize = !!window.mobileSelectedSize;
+    var cfg = window.TTT_PRODUCT_SHOW || {};
+    var hasSideStep = (cfg.availablePrintSides === 'both') && document.getElementById('panelStepSide');
+    var hasSide = !hasSideStep || !!window.mobileSelectedDesignSide;
+
+    // Navigation tab numbers / checkmarks
+    var tabNumColor = document.getElementById('tabNumColor');
+    var tabNumSize = document.getElementById('tabNumSize');
+    var tabNumSide = document.getElementById('tabNumSide');
+    var tabColor = document.getElementById('tabStepColor');
+    var tabSize = document.getElementById('tabStepSize');
+    var tabSide = document.getElementById('tabStepSide');
+
+    if (tabColor) tabColor.classList.toggle('completed', hasColor);
+    if (tabNumColor) tabNumColor.innerHTML = hasColor ? '<i class="bi bi-check-lg"></i>' : '1';
+
+    if (tabSize) tabSize.classList.toggle('completed', hasSize);
+    if (tabNumSize) tabNumSize.innerHTML = hasSize ? '<i class="bi bi-check-lg"></i>' : '2';
+
+    if (tabSide) tabSide.classList.toggle('completed', !!window.mobileSelectedDesignSide);
+    if (tabNumSide) tabNumSide.innerHTML = window.mobileSelectedDesignSide ? '<i class="bi bi-check-lg"></i>' : '3';
+
+    // Chips in Header
+    var chipColor = document.getElementById('chipColor');
+    var chipSize = document.getElementById('chipSize');
+    var chipSide = document.getElementById('chipSide');
+
+    if (chipColor) chipColor.textContent = window.mobileSelectedColor ? 'Color: ' + window.mobileSelectedColor : 'Choose Color';
+    if (chipSize) chipSize.textContent = window.mobileSelectedSize ? 'Size: ' + window.mobileSelectedSize : 'Choose Size';
+    if (chipSide) chipSide.textContent = window.mobileSelectedDesignSide ? (window.mobileSelectedDesignSide === 'back' ? 'Back Print' : 'Front Print') : 'Print Side';
+
+    // Panel Sub-labels
+    var panelColorVal = document.getElementById('panelColorVal');
+    var panelSizeVal = document.getElementById('panelSizeVal');
+    var panelSideVal = document.getElementById('panelSideVal');
+
+    if (panelColorVal) panelColorVal.textContent = window.mobileSelectedColor || 'Select';
+    if (panelSizeVal) panelSizeVal.textContent = window.mobileSelectedSize ? 'Size: ' + window.mobileSelectedSize : 'Select';
+    if (panelSideVal) panelSideVal.textContent = window.mobileSelectedDesignSide ? (window.mobileSelectedDesignSide === 'back' ? 'Back Print' : 'Front Print') : 'Required';
+
+    // Dynamic Image Update: ensure thumbnail matches selected color
+    var thumb = document.getElementById('drawerThumbImg');
+    if (thumb && window.mobileSelectedColor) {
+        var colImgs = (window.TTT_PRODUCT_SHOW && window.TTT_PRODUCT_SHOW.colorImages) || {};
+        var list = colImgs[window.mobileSelectedColor] || [];
+        if (list.length > 0 && list[0].url) {
+            thumb.src = list[0].url;
+        }
+    }
+
+    // Confirm / Continue Button
+    var confirmBtn = document.getElementById('drawerConfirmBtn');
+    var confirmText = document.getElementById('drawerConfirmText');
+    var feedbackMsg = document.getElementById('drawerFeedbackMsg');
+    if (feedbackMsg) feedbackMsg.style.display = 'none';
+
+    if (!confirmBtn || !confirmText) return;
+    confirmBtn.className = 'drawer-confirm-btn';
+
+    var cur = window.mobileCurrentStep || 'color';
+
+    if (cur === 'color') {
+        if (hasColor) {
+            confirmBtn.classList.add('btn-ready-cart');
+            confirmText.innerHTML = 'CONTINUE TO SIZE <i class="bi bi-arrow-right ms-1"></i>';
+        } else {
+            confirmBtn.classList.add('btn-pending');
+            confirmText.innerHTML = '<i class="bi bi-palette me-1"></i> Please Select a Color';
+        }
+    } else if (cur === 'size') {
+        if (!hasSize) {
+            confirmBtn.classList.add('btn-pending');
+            confirmText.innerHTML = '<i class="bi bi-rulers me-1"></i> Please Select a Size';
+        } else if (hasSideStep && !window.mobileSelectedDesignSide) {
+            confirmBtn.classList.add('btn-ready-cart');
+            confirmText.innerHTML = 'CONTINUE TO PRINT SIDE <i class="bi bi-arrow-right ms-1"></i>';
+        } else {
+            if (window.mobileIntent === 'buy') {
+                confirmBtn.classList.add('btn-ready-buy');
+                confirmText.innerHTML = '<i class="bi bi-lightning-charge-fill me-1"></i> BUY IT NOW';
+            } else {
+                confirmBtn.classList.add('btn-ready-cart');
+                confirmText.innerHTML = '<i class="bi bi-bag-plus-fill me-1"></i> ADD TO CART';
+            }
+        }
+    } else if (cur === 'side') {
+        if (window.mobileSelectedDesignSide) {
+            if (window.mobileIntent === 'buy') {
+                confirmBtn.classList.add('btn-ready-buy');
+                confirmText.innerHTML = '<i class="bi bi-lightning-charge-fill me-1"></i> BUY IT NOW';
+            } else {
+                confirmBtn.classList.add('btn-ready-cart');
+                confirmText.innerHTML = '<i class="bi bi-bag-plus-fill me-1"></i> ADD TO CART';
+            }
+        } else {
+            confirmBtn.classList.add('btn-pending');
+            confirmText.innerHTML = '<i class="bi bi-aspect-ratio me-1"></i> Choose Print Placement';
+        }
+    }
+}
+
+function onMobileSelectColor(color, hex, cardEl) {
+    window.mobileSelectedColor = color;
+
+    // Live update thumbnail image in drawer
+    var cardImg = cardEl ? cardEl.getAttribute('data-img') : null;
+    var colImgs = (window.TTT_PRODUCT_SHOW && window.TTT_PRODUCT_SHOW.colorImages) || {};
+    var imgList = colImgs[color] || [];
+    var targetImg = (imgList.length > 0 && imgList[0].url) ? imgList[0].url : cardImg;
+    var thumb = document.getElementById('drawerThumbImg');
+    if (thumb && targetImg) {
+        thumb.src = targetImg;
+    }
+
+    // Sync desktop selection if available (also updates main page gallery!)
+    if (typeof window.selectColor === 'function') {
+        window.selectColor(color, hex, null, false);
+    }
+
+    document.querySelectorAll('.drawer-color-card').forEach(function(c) {
+        c.classList.remove('active');
+    });
+    if (cardEl) cardEl.classList.add('active');
+
+    // Filter available sizes for this color
+    var variants = (window.TTT_PRODUCT_SHOW && window.TTT_PRODUCT_SHOW.variants) || [];
+    var sizeBtns = document.querySelectorAll('.drawer-size-btn');
+    var stillValid = false;
+
+    sizeBtns.forEach(function(btn) {
+        var s = btn.getAttribute('data-size');
+        var match = variants.find(function(v) { return v.color === color && v.size === s; });
+        var hasStock = match ? Number(match.stock) > 0 : true;
+        btn.classList.toggle('oos', !hasStock);
+        btn.disabled = !hasStock;
+        var tag = btn.querySelector('.size-stock-tag');
+        if (tag) {
+            tag.textContent = !hasStock ? 'OOS' : (match && match.stock <= 5 ? 'Only ' + match.stock + ' left' : '');
+        }
+        if (s === window.mobileSelectedSize && hasStock) {
+            stillValid = true;
+        }
+    });
+
+    if (!stillValid) {
+        window.mobileSelectedSize = null;
+        sizeBtns.forEach(function(b) { b.classList.remove('active'); });
+    }
+
+    updateMobileDrawerState();
+
+    // ── ONLY ONE AT A TIME: Smoothly advance to Step 2 (Size)! ──
+    setTimeout(function() {
+        goToDrawerStep('size');
+    }, 220);
+}
+
+function onMobileSelectLinkedColor(slug, colorName, cardEl) {
+    if (!slug) return;
+    window.location.href = '/product/' + slug + '?openDrawer=1';
+}
+
+function onMobileSelectSize(size, btnEl) {
+    if (btnEl && (btnEl.classList.contains('oos') || btnEl.disabled)) return;
+    window.mobileSelectedSize = size;
+
+    // Sync desktop selectSize
+    var desktopBtn = document.querySelector('.pd-size-box-btn[data-size="' + size + '"]');
+    if (desktopBtn && typeof window.selectSize === 'function') {
+        window.selectSize(desktopBtn);
+    }
+
+    document.querySelectorAll('.drawer-size-btn').forEach(function(b) {
+        b.classList.remove('active');
+    });
+    if (btnEl) btnEl.classList.add('active');
+
+    updateMobileDrawerState();
+
+    var cfg = window.TTT_PRODUCT_SHOW || {};
+    var hasSideStep = (cfg.availablePrintSides === 'both') && document.getElementById('panelStepSide');
+
+    if (hasSideStep) {
+        setTimeout(function() {
+            goToDrawerStep('side');
+        }, 220);
+    }
+}
+
+function onMobileSelectDesignSide(side, btnEl) {
+    window.mobileSelectedDesignSide = side;
+
+    var cfg = window.TTT_PRODUCT_SHOW || {};
+    var thumb = document.getElementById('drawerThumbImg');
+    if (thumb) {
+        if (side === 'front' && cfg.frontImage) {
+            thumb.src = cfg.frontImage;
+        } else if (side === 'back' && cfg.backImage) {
+            thumb.src = cfg.backImage;
+        }
+    }
+
+    if (typeof window.selectDesignSide === 'function') {
+        window.selectDesignSide(side, null);
+    }
+    document.querySelectorAll('.drawer-side-btn').forEach(function(b) {
+        b.classList.remove('active');
+    });
+    if (btnEl) btnEl.classList.add('active');
+
+    updateMobileDrawerState();
+}
+
+function onMobileConfirmAction() {
+    var feedbackMsg = document.getElementById('drawerFeedbackMsg');
+    var cfg = window.TTT_PRODUCT_SHOW || {};
+    var hasSideStep = (cfg.availablePrintSides === 'both') && document.getElementById('panelStepSide');
+
+    // Validation 1: Color
+    if (!window.mobileSelectedColor && document.querySelectorAll('.drawer-color-card').length > 0) {
+        goToDrawerStep('color');
+        if (feedbackMsg) {
+            feedbackMsg.style.display = 'block';
+            feedbackMsg.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Step 1: Please choose a Color';
+        }
+        return;
+    }
+
+    // If currently on Color step and color selected, advance to Size
+    if (window.mobileCurrentStep === 'color') {
+        goToDrawerStep('size');
+        return;
+    }
+
+    // Validation 2: Size
+    if (!window.mobileSelectedSize && document.querySelectorAll('.drawer-size-btn:not(.oos)').length > 0) {
+        goToDrawerStep('size');
+        if (feedbackMsg) {
+            feedbackMsg.style.display = 'block';
+            feedbackMsg.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Step 2: Please choose a Size';
+        }
+        return;
+    }
+
+    // If currently on Size step and Print side is required, advance to Print side
+    if (window.mobileCurrentStep === 'size' && hasSideStep && !window.mobileSelectedDesignSide) {
+        goToDrawerStep('side');
+        return;
+    }
+
+    // Validation 3: Print placement if required
+    if (hasSideStep && !window.mobileSelectedDesignSide) {
+        goToDrawerStep('side');
+        if (feedbackMsg) {
+            feedbackMsg.style.display = 'block';
+            feedbackMsg.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Step 3: Please select Front or Back print placement';
+        }
+        return;
+    }
+
+    // Execution: Add to Cart or Buy Now
+    var confirmBtn = document.getElementById('drawerConfirmBtn');
+    var confirmText = document.getElementById('drawerConfirmText');
+    var spinner = document.getElementById('drawerConfirmSpinner');
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (spinner) spinner.style.display = 'inline-block';
+
+    var isBuyNow = (window.mobileIntent === 'buy');
+
+    if (isBuyNow) {
+        if (typeof collapseMobileDrawer === 'function') {
+            collapseMobileDrawer();
+        }
+        if (spinner) spinner.style.display = 'none';
+        if (confirmBtn) confirmBtn.disabled = false;
+
+        var p = cfg.drawerProduct || {};
+        var itemPrice = Number(p.price || cfg.basePrice || 0);
+        var itemOrigPrice = Number(p.original_price || p.price || cfg.basePrice || 0);
+        var chosenImage = p.image || '';
+        if (window.mobileSelectedDesignSide === 'back' && cfg.backImage) {
+            chosenImage = cfg.backImage;
+        } else if (cfg.frontImage) {
+            chosenImage = cfg.frontImage;
+        }
+
+        var fallbackProduct = {
+            id: cfg.productId,
+            name: p.name || 'Product',
+            image: chosenImage,
+            size: window.mobileSelectedSize || 'Regular',
+            color: window.mobileSelectedColor || '',
+            design_side: window.mobileSelectedDesignSide || '',
+            quantity: 1,
+            price: itemPrice,
+            original_price: itemOrigPrice
+        };
+
+        var singleCart = {
+            items: [fallbackProduct],
+            subtotal: itemPrice,
+            shipping: itemPrice >= 999 ? 0 : 50,
+            discount: 0,
+            total: itemPrice + (itemPrice >= 999 ? 0 : 50)
+        };
+
+        if (typeof window.openGlobalCheckoutModal === 'function') {
+            window.openGlobalCheckoutModal(singleCart, fallbackProduct);
+            return;
+        }
+
+        var checkoutUrl = (cfg.checkoutUrl || '{{ route("checkout.index") }}') +
+            '?buy_now=1' +
+            '&product_id=' + encodeURIComponent(cfg.productId) +
+            '&size=' + encodeURIComponent(window.mobileSelectedSize || '') +
+            '&color=' + encodeURIComponent(window.mobileSelectedColor || '') +
+            '&design_side=' + encodeURIComponent(window.mobileSelectedDesignSide || '') +
+            '&qty=1';
+        window.location.href = checkoutUrl;
+        return;
+    }
+
+    if (confirmText) confirmText.textContent = 'Adding to bag...';
+
+    var payload = {
+        product_id: cfg.productId,
+        size: window.mobileSelectedSize,
+        color: window.mobileSelectedColor || null,
+        design_side: window.mobileSelectedDesignSide || null,
+        quantity: 1
+    };
+
+    var metaCsrf = document.querySelector('meta[name="csrf-token"]');
+    var token = (metaCsrf ? metaCsrf.content : '') || cfg.csrf || '';
+
+    fetch(cfg.cartAddUrl || '/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (res.success) {
+            var badge = document.getElementById('cart-count');
+            if (badge && (res.count || res.cart_count)) {
+                badge.textContent = res.count || res.cart_count;
+            }
+
+            if (spinner) spinner.style.display = 'none';
+            if (confirmBtn) confirmBtn.classList.add('btn-success');
+            if (confirmText) confirmText.innerHTML = '<i class="bi bi-check2 me-1"></i> Added to Cart!';
+            if (typeof window.showToast === 'function') {
+                window.showToast('Added to Cart!');
+            }
+
+            setTimeout(function() {
+                collapseMobileDrawer();
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.classList.remove('btn-success');
+                }
+                updateMobileDrawerState();
+            }, 800);
+
+        } else {
+            if (spinner) spinner.style.display = 'none';
+            if (confirmBtn) confirmBtn.disabled = false;
+            if (feedbackMsg) {
+                feedbackMsg.style.display = 'block';
+                feedbackMsg.textContent = res.message || 'Could not add item to cart.';
+            }
+            updateMobileDrawerState();
+        }
+    })
+    .catch(function() {
+        if (spinner) spinner.style.display = 'none';
+        if (confirmBtn) confirmBtn.disabled = false;
+        if (feedbackMsg) {
+            feedbackMsg.style.display = 'block';
+            feedbackMsg.textContent = 'Network error. Please try again.';
+        }
+        updateMobileDrawerState();
+    });
+}
+
+// Intercept desktop in-page ATC & Buy Now buttons on mobile screens
+document.addEventListener('DOMContentLoaded', function() {
+    var desktopAtc = document.getElementById('atcBtn');
+    var desktopBuy = document.getElementById('buyBtn');
+
+    if (desktopAtc) {
+        desktopAtc.addEventListener('click', function(e) {
+            if (window.innerWidth <= 991) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                openMobileVariantDrawer('cart');
+            }
+        }, true);
+    }
+
+    if (desktopBuy) {
+        desktopBuy.addEventListener('click', function(e) {
+            if (window.innerWidth <= 991) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                openMobileVariantDrawer('buy');
+            }
+        }, true);
+    }
+
+    if (window.location.search.indexOf('openDrawer=1') !== -1 && window.innerWidth <= 991) {
+        setTimeout(function() {
+            openMobileVariantDrawer('cart');
+        }, 350);
+    }
+
+    updateMobileDrawerState();
+});
 </script>
 <script src="{{ asset('frontend/product-show.min.js') }}?v={{ filemtime(public_path('frontend/product-show.min.js')) }}" defer></script>
 @endpush

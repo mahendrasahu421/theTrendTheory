@@ -1,5 +1,5 @@
 -- ============================================================
--- Vayu — COMPLETE DATABASE
+-- THE TREND THEORY — COMPLETE DATABASE
 -- Sab alag alag tables — proper structure
 -- phpMyAdmin > trend_theory_db > SQL tab mein run karo
 -- ============================================================
@@ -588,9 +588,9 @@ CREATE TABLE IF NOT EXISTS `product_tags` (
 -- DEFAULT SITE SETTINGS
 -- ============================================================
 INSERT IGNORE INTO `site_settings` (`key`, `value`, `created_at`, `updated_at`) VALUES
-('site_name',           'Vayu',                              NOW(), NOW()),
+('site_name',           'THE TREND THEORY',                              NOW(), NOW()),
 ('site_tagline',        'Fashion That Speaks Without Saying a Word',     NOW(), NOW()),
-('meta_title',          'Vayu | Premium Fashion Store India', NOW(), NOW()),
+('meta_title',          'THE TREND THEORY | Premium Fashion Store India', NOW(), NOW()),
 ('meta_description',    'Shop latest men & women fashion. Free shipping above Rs.999.', NOW(), NOW()),
 ('currency_symbol',     'Rs.',                                           NOW(), NOW()),
 ('shipping_free_above', '999',                                           NOW(), NOW()),

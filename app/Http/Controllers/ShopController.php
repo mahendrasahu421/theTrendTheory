@@ -16,7 +16,7 @@ class ShopController extends Controller
     {
         $query = Product::where('is_active', true)->with(['category', 'variants', 'productImages', 'media']);
         $this->applyFilters($query, $request);
-        $products = $query->paginate(12)->withQueryString();
+        $products = $this->paginateShopProducts($query, $request, 12);
         
         $filterData = $this->getFilterMetadata($request);
 
@@ -26,7 +26,7 @@ class ShopController extends Controller
             'subCategories' => collect(),
             'pageHeading' => 'ALL STREETWEAR DROPS',
             'pageDescription' => 'Explore the complete luxury streetwear collection',
-            'meta_title' => 'Shop Streetwear Drops — ' . SiteSetting::get('site_name', 'Vayu'),
+            'meta_title' => 'Shop Streetwear Drops — ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
             'meta_description' => 'Shop latest luxury oversized tees, hoodies, cargos and streetwear online.',
             'canonical' => url('/shop'),
         ]));
@@ -58,7 +58,7 @@ class ShopController extends Controller
             $allCategoryIds = $category->children->pluck('id')->push($category->id);
             $featuredProducts = Product::where('is_active', true)
                 ->whereIn('category_id', $allCategoryIds)
-                ->orderByDesc('total_sold')
+                ->inRandomOrder()
                 ->limit(8)
                 ->get();
 
@@ -84,7 +84,7 @@ class ShopController extends Controller
             ->with(['category', 'variants', 'productImages', 'media']);
 
         $this->applyFilters($query, $request);
-        $products = $query->paginate(12)->withQueryString();
+        $products = $this->paginateShopProducts($query, $request, 12);
 
         $siblings = collect();
         if ($category->parent_id) {
@@ -103,8 +103,8 @@ class ShopController extends Controller
             'subCategories' => $siblings,
             'pageHeading' => strtoupper($category->name),
             'pageDescription' => $category->description ?? 'Explore premium ' . $category->name . ' collection.',
-            'meta_title' => $category->seo_title ?: $category->name . ' — ' . SiteSetting::get('site_name', 'Vayu'),
-            'meta_description' => $category->seo_description ?: 'Shop ' . $category->name . ' online at Vayu.',
+            'meta_title' => $category->seo_title ?: $category->name . ' — ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
+            'meta_description' => $category->seo_description ?: 'Shop ' . $category->name . ' online at THE TREND THEORY.',
             'canonical' => url(($request->is('collection/*') ? '/collection/' : '/shop/') . $slug),
         ]));
     }
@@ -138,7 +138,7 @@ class ShopController extends Controller
             'subCategories' => collect(),
             'pageHeading' => 'NEW DROPS',
             'pageDescription' => 'Fresh streetwear drops added this week',
-            'meta_title' => 'New Arrivals — ' . SiteSetting::get('site_name', 'Vayu'),
+            'meta_title' => 'New Arrivals — ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
             'meta_description' => 'Shop fresh new arrivals. New styles added every week.',
             'canonical' => url('/shop/new-arrivals'),
         ]));
@@ -163,7 +163,7 @@ class ShopController extends Controller
             'subCategories' => collect(),
             'pageHeading' => 'LIMITED TIME SALE',
             'pageDescription' => 'Exclusive discounts and markdown prices across streetwear',
-            'meta_title' => 'Sale - ' . SiteSetting::get('site_name', 'Vayu'),
+            'meta_title' => 'Sale - ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
             'meta_description' => 'Shop discounted fashion styles and limited-time offers.',
             'canonical' => url('/collections/sale'),
         ]));
@@ -179,7 +179,7 @@ class ShopController extends Controller
             ->with(['category', 'variants', 'productImages', 'media']);
 
         $this->applyFilters($query, $request);
-        $products = $query->paginate(12)->withQueryString();
+        $products = $this->paginateShopProducts($query, $request, 12);
         $filterData = $this->getFilterMetadata($request);
 
         return $this->renderShopView($request, array_merge($filterData, [
@@ -188,7 +188,7 @@ class ShopController extends Controller
             'subCategories' => collect(),
             'pageHeading' => 'BEST SELLERS',
             'pageDescription' => 'Most loved pieces trending across the street culture',
-            'meta_title' => 'Best Sellers - ' . SiteSetting::get('site_name', 'Vayu'),
+            'meta_title' => 'Best Sellers - ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
             'meta_description' => 'Shop customer-favourite fashion picks.',
             'canonical' => url('/collections/best-sellers'),
         ]));
@@ -212,7 +212,7 @@ class ShopController extends Controller
             ->with(['category', 'variants', 'productImages', 'media']);
 
         $this->applyFilters($query, $request);
-        $products = $query->paginate(12)->withQueryString();
+        $products = $this->paginateShopProducts($query, $request, 12);
         $filterData = $this->getFilterMetadata($request);
 
         return $this->renderShopView($request, array_merge($filterData, [
@@ -221,8 +221,8 @@ class ShopController extends Controller
             'subCategories' => collect(),
             'pageHeading' => $heading,
             'pageDescription' => 'Curated collection for ' . $heading,
-            'meta_title' => $heading . ' - ' . SiteSetting::get('site_name', 'Vayu'),
-            'meta_description' => 'Shop ' . $heading . ' at Vayu.',
+            'meta_title' => $heading . ' - ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
+            'meta_description' => 'Shop ' . $heading . ' at THE TREND THEORY.',
             'canonical' => url(($request->is('collection/*') ? '/collection/' : '/collections/') . $slug),
         ]), 200);
     }
@@ -244,7 +244,7 @@ class ShopController extends Controller
             ->with(['category', 'variants', 'productImages', 'media']);
 
         $this->applyFilters($query, $request);
-        $products = $query->paginate(12)->withQueryString();
+        $products = $this->paginateShopProducts($query, $request, 12);
         $heading = $collectionMedia->alt_text ?: str($slug)->replace('-', ' ')->title()->toString();
         $filterData = $this->getFilterMetadata($request);
 
@@ -254,8 +254,8 @@ class ShopController extends Controller
             'subCategories' => collect(),
             'pageHeading' => $heading,
             'pageDescription' => $collectionMedia->subtitle ?: 'Discover the latest styles',
-            'meta_title' => $heading . ' - ' . SiteSetting::get('site_name', 'Vayu'),
-            'meta_description' => $collectionMedia->subtitle ?: 'Shop ' . $heading . ' at Vayu.',
+            'meta_title' => $heading . ' - ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
+            'meta_description' => $collectionMedia->subtitle ?: 'Shop ' . $heading . ' at THE TREND THEORY.',
             'canonical' => url('/collection/' . $slug),
         ]), 200);
     }
@@ -293,7 +293,7 @@ class ShopController extends Controller
         }
 
         $this->applyFilters($query, $request);
-        $products = $query->paginate(12)->withQueryString();
+        $products = $this->paginateShopProducts($query, $request, 12);
         $heading = $q !== '' ? 'Search: ' . $q : 'Search Results';
         $filterData = $this->getFilterMetadata($request);
 
@@ -304,7 +304,7 @@ class ShopController extends Controller
             'subCategories' => collect(),
             'pageHeading' => $heading,
             'pageDescription' => $q !== '' ? 'Search results for "' . $q . '"' : 'Enter a search term or use filters to discover products',
-            'meta_title' => 'Search: ' . $q . ' — ' . SiteSetting::get('site_name', 'Vayu'),
+            'meta_title' => 'Search: ' . $q . ' — ' . SiteSetting::get('site_name', 'THE TREND THEORY'),
             'meta_description' => 'Search results for "' . $q . '"',
             'canonical' => url('/search?q=' . urlencode($q)),
         ]));
@@ -396,7 +396,7 @@ class ShopController extends Controller
         }
 
         // 10. Sorting
-        switch ($request->get('sort', 'latest')) {
+        switch ($request->get('sort')) {
             case 'price_low':
                 $query->orderBy('products.price', 'asc');
                 break;
@@ -413,10 +413,55 @@ class ShopController extends Controller
                 $query->orderByDesc('products.total_sold');
                 break;
             case 'latest':
-            default:
                 $query->orderByDesc('products.created_at');
                 break;
+            case 'shuffle':
+            default:
+                // Seed-based random sorting so each fresh page load / visit shuffles the catalog,
+                // while subsequent pagination pages within the same session load seamlessly without duplicate items.
+                $seed = session()->get('product_shuffle_seed');
+                if (!$request->filled('page') || !$seed) {
+                    $seed = mt_rand(1, 999999);
+                    session()->put('product_shuffle_seed', $seed);
+                }
+                $query->inRandomOrder($seed);
+                break;
         }
+    }
+
+    /**
+     * Smart paginator for shop catalog:
+     * - In AJAX / infinite scroll mode: returns the requested page chunk.
+     * - On direct non-AJAX browser loads (refresh or direct URL) with page > 1:
+     *   Loads all products from page 1 up to the current page so the user can freely scroll up to page 1.
+     */
+    protected function paginateShopProducts($query, Request $request, int $perPage = 12)
+    {
+        $isAjax = $request->ajax() || $request->wantsJson() || $request->query('ajax');
+        $page = max(1, (int) $request->get('page', 1));
+
+        if ($isAjax || $page <= 1) {
+            return $query->paginate($perPage)->withQueryString();
+        }
+
+        $totalNeeded = $page * $perPage;
+        $total = (clone $query)->count();
+        $items = (clone $query)->forPage(1, $totalNeeded)->get();
+
+        return (new class($items, $total, $perPage, $page, [
+            'path'  => $request->url(),
+            'query' => $request->query(),
+        ]) extends \Illuminate\Pagination\LengthAwarePaginator {
+            public function firstItem()
+            {
+                return count($this->items) > 0 ? 1 : null;
+            }
+
+            public function lastItem()
+            {
+                return count($this->items);
+            }
+        })->withQueryString();
     }
 
     // ── Helper: get Filter Metadata for Sidebar ────────────
@@ -451,27 +496,8 @@ class ShopController extends Controller
             ]);
         }
 
-        $allFits = [
-            'Oversized Fit' => 'Oversized',
-            'Drop Shoulder' => 'Drop Shoulder',
-            'Boxy Streetwear' => 'Boxy',
-            'Relaxed Fit' => 'Relaxed',
-            'Regular Fit' => 'Regular',
-            'Cropped Fit' => 'Cropped',
-            'Wide Leg Baggy' => 'Wide Leg',
-        ];
-
-        $allFabrics = [
-            '240 GSM Heavy Cotton' => '240 GSM',
-            '380 GSM Warm Fleece' => '380 GSM',
-            'French Terry Cotton' => 'French Terry',
-            'Bio-Washed Cotton' => 'Bio-Washed',
-            'Cotton Ripstop Twill' => 'Twill',
-            'Rigid Skate Denim' => 'Denim',
-        ];
-
         // Active filters count calculation
-        $filterKeys = ['category', 'min_price', 'max_price', 'size', 'color', 'fit', 'fabric', 'in_stock', 'on_sale'];
+        $filterKeys = ['category', 'min_price', 'max_price', 'size', 'color', 'in_stock', 'on_sale'];
         $activeFiltersCount = 0;
         foreach ($filterKeys as $key) {
             if ($request->filled($key)) {
@@ -490,8 +516,8 @@ class ShopController extends Controller
             'categories' => $categories,
             'allSizes' => $allSizes,
             'allColors' => $allColors,
-            'allFits' => $allFits,
-            'allFabrics' => $allFabrics,
+            'allFits' => [],
+            'allFabrics' => [],
             'priceMin' => 0,
             'priceMax' => 2499,
             'activeFiltersCount' => $activeFiltersCount,

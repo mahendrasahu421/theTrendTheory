@@ -1,8 +1,8 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>{{ $pageTitle }} — Vayu</title>
-    <meta name="description" content="Explore fashion trends, style inspiration, designer editorials, and brand announcements from Vayu India.">
+    <title>{{ $pageTitle }} — THE TREND THEORY</title>
+    <meta name="description" content="Explore fashion trends, style inspiration, designer editorials, and brand announcements from THE TREND THEORY India.">
     <link rel="canonical" href="{{ route('blogs.index') }}">
 @endpush
 
@@ -20,7 +20,7 @@
                     Stories, Trends &amp; News
                 </h1>
                 <p class="text-secondary fs-6 mb-0 mx-auto" style="max-width: 580px;">
-                    Curated fashion insights, styling masterclasses, and official updates from the creative studio at Vayu.
+                    Curated fashion insights, styling masterclasses, and official updates from the creative studio at THE TREND THEORY.
                 </p>
 
                 {{-- Type Tabs: All / Blogs / News --}}

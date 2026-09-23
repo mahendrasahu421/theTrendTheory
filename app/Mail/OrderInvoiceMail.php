@@ -27,7 +27,7 @@ class OrderInvoiceMail extends Mailable
      */
     public function build()
     {
-        $mail = $this->subject('🧾 Tax Invoice #' . $this->order->order_number . ' — Vayu')
+        $mail = $this->subject('🧾 Tax Invoice #' . $this->order->order_number . ' — THE TREND THEORY')
                      ->view('emails.order_invoice');
 
         // Generate and attach official PDF Tax Invoice (Flipkart/Amazon E-commerce Style)

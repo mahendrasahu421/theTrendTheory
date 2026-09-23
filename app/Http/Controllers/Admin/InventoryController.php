@@ -141,7 +141,7 @@ class InventoryController extends Controller
         // Record into inventory log
         InventoryLog::create([
             'product_id' => $product->id,
-            'user_id' => auth()->id(),
+            'user_id' => auth('admin')->id() ?? auth()->id(),
             'type' => $after >= $before ? 'restock' : 'adjustment',
             'quantity' => abs($after - $before),
             'stock_before' => $before,

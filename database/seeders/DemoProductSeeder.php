@@ -588,7 +588,7 @@ class DemoProductSeeder extends Seeder
                 'tag' => 'Varsity Jacket'
             ],
             [
-                'name' => 'Vayu Limited Edition Signature Hoodie',
+                'name' => 'THE TREND THEORY Limited Edition Signature Hoodie',
                 'category_id' => $catMen->id,
                 'mrp' => 1499,
                 'image' => 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80',
@@ -617,7 +617,7 @@ class DemoProductSeeder extends Seeder
                     'stock' => 120,
                     'image' => $item['image'],
                     'short_description' => 'Premium luxury streetwear drop crafted with ' . $item['fabric'] . ' in ' . $item['fit'] . '.',
-                    'description' => '<h3>Vayu • LUXURY STREETWEAR</h3>' .
+                    'description' => '<h3>THE TREND THEORY • LUXURY STREETWEAR</h3>' .
                         '<p>Crafted for the modern culture. This piece features a custom engineered silhouette with high-density pigment print and ultra-durable stitching.</p>' .
                         '<ul>' .
                         '<li><strong>Fabric:</strong> ' . $item['fabric'] . '</li>' .
@@ -764,7 +764,7 @@ class DemoProductSeeder extends Seeder
                 'name' => 'Rohan Varma',
                 'rating' => 5,
                 'title' => 'Best streetwear in India',
-                'comment' => 'Been buying from international brands for years, but Vayu completely beats them in GSM quality and pricing. 5 stars all the way.',
+                'comment' => 'Been buying from international brands for years, but THE TREND THEORY completely beats them in GSM quality and pricing. 5 stars all the way.',
                 'tag' => 'Obsidian Stealth 380 GSM Heavyweight Street Hoodie',
                 'likes' => 215,
                 'verified' => true
@@ -801,7 +801,7 @@ class DemoProductSeeder extends Seeder
                 'rating' => 5,
                 'title' => 'The hoodie weight is crazy',
                 'comment' => '380 GSM is heavy! Keeps the hood standing perfectly without slouching. Easily worth 3x the price.',
-                'tag' => 'Vayu Limited Edition Signature Hoodie',
+                'tag' => 'THE TREND THEORY Limited Edition Signature Hoodie',
                 'likes' => 240,
                 'verified' => true
             ],

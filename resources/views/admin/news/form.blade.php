@@ -439,7 +439,7 @@
                                    name="title" 
                                    id="articleTitle"
                                    value="{{ old('title', $news->title) }}" 
-                                   placeholder="e.g. Vayu Expands Next-Day Delivery to 500+ Cities in India" 
+                                   placeholder="e.g. THE TREND THEORY Expands Next-Day Delivery to 500+ Cities in India" 
                                    class="form-input-modern form-input-title @error('title') is-invalid @enderror"
                                    required 
                                    maxlength="255"
@@ -689,8 +689,8 @@ Include dates, expansion details, leadership quotes, and customer impact."
                             <input type="text" 
                                    name="author_name" 
                                    id="authorNameInput"
-                                   value="{{ old('author_name', $news->author_name ?? 'Vayu PR Team') }}" 
-                                   placeholder="e.g. Vayu PR Team" 
+                                   value="{{ old('author_name', $news->author_name ?? 'THE TREND THEORY PR Team') }}" 
+                                   placeholder="e.g. THE TREND THEORY PR Team" 
                                    class="form-input-modern font-sm">
                         </div>
 

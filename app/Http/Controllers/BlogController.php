@@ -91,7 +91,7 @@ class BlogController extends Controller
             ],
             'publisher' => [
                 '@type' => 'Organization',
-                'name' => 'Vayu',
+                'name' => 'THE TREND THEORY',
                 'logo' => [
                     '@type' => 'ImageObject',
                     'url' => asset('images/logo.png'),

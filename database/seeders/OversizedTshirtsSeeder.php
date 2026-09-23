@@ -288,7 +288,7 @@ class OversizedTshirtsSeeder extends Seeder
                 ]
             ],
             [
-                'title' => 'Vayu Signature Minimal Boxy Tee',
+                'title' => 'THE TREND THEORY Signature Minimal Boxy Tee',
                 'base_sku' => 'TTT-SIGNTR',
                 'category_id' => $catOversized->id,
                 'price' => 599.00,
@@ -438,7 +438,7 @@ class OversizedTshirtsSeeder extends Seeder
                         'stock' => 150,
                         'image' => $images[0],
                         'short_description' => $item['description'],
-                        'description' => '<h3>Vayu • LUXURY OVERSIZED</h3>' .
+                        'description' => '<h3>THE TREND THEORY • LUXURY OVERSIZED</h3>' .
                             '<p>' . $item['description'] . '</p>' .
                             '<ul>' .
                             '<li><strong>Fabric:</strong> ' . $item['fabric'] . '</li>' .

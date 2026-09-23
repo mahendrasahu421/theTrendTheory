@@ -544,7 +544,7 @@
                             </label>
                             <input type="text" name="meta_title" maxlength="70" class="fc-input" id="metaTitle"
                                 value="{{ old('meta_title', $isEdit ? $category->meta_title : '') }}"
-                                placeholder="Buy Men's T-Shirts Online | Vayu">
+                                placeholder="Buy Men's T-Shirts Online | THE TREND THEORY">
                         </div>
 
                         <div class="fgrp">
@@ -568,7 +568,7 @@
                             <label style="margin-bottom:2px"><i class="bi bi-google"></i> Google Search Preview</label>
                             <div class="serp-box">
                                 <span class="serp-title" id="serpTitle">
-                                    {{ old('meta_title', $isEdit ? ($category->meta_title ?: $category->name . ' | Vayu') : 'Category Name | Vayu') }}
+                                    {{ old('meta_title', $isEdit ? ($category->meta_title ?: $category->name . ' | THE TREND THEORY') : 'Category Name | THE TREND THEORY') }}
                                 </span>
                                 <div class="serp-url">https://thetrendtheory.com › category › <span id="serpSlug">{{ old('slug', $isEdit ? $category->slug : 'category-slug') }}</span></div>
                                 <div class="serp-desc" id="serpDesc">
@@ -654,8 +654,8 @@
 
                     let metaTitleInput = document.getElementById('metaTitle');
                     if (metaTitleInput && !metaTitleInput.dataset.touched) {
-                        let title = this.value ? `${this.value} | Vayu` : '';
-                        document.getElementById('serpTitle').textContent = title || 'Category Name | Vayu';
+                        let title = this.value ? `${this.value} | THE TREND THEORY` : '';
+                        document.getElementById('serpTitle').textContent = title || 'Category Name | THE TREND THEORY';
                     }
                 });
             }
@@ -715,7 +715,7 @@
                     metaTitle.addEventListener('input', function() {
                         this.dataset.touched = "true";
                         mtCount.textContent = this.value.length;
-                        serpTitle.textContent = this.value || (nameInput.value ? `${nameInput.value} | Vayu` : 'Category Name | Vayu');
+                        serpTitle.textContent = this.value || (nameInput.value ? `${nameInput.value} | THE TREND THEORY` : 'Category Name | THE TREND THEORY');
                     });
                 }
 

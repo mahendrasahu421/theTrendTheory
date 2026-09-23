@@ -2,7 +2,7 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>Return #{{ $return->return_number }} | Vayu</title>
+    <title>Return #{{ $return->return_number }} | THE TREND THEORY</title>
     <meta name="robots" content="noindex, nofollow">
 @endpush
 

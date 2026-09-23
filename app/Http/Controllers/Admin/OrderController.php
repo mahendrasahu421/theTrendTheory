@@ -147,12 +147,37 @@ class OrderController extends Controller
                 'shipping_phone'   => $order->shipping_phone ?: '—',
                 'shipping_city'    => $order->shipping_city ?: '',
                 'shipping_state'   => $order->shipping_state ?: '',
+                'shipping_address' => $order->shipping_address ?: '',
+                'shipping_pincode' => $order->shipping_pincode ?: '',
+                'subtotal'         => $order->subtotal ? '₹' . number_format($order->subtotal) : null,
+                'discount_amount'  => $order->discount_amount > 0 ? '₹' . number_format($order->discount_amount) : null,
+                'shipping_charge'  => $order->shipping_charge > 0 ? '₹' . number_format($order->shipping_charge) : 'FREE',
                 'items_count'      => $order->items->count(),
                 'item_image'       => $itemImage,
                 'item_name'        => $itemName,
                 'item_sku'         => $itemSku,
                 'item_size'        => $itemSize,
                 'item_design_side' => $firstItem ? $firstItem->design_side : null,
+                'items_list'       => $order->items->map(function ($it) {
+                    $img = $it->product_image;
+                    if (!$img && $it->product) {
+                        $img = $it->product->image;
+                    }
+                    if (!$img) {
+                        $img = asset('assets/images/placeholder.png');
+                    }
+                    return [
+                        'id'          => $it->id,
+                        'name'        => $it->product_name,
+                        'sku'         => $it->sku ?: 'SKU-' . $it->product_id,
+                        'size'        => $it->size,
+                        'color'       => $it->color,
+                        'quantity'    => $it->quantity,
+                        'price'       => '₹' . number_format($it->price),
+                        'image'       => $img,
+                        'design_side' => $it->design_side,
+                    ];
+                })->values(),
                 'total_amount'     => (float) $order->total_amount,
                 'formatted_amount' => '₹' . number_format($order->total_amount),
                 'payment_method'   => $payMethod,

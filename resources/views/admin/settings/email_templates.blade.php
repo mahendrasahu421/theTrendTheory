@@ -257,7 +257,7 @@
                 </div>
                 <div class="col-md-6 form-group-custom">
                     <label class="form-label-custom">From Sender Name</label>
-                    <input type="text" name="mail_from_name" value="{{ $settings['mail_from_name'] ?? 'Vayu' }}" placeholder="Vayu" class="form-input-custom">
+                    <input type="text" name="mail_from_name" value="{{ $settings['mail_from_name'] ?? 'THE TREND THEORY' }}" placeholder="THE TREND THEORY" class="form-input-custom">
                 </div>
             </div>
         </div>
@@ -368,7 +368,7 @@
 
                     <div class="form-group-custom">
                         <label class="form-label-custom">Email Subject Line</label>
-                        <input type="text" name="email_welcome_subject" value="{{ $settings['email_welcome_subject'] ?? 'Welcome to Vayu Club &bull; Enjoy your exclusive wardrobe!' }}" class="form-input-custom">
+                        <input type="text" name="email_welcome_subject" value="{{ $settings['email_welcome_subject'] ?? 'Welcome to THE TREND THEORY Club &bull; Enjoy your exclusive wardrobe!' }}" class="form-input-custom">
                     </div>
 
                     <div class="form-group-custom">

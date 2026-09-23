@@ -4,7 +4,7 @@
      ✅ FIX: @push('seo') — title, description, canonical only
 ════════════════════════════════════════════════════ --}}
 @push('seo')
-    <title>{{ $meta_title ?? 'VAYU — Premium Streetwear & Fashion Store India' }}</title>
+    <title>{{ $meta_title ?? 'THE TREND THEORY — Premium Streetwear & Fashion Store India' }}</title>
     <meta name="description" content="{{ $meta_description ?? 'Shop latest men & women fashion.' }}">
     <link rel="canonical" href="{{ $canonical ?? url('/') }}">
     {{-- Schema JSON-LD --}}
@@ -318,7 +318,7 @@
                     <div class="col-md-6">
                         <div class="gender-card">
                             <img src="{{ $category['image_url'] ?? ($category['image'] ?? asset('images/placeholder-category.jpg')) }}"
-                                alt="{{ $category['name'] }} Collection — VAYU" loading="lazy" width="600"
+                                alt="{{ $category['name'] }} Collection — THE TREND THEORY" loading="lazy" width="600"
                                 height="700" onerror="this.src='{{ asset('images/placeholder-category.jpg') }}'">
                             <div class="gender-overlay">
                                 <h2>{{ $category['name'] }}</h2>
@@ -550,19 +550,19 @@
             <div class="story-wrapper">
                 <div class="story-image">
                     <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800"
-                        alt="VAYU — Streetwear Born in India" loading="lazy" width="800" height="550">
+                        alt="THE TREND THEORY — Streetwear Born in India" loading="lazy" width="800" height="550">
                     <div class="image-overlay"></div>
                 </div>
                 <div class="story-content">
                     <h2 class="story-heading">
-                        <span class="heading-line">VAYU</span>
+                        <span class="heading-line">THE TREND THEORY</span>
                     </h2>
                     <div class="story-subheading">
                         <span class="subheading-item">OUR</span>
                         <span class="subheading-item">STORY</span>
                     </div>
                     <p class="story-text">
-                        <span class="text-highlight">VAYU</span> was born from the streets of India.
+                        <span class="text-highlight">THE TREND THEORY</span> was born from the streets of India.
                         We're not just selling clothes — we're defining a lifestyle. Every stitch, every print,
                         every drop is designed for those who dare to stand out.
                     </p>
@@ -600,7 +600,7 @@
                     <div class="story-reel">
                         <div class="reel-media">
                             <img src="{{ $story['image_url'] ?? asset('images/placeholder-story.jpg') }}"
-                                alt="{{ $story['caption'] ?? 'Trending Story' }} — VAYU" class="reel-img"
+                                alt="{{ $story['caption'] ?? 'Trending Story' }} — THE TREND THEORY" class="reel-img"
                                 loading="lazy" width="600" height="750"
                                 onerror="this.src='{{ asset('images/placeholder-story.jpg') }}'">
                             <div class="reel-overlay" aria-hidden="true">

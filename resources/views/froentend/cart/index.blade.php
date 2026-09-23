@@ -2,8 +2,8 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>Shopping Cart | Vayu</title>
-    <meta name="description" content="Review your shopping cart, apply coupons, and checkout securely with Vayu.">
+    <title>Shopping Cart | THE TREND THEORY</title>
+    <meta name="description" content="Review your shopping cart, apply coupons, and checkout securely with THE TREND THEORY.">
     <meta name="robots" content="noindex, nofollow">
 @endpush
 
@@ -447,6 +447,47 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.cart-summary-head-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cart-summary-head-count {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.cart-summary-head-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cart-summary-head-total {
+    display: none;
+}
+
+.cart-summary-head-secure {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #64748b;
+    font-family: sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.cart-summary-chevron {
+    display: none;
+}
+
+.cart-summary-collapsible-body {
+    display: block;
 }
 
 .cart-prepaid-alert {
@@ -920,6 +961,7 @@
 @media (max-width: 1024px) {
     .cart-layout-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
     .cart-summary-card {
         position: static;
@@ -930,48 +972,532 @@
 }
 
 @media (max-width: 768px) {
+    .cart-page-wrapper {
+        margin: 12px auto calc(130px + env(safe-area-inset-bottom, 0px)) !important;
+        padding: 0 14px;
+    }
+
+    .cart-nav-strip {
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .cart-breadcrumb {
+        font-size: 12px;
+    }
+
+    .cart-step-indicators {
+        gap: 6px;
+        font-size: 11px;
+    }
+
+    .cart-step .step-dot {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+    }
+
+    .cart-step-line {
+        width: 14px;
+    }
+
+    .cart-header-row {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .cart-main-heading {
+        font-size: 19px !important;
+        letter-spacing: 0.5px;
+    }
+
+    .cart-item-count-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+
+    .cart-trust-shield-pill {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    /* Free shipping tracker */
+    .free-shipping-tracker {
+        padding: 12px 14px;
+        margin-bottom: 14px;
+    }
+
+    .free-ship-header {
+        font-size: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    /* Cart item card on mobile */
     .cart-item-row-card {
-        grid-template-columns: 85px 1fr;
-        gap: 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
         padding: 14px;
+        border-radius: 14px;
+        position: relative;
     }
+
     .cart-item-media {
-        width: 85px;
+        width: 90px;
+        border-radius: 10px;
+        flex-shrink: 0;
     }
-    .cart-item-right-actions {
-        grid-column: 1 / -1;
-        flex-direction: row;
+
+    .cart-item-content {
+        flex: 1;
+        min-width: 0;
+        gap: 5px;
+    }
+
+    .cart-item-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .cart-item-name-link {
+        font-size: 14px;
+        line-height: 1.3;
+        font-weight: 700;
+        flex: 1;
+    }
+
+    .cart-btn-trash-mobile {
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        color: #ef4444;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+
+    .cart-item-tags-row {
+        gap: 5px;
+        margin: 2px 0;
+    }
+
+    .cart-tag-pill {
+        font-size: 11px;
+        padding: 2px 7px;
+    }
+
+    .cart-price-current {
+        font-size: 16px;
+    }
+
+    .cart-item-bottom-controls {
+        display: flex;
         align-items: center;
         justify-content: space-between;
-        min-height: auto;
-        padding-top: 10px;
-        border-top: 1px solid #f1f5f9;
+        gap: 10px;
+        margin-top: 8px;
+        padding-top: 6px;
+    }
+
+    .cart-stepper {
+        height: 32px;
+    }
+
+    .cart-stepper button {
+        width: 28px;
+        font-size: 15px;
+    }
+
+    .cart-stepper span {
+        width: 28px;
+        font-size: 13px;
+    }
+
+    .cart-item-subtotal-mobile strong {
+        font-size: 15px;
+        color: var(--tt-primary);
+        font-weight: 800;
+    }
+
+    /* Assurance Perks Strip */
+    .cart-perks-strip {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 12px;
+        margin-top: 18px;
+    }
+
+    .cart-perk-item {
+        font-size: 11px;
+        gap: 8px;
+    }
+
+    .cart-perk-item i {
+        font-size: 16px;
+    }
+
+    /* Summary card collapsible on mobile */
+    .cart-summary-card {
+        padding: 0 !important;
+        border-radius: 16px;
+        margin-top: 16px;
+        overflow: hidden;
+        border: 1.5px solid #e2e8f0;
+        box-shadow: 0 2px 14px rgba(15, 23, 42, 0.05);
+        background: #ffffff;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .cart-summary-card.is-open {
+        border-color: #cbd5e1;
+        box-shadow: 0 6px 22px rgba(15, 23, 42, 0.09);
+    }
+
+    .cart-summary-head {
+        padding: 14px 16px;
+        margin: 0;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 0 solid transparent;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .cart-summary-card.is-open .cart-summary-head {
+        border-bottom: 1px solid #f1f5f9;
+        background-color: #f8fafc;
+    }
+
+    .cart-summary-head-title {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: var(--tt-primary);
+        letter-spacing: 0.6px;
+        gap: 6px;
+    }
+
+    .cart-summary-head-count {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .cart-summary-head-total {
+        display: inline-block !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--tt-primary);
+        letter-spacing: -0.2px;
+    }
+
+    .cart-summary-head-secure {
+        display: none !important;
+    }
+
+    .cart-summary-chevron {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #00285a;
+        font-size: 13px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .cart-summary-card.is-open .cart-summary-chevron {
+        transform: rotate(180deg);
+        background: #e2e8f0;
+        color: var(--tt-primary);
+    }
+
+    .cart-summary-collapsible-body {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        padding: 0 16px;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
+    }
+
+    .cart-summary-card.is-open .cart-summary-collapsible-body {
+        max-height: 1500px;
+        opacity: 1;
+        padding: 16px 16px 18px;
+    }
+
+    /* Hide desktop checkout button on mobile since we have the sticky bar */
+    .cart-summary-card .btn-checkout-primary {
+        display: none !important;
+    }
+
+    /* ── Mobile Sticky Checkout Bar Styles ── */
+    .cart-mobile-sticky-wrap {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+        pointer-events: none;
+    }
+
+    .cart-mobile-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+        z-index: 10001;
+        pointer-events: none;
+    }
+
+    .cart-mobile-backdrop.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .cart-mobile-card {
+        position: relative;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -10px 32px rgba(15, 23, 42, 0.16);
+        padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+        z-index: 10002;
+        pointer-events: auto;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+    }
+
+    .cart-mobile-drawer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), padding 0.32s ease, opacity 0.25s ease;
+        opacity: 0;
+        border-bottom: 0 solid #f1f5f9;
+    }
+
+    .cart-mobile-drawer.is-open {
+        max-height: 480px;
+        opacity: 1;
+        padding-bottom: 12px;
+        margin-bottom: 10px;
+        border-bottom: 1.5px solid #f1f5f9;
+    }
+
+    .cart-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .cart-drawer-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .cart-drawer-close {
+        background: #f1f5f9;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .cart-drawer-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .cart-drawer-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12.5px;
+        color: #475569;
+    }
+
+    .cart-drawer-row strong {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .cart-drawer-row.text-success strong {
+        color: #059669;
+    }
+
+    .cart-drawer-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 4px 0;
+    }
+
+    .cart-drawer-total-row {
+        font-size: 13.5px;
+        padding-top: 2px;
+    }
+
+    .cart-drawer-total-label {
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .cart-drawer-total-val {
+        font-family: 'Cinzel', serif !important;
+        font-size: 20px;
+        font-weight: 900;
+        color: #00285a;
+    }
+
+    .cart-drawer-savings {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-align: center;
         margin-top: 4px;
     }
-    .rec-quick-add-wrap {
-        opacity: 1;
-        transform: translateY(0);
-        position: static;
-        background: transparent;
-        padding: 0 14px 14px;
+
+    /* Sticky Bar Header */
+    .cart-mobile-bar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 8px;
+        cursor: pointer;
+        user-select: none;
     }
-    .rec-quick-add-btn {
-        background: #f1f5f9;
-        border: 1px solid #e2e8f0;
+
+    .cart-mobile-header-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .cart-mobile-total-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    .cart-mobile-amount {
+        font-family: 'Cinzel', serif !important;
+        font-size: 19px;
+        font-weight: 900;
+        color: #00285a;
+        line-height: 1;
+    }
+
+    .badge-saving-pill {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .cart-mobile-view-bill {
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #2563eb;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 4px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .cart-mobile-view-bill i {
+        font-size: 10px;
+        transition: transform 0.25s ease;
+    }
+
+    .cart-mobile-view-bill i.rotated {
+        transform: rotate(180deg);
+    }
+
+    /* Full-Width Mobile Checkout CTA Button */
+    .cart-mobile-btn-row {
+        width: 100%;
+    }
+
+    .btn-cart-mobile-checkout-full {
+        width: 100% !important;
+        height: 52px;
+        background: linear-gradient(135deg, #001838 0%, #00285a 100%);
+        color: #ffffff !important;
+        border: none;
+        border-radius: 12px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        box-shadow: 0 4px 18px rgba(0, 40, 90, 0.35);
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+    }
+
+    .btn-cart-mobile-checkout-full:active {
+        transform: scale(0.99);
+        opacity: 0.95;
     }
 }
 
-@media (max-width: 480px) {
-    .cart-page-wrapper {
-        padding: 0 14px;
-        margin-top: 16px;
-    }
-    .cart-main-heading {
-        font-size: 20px;
-    }
-    .cart-perks-strip {
-        grid-template-columns: 1fr;
-    }
+/* Hide sticky bar on desktop */
+.cart-mobile-sticky-wrap {
+    display: none;
 }
 </style>
 @endpush
@@ -1082,9 +1608,14 @@
 
                             {{-- Content details --}}
                             <div class="cart-item-content">
-                                <a href="{{ $itemUrl }}" class="cart-item-name-link">
-                                    {{ $item['name'] ?? 'Product' }}
-                                </a>
+                                <div class="cart-item-title-row">
+                                    <a href="{{ $itemUrl }}" class="cart-item-name-link">
+                                        {{ $item['name'] ?? 'Product' }}
+                                    </a>
+                                    <button type="button" class="cart-btn-trash-mobile d-md-none" onclick="removeCartItem('{{ $key }}')" title="Remove item from bag">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
 
                                 <div class="cart-item-tags-row">
                                     @if(!empty($item['size']))
@@ -1112,11 +1643,15 @@
                                         <span id="qty-val-{{ $key }}">{{ $q }}</span>
                                         <button type="button" aria-label="Increase quantity" onclick="updateCartItemQty('{{ $key }}', 1)">+</button>
                                     </div>
+                                    <div class="cart-item-subtotal-mobile d-md-none">
+                                        <span class="text-muted" style="font-size: 11px;">Subtotal:</span>
+                                        <strong id="subtotal-val-mobile-{{ $key }}">₹{{ number_format($p * $q) }}</strong>
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- Subtotal & Remove --}}
-                            <div class="cart-item-right-actions">
+                            {{-- Subtotal & Remove (Desktop) --}}
+                            <div class="cart-item-right-actions d-none d-md-flex">
                                 <div class="cart-item-subtotal-val" id="subtotal-val-{{ $key }}">
                                     ₹{{ number_format($p * $q) }}
                                 </div>
@@ -1152,83 +1687,191 @@
 
             {{-- ── RIGHT: STICKY ORDER SUMMARY ── --}}
             <div class="cart-summary-column">
-                <div class="cart-summary-card">
-                    <div class="cart-summary-head">
-                        <span><i class="bi bi-receipt"></i> ORDER SUMMARY</span>
-                        <span style="font-size: 11.5px; font-weight: 700; color: #64748b; font-family: sans-serif;">SECURE</span>
+                <div class="cart-summary-card" id="cartSummaryCard">
+                    <div class="cart-summary-head" id="cartSummaryHead" onclick="toggleCartOrderSummary()">
+                        <div class="cart-summary-head-title">
+                            <i class="bi bi-receipt"></i>
+                            <span>ORDER SUMMARY</span>
+                            <span class="cart-summary-head-count" id="summaryHeadCountBadge">({{ $totalItemsCount }})</span>
+                        </div>
+                        <div class="cart-summary-head-right">
+                            <span class="cart-summary-head-total" id="summaryHeadTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
+                            <span class="cart-summary-head-secure">SECURE</span>
+                            <i class="bi bi-chevron-down cart-summary-chevron" id="cartSummaryChevron"></i>
+                        </div>
                     </div>
 
-                    {{-- Prepaid Discount Alert Ribbon --}}
-                    <div class="cart-prepaid-alert">
-                        <i class="bi bi-lightning-charge-fill"></i>
-                        <span><strong>Prepaid Offer:</strong> Extra 5% Instant Discount auto-applied at checkout!</span>
-                    </div>
-
-                    {{-- Price Calculation Rows --}}
-                    <div class="cart-calc-rows">
-                        <div class="calc-row">
-                            <span>Total MRP (<span id="summaryTotalItems">{{ $totalItemsCount }}</span> items)</span>
-                            <b id="summaryMrpVal">₹{{ number_format($totalMrp) }}</b>
-                        </div>
-                        <div class="calc-row green" id="mrpDiscountRow">
-                            <span><i class="bi bi-percent"></i> Discount on MRP</span>
-                            <b id="summaryMrpDiscountVal">-₹{{ number_format($discountOnMrp) }}</b>
-                        </div>
-                        <div class="calc-row">
-                            <span>Subtotal</span>
-                            <b id="summarySubtotalVal">₹{{ number_format($subtotal) }}</b>
-                        </div>
-                        <div class="calc-row green" id="prepaidDiscountRow">
-                            <span><i class="bi bi-lightning-fill"></i> Prepaid 5% Extra Off</span>
-                            <b id="summaryPrepaidDiscountVal">-₹{{ number_format($prepaidDiscount) }}</b>
-                        </div>
-                        <div class="calc-row {{ $shipping == 0 ? 'green' : '' }}">
-                            <span><i class="bi bi-truck"></i> Estimated Shipping</span>
-                            <b id="summaryShippingVal">{{ $shipping == 0 ? 'FREE' : '₹' . $shipping }}</b>
-                        </div>
-                        <div class="calc-row green" id="couponDiscountRow" style="display: {{ isset($couponDiscount) && $couponDiscount > 0 ? 'flex' : 'none' }};">
-                            <span><i class="bi bi-tag-fill"></i> Coupon Discount (<span id="couponCodeBadge">{{ session('coupon_code', '') }}</span>)</span>
-                            <b id="summaryCouponDiscountVal">-₹{{ number_format($couponDiscount ?? 0) }}</b>
+                    {{-- Collapsible Body on Mobile --}}
+                    <div class="cart-summary-collapsible-body" id="cartSummaryBody">
+                        {{-- Prepaid Discount Alert Ribbon --}}
+                        <div class="cart-prepaid-alert">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                            <span><strong>Prepaid Offer:</strong> Extra 5% Instant Discount auto-applied at checkout!</span>
                         </div>
 
-                        <div class="calc-row-total">
-                            <div>
-                                <div class="calc-total-title">Total Payable</div>
-                                <div style="font-size: 11px; color: #64748b; font-weight: 500;">(Inclusive of all taxes)</div>
+                        {{-- Price Calculation Rows --}}
+                        <div class="cart-calc-rows">
+                            <div class="calc-row">
+                                <span>Total MRP (<span id="summaryTotalItems">{{ $totalItemsCount }}</span> items)</span>
+                                <b id="summaryMrpVal">₹{{ number_format($totalMrp) }}</b>
                             </div>
-                            <span class="calc-total-num" id="summaryGrandTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
+                            <div class="calc-row green" id="mrpDiscountRow">
+                                <span><i class="bi bi-percent"></i> Discount on MRP</span>
+                                <b id="summaryMrpDiscountVal">-₹{{ number_format($discountOnMrp) }}</b>
+                            </div>
+                            <div class="calc-row">
+                                <span>Subtotal</span>
+                                <b id="summarySubtotalVal">₹{{ number_format($subtotal) }}</b>
+                            </div>
+                            <div class="calc-row green" id="prepaidDiscountRow">
+                                <span><i class="bi bi-lightning-fill"></i> Prepaid 5% Extra Off</span>
+                                <b id="summaryPrepaidDiscountVal">-₹{{ number_format($prepaidDiscount) }}</b>
+                            </div>
+                            <div class="calc-row {{ $shipping == 0 ? 'green' : '' }}">
+                                <span><i class="bi bi-truck"></i> Estimated Shipping</span>
+                                <b id="summaryShippingVal">{{ $shipping == 0 ? 'FREE' : '₹' . $shipping }}</b>
+                            </div>
+                            <div class="calc-row green" id="couponDiscountRow" style="display: {{ isset($couponDiscount) && $couponDiscount > 0 ? 'flex' : 'none' }};">
+                                <span><i class="bi bi-tag-fill"></i> Coupon Discount (<span id="couponCodeBadge">{{ session('coupon_code', '') }}</span>)</span>
+                                <b id="summaryCouponDiscountVal">-₹{{ number_format($couponDiscount ?? 0) }}</b>
+                            </div>
+
+                            <div class="calc-row-total">
+                                <div>
+                                    <div class="calc-total-title">Total Payable</div>
+                                    <div style="font-size: 11px; color: #64748b; font-weight: 500;">(Inclusive of all taxes)</div>
+                                </div>
+                                <span class="calc-total-num" id="summaryGrandTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
+                            </div>
+                        </div>
+
+                        {{-- Savings Highlight Pill --}}
+                        <div class="cart-savings-highlight" id="totalSavingsBadge">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="bi bi-patch-check-fill"></i>
+                                <span>YOUR TOTAL SAVINGS</span>
+                            </div>
+                            <b id="summaryTotalSavingsVal">₹{{ number_format($totalSavings) }}</b>
+                        </div>
+
+                        {{-- Offers & Rewards and Bottom Sheet Modal --}}
+                        @include('froentend.partials.coupon-section', ['subtotal' => $subtotal])
+
+                        {{-- Primary Checkout Button --}}
+                        <button type="button" class="btn-checkout-primary" onclick="proceedToGlobalCheckout()">
+                            <span>PROCEED TO CHECKOUT</span>
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </button>
+
+                        <a href="{{ route('shop.index') }}" class="btn-continue-shopping">
+                            <i class="bi bi-arrow-left"></i> Continue Shopping
+                        </a>
+
+                        {{-- Trust Grid --}}
+                        <div class="cart-summary-trust-grid">
+                            <div class="trust-badge-card"><i class="bi bi-patch-check-fill"></i> 100% Original</div>
+                            <div class="trust-badge-card"><i class="bi bi-arrow-repeat"></i> 7-Day Returns</div>
+                            <div class="trust-badge-card"><i class="bi bi-shield-check"></i> RBI Verified</div>
+                            <div class="trust-badge-card"><i class="bi bi-lock-fill"></i> 256-Bit SSL</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    {{-- Savings Highlight Pill --}}
-                    <div class="cart-savings-highlight" id="totalSavingsBadge">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <i class="bi bi-patch-check-fill"></i>
-                            <span>YOUR TOTAL SAVINGS</span>
-                        </div>
-                        <b id="summaryTotalSavingsVal">₹{{ number_format($totalSavings) }}</b>
+        {{-- ── Mobile Fixed Sticky Checkout Bar (Full-Width Button & Collapsible Bill Details) ── --}}
+        <div class="cart-mobile-sticky-wrap" id="cartMobileStickyBar">
+            {{-- Dim backdrop when bill drawer is expanded --}}
+            <div class="cart-mobile-backdrop" id="cartMobileBackdrop" onclick="toggleCartMobileBill(false)"></div>
+
+            <div class="cart-mobile-card">
+                {{-- Collapsible Bill Details Drawer --}}
+                <div class="cart-mobile-drawer" id="cartMobileDrawer">
+                    <div class="cart-drawer-header">
+                        <span class="cart-drawer-title">
+                            <i class="bi bi-receipt-cutoff text-primary"></i> Order Price Details
+                        </span>
+                        <button type="button" class="cart-drawer-close" onclick="toggleCartMobileBill(false)" aria-label="Close">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
                     </div>
 
-                    {{-- Offers & Rewards and Bottom Sheet Modal --}}
-                    @include('froentend.partials.coupon-section', ['subtotal' => $subtotal])
+                    <div class="cart-drawer-body">
+                        <div class="cart-drawer-row">
+                            <span>Total MRP (<span id="mobileDrawerTotalItems">{{ $totalItemsCount }}</span> items)</span>
+                            <strong id="mobileDrawerMrpVal">₹{{ number_format($totalMrp) }}</strong>
+                        </div>
 
-                    {{-- Primary Checkout Button --}}
-                    <button type="button" class="btn-checkout-primary" onclick="proceedToGlobalCheckout()">
-                        <span>PROCEED TO CHECKOUT</span>
-                        <i class="bi bi-shield-lock-fill"></i>
+                        <div class="cart-drawer-row text-success" id="mobileDrawerMrpDiscountRow">
+                            <span><i class="bi bi-percent"></i> Discount on MRP</span>
+                            <strong id="mobileDrawerMrpDiscountVal">-₹{{ number_format($discountOnMrp) }}</strong>
+                        </div>
+
+                        <div class="cart-drawer-row">
+                            <span>Bag Subtotal</span>
+                            <strong id="mobileDrawerSubtotalVal">₹{{ number_format($subtotal) }}</strong>
+                        </div>
+
+                        <div class="cart-drawer-row text-success" id="mobileDrawerPrepaidDiscountRow">
+                            <span><i class="bi bi-lightning-fill"></i> Prepaid 5% Extra Off</span>
+                            <strong id="mobileDrawerPrepaidDiscountVal">-₹{{ number_format($prepaidDiscount) }}</strong>
+                        </div>
+
+                        <div class="cart-drawer-row">
+                            <span>Estimated Shipping</span>
+                            <strong id="mobileDrawerShippingVal" class="{{ $shipping == 0 ? 'text-success' : '' }}">
+                                {{ $shipping == 0 ? 'FREE' : '₹' . $shipping }}
+                            </strong>
+                        </div>
+
+                        @if(isset($couponDiscount) && $couponDiscount > 0)
+                            <div class="cart-drawer-row text-success" id="mobileDrawerCouponDiscountRow">
+                                <span><i class="bi bi-tag-fill"></i> Coupon Discount</span>
+                                <strong id="mobileDrawerCouponDiscountVal">-₹{{ number_format($couponDiscount) }}</strong>
+                            </div>
+                        @endif
+
+                        <div class="cart-drawer-divider"></div>
+
+                        <div class="cart-drawer-row cart-drawer-total-row">
+                            <div>
+                                <span class="cart-drawer-total-label">Total Payable</span>
+                                <small class="d-block text-muted" style="font-size: 11px;">(Inclusive of GST & all taxes)</small>
+                            </div>
+                            <span class="cart-drawer-total-val" id="mobileDrawerGrandTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
+                        </div>
+
+                        <div class="cart-drawer-savings" id="mobileDrawerSavingsPill">
+                            <i class="bi bi-stars"></i> Total Savings: <b id="mobileDrawerTotalSavingsVal">₹{{ number_format($totalSavings) }}</b>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Sticky Header Bar (Total + Collapsible Toggle) --}}
+                <div class="cart-mobile-bar-header" onclick="toggleCartMobileBill()">
+                    <div class="cart-mobile-header-left">
+                        <span class="cart-mobile-total-label">Total:</span>
+                        <span class="cart-mobile-amount" id="mobileStickyCartTotal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
+                        @if($totalSavings > 0)
+                            <span class="badge-saving-pill" id="mobileStickyCartSavings">
+                                <i class="bi bi-stars"></i> Save ₹{{ number_format($totalSavings) }}
+                            </span>
+                        @endif
+                    </div>
+                    <div class="cart-mobile-header-right">
+                        <span class="cart-mobile-view-bill">
+                            <span id="cartMobileToggleText">View Bill</span>
+                            <i class="bi bi-chevron-up" id="cartMobileToggleChevron"></i>
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Full-Width Checkout Button --}}
+                <div class="cart-mobile-btn-row">
+                    <button type="button" class="btn-cart-mobile-checkout-full" onclick="proceedToGlobalCheckout()">
+                        <span>PROCEED TO CHECKOUT (<span id="mobileStickyCartCount">{{ $totalItemsCount }}</span>)</span>
+                        <i class="bi bi-arrow-right"></i>
                     </button>
-
-                    <a href="{{ route('shop.index') }}" class="btn-continue-shopping">
-                        <i class="bi bi-arrow-left"></i> Continue Shopping
-                    </a>
-
-                    {{-- Trust Grid --}}
-                    <div class="cart-summary-trust-grid">
-                        <div class="trust-badge-card"><i class="bi bi-patch-check-fill"></i> 100% Original</div>
-                        <div class="trust-badge-card"><i class="bi bi-arrow-repeat"></i> 7-Day Returns</div>
-                        <div class="trust-badge-card"><i class="bi bi-shield-check"></i> RBI Verified</div>
-                        <div class="trust-badge-card"><i class="bi bi-lock-fill"></i> 256-Bit SSL</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1323,6 +1966,14 @@
 (function() {
     var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').content : '{{ csrf_token() }}';
 
+    // Toggle In-page Order Summary Collapsible on Mobile
+    window.toggleCartOrderSummary = function() {
+        if (window.innerWidth > 768) return;
+        var card = document.getElementById('cartSummaryCard');
+        if (!card) return;
+        card.classList.toggle('is-open');
+    };
+
     // Quantity update handler
     function cartQtyValue(value) {
         return Math.max(1, Math.min(10, parseInt(value, 10) || 1));
@@ -1366,11 +2017,14 @@
                 updateCartBadgeCount(data.cart_count);
                 syncCartSummaryData(data);
                 var subEl = document.getElementById('subtotal-val-' + key);
+                var subMobileEl = document.getElementById('subtotal-val-mobile-' + key);
                 var card = document.getElementById('cart-item-' + key);
-                if (subEl && card) {
+                if (card) {
                     var unitPriceEl = card.querySelector('.cart-price-current');
                     var unitPrice = unitPriceEl ? parseFloat(unitPriceEl.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
-                    subEl.textContent = '₹' + Math.round(unitPrice * nextQty).toLocaleString('en-IN');
+                    var formattedPrice = '₹' + Math.round(unitPrice * nextQty).toLocaleString('en-IN');
+                    if (subEl) subEl.textContent = formattedPrice;
+                    if (subMobileEl) subMobileEl.textContent = formattedPrice;
                 }
             }
         })
@@ -1494,6 +2148,12 @@
         var itemsEl = document.getElementById('summaryTotalItems');
         if (itemsEl) itemsEl.textContent = count;
 
+        var headTotEl = document.getElementById('summaryHeadTotalVal');
+        if (headTotEl) headTotEl.textContent = '₹' + Math.round(grandTotal).toLocaleString('en-IN');
+
+        var headCountBadge = document.getElementById('summaryHeadCountBadge');
+        if (headCountBadge) headCountBadge.textContent = '(' + count + ')';
+
         // Free shipping bar calculation
         var threshold = 999;
         var pct = Math.min(100, Math.round((subtotal / threshold) * 100));
@@ -1511,7 +2171,82 @@
                 textEl.innerHTML = '<span><i class="bi bi-truck text-primary"></i> Add <strong>₹' + Math.round(needed).toLocaleString('en-IN') + '</strong> more to unlock <strong>FREE Shipping</strong></span> <span class="text-muted font-monospace">₹' + Math.round(subtotal).toLocaleString('en-IN') + '/₹999</span>';
             }
         }
+
+        // ── Mobile Sticky Bar & Drawer Updates ──
+        var mobileTotalEl = document.getElementById('mobileStickyCartTotal');
+        if (mobileTotalEl) mobileTotalEl.textContent = '₹' + Math.round(grandTotal).toLocaleString('en-IN');
+
+        var mobileCountEl = document.getElementById('mobileStickyCartCount');
+        if (mobileCountEl) mobileCountEl.textContent = count;
+
+        var mobileSavingsEl = document.getElementById('mobileStickyCartSavings');
+        if (mobileSavingsEl) {
+            mobileSavingsEl.innerHTML = '<i class="bi bi-stars"></i> Save ₹' + Math.round(totalSavings).toLocaleString('en-IN');
+            mobileSavingsEl.style.display = totalSavings > 0 ? 'inline-flex' : 'none';
+        }
+
+        var drawerItems = document.getElementById('mobileDrawerTotalItems');
+        if (drawerItems) drawerItems.textContent = count;
+
+        var drawerMrp = document.getElementById('mobileDrawerMrpVal');
+        if (drawerMrp) drawerMrp.textContent = '₹' + Math.round(totalMrp).toLocaleString('en-IN');
+
+        var drawerMrpDisc = document.getElementById('mobileDrawerMrpDiscountVal');
+        if (drawerMrpDisc) drawerMrpDisc.textContent = '-₹' + Math.round(discountOnMrp).toLocaleString('en-IN');
+
+        var drawerSub = document.getElementById('mobileDrawerSubtotalVal');
+        if (drawerSub) drawerSub.textContent = '₹' + Math.round(subtotal).toLocaleString('en-IN');
+
+        var drawerPrep = document.getElementById('mobileDrawerPrepaidDiscountVal');
+        if (drawerPrep) drawerPrep.textContent = '-₹' + Math.round(prepaidDiscount).toLocaleString('en-IN');
+
+        var drawerShip = document.getElementById('mobileDrawerShippingVal');
+        if (drawerShip) {
+            drawerShip.textContent = shipping === 0 ? 'FREE' : '₹' + shipping;
+            drawerShip.className = shipping === 0 ? 'text-success' : '';
+        }
+
+        var drawerCouponRow = document.getElementById('mobileDrawerCouponDiscountRow');
+        var drawerCouponVal = document.getElementById('mobileDrawerCouponDiscountVal');
+        if (drawerCouponRow && drawerCouponVal) {
+            if (discount > 0) {
+                drawerCouponRow.style.display = 'flex';
+                drawerCouponVal.textContent = '-₹' + Math.round(discount).toLocaleString('en-IN');
+            } else {
+                drawerCouponRow.style.display = 'none';
+            }
+        }
+
+        var drawerGrand = document.getElementById('mobileDrawerGrandTotalVal');
+        if (drawerGrand) drawerGrand.textContent = '₹' + Math.round(grandTotal).toLocaleString('en-IN');
+
+        var drawerSav = document.getElementById('mobileDrawerTotalSavingsVal');
+        if (drawerSav) drawerSav.textContent = '₹' + Math.round(totalSavings).toLocaleString('en-IN');
     }
+
+    // Toggle Mobile Bill Details Drawer
+    window.toggleCartMobileBill = function(forceState) {
+        var drawer = document.getElementById('cartMobileDrawer');
+        var backdrop = document.getElementById('cartMobileBackdrop');
+        var chevron = document.getElementById('cartMobileToggleChevron');
+        var toggleText = document.getElementById('cartMobileToggleText');
+        if (!drawer) return;
+
+        var isOpen = drawer.classList.contains('is-open');
+        var shouldOpen = typeof forceState === 'boolean' ? forceState : !isOpen;
+
+        if (shouldOpen) {
+            drawer.classList.add('is-open');
+            if (backdrop) backdrop.classList.add('is-open');
+            if (chevron) chevron.classList.add('rotated');
+            if (toggleText) toggleText.textContent = 'Hide Bill';
+        } else {
+            drawer.classList.remove('is-open');
+            if (backdrop) backdrop.classList.remove('is-open');
+            if (chevron) chevron.classList.remove('rotated');
+            if (toggleText) toggleText.textContent = 'View Bill';
+        }
+    };
 
     // Coupon selection chip helper
     window.selectCartCoupon = function(code) {

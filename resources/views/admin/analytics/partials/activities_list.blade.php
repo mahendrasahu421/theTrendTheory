@@ -8,13 +8,13 @@
         }
 
         // Smart auto-draft message for WhatsApp
-        $waText = "Hi " . ($u ? $u->name : 'there') . "! Welcome to Vayu.";
+        $waText = "Hi " . ($u ? $u->name : 'there') . "! Welcome to THE TREND THEORY.";
         if ($act->event_type === 'checkout_started') {
-            $waText = "Hi " . ($u ? $u->name : '') . "! We noticed you left items in your shopping bag at Vayu. Complete your order today and get an EXTRA 10% OFF with code TREND10: " . url('/checkout');
+            $waText = "Hi " . ($u ? $u->name : '') . "! We noticed you left items in your shopping bag at THE TREND THEORY. Complete your order today and get an EXTRA 10% OFF with code TREND10: " . url('/checkout');
         } elseif ($act->event_type === 'cart_added') {
-            $waText = "Hi " . ($u ? $u->name : '') . "! Thank you for adding items to your bag at Vayu. Need any help with size or fast delivery? We are here to help: " . url('/cart');
+            $waText = "Hi " . ($u ? $u->name : '') . "! Thank you for adding items to your bag at THE TREND THEORY. Need any help with size or fast delivery? We are here to help: " . url('/cart');
         } elseif ($act->event_type === 'product_viewed') {
-            $waText = "Hi " . ($u ? $u->name : '') . "! We saw you checking out our streetwear drop at Vayu. Let us know if you need any assistance with styling or sizing: " . ($act->url ?: url('/shop'));
+            $waText = "Hi " . ($u ? $u->name : '') . "! We saw you checking out our streetwear drop at THE TREND THEORY. Let us know if you need any assistance with styling or sizing: " . ($act->url ?: url('/shop'));
         }
     @endphp
 

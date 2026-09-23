@@ -705,7 +705,7 @@ Write freely with natural paragraphs. Use the styling buttons above to format su
                             <input type="text" 
                                    name="author_name" 
                                    id="authorNameInput"
-                                   value="{{ old('author_name', $blog->author_name ?? 'Vayu Editorial') }}" 
+                                   value="{{ old('author_name', $blog->author_name ?? 'THE TREND THEORY Editorial') }}" 
                                    placeholder="e.g. Karan M., Lead Stylist" 
                                    class="form-input-modern font-sm">
                         </div>

@@ -64,6 +64,8 @@ class NotificationController extends Controller
 
         $customers = User::where('role', 'customer')->orderBy('name')->get(['id', 'name', 'email', 'phone']);
         $pushSubscribersCount = \App\Models\PushSubscription::where('is_active', true)->count();
+        $fcmSubscribersCount = \App\Models\PushSubscription::where('is_active', true)->withFcmToken()->count();
+        $firebaseProject = config('services.firebase.project_id', 'the-trend-theory');
 
         return view('admin.notifications.index', compact(
             'notifications',
@@ -77,7 +79,9 @@ class NotificationController extends Controller
             'readRate',
             'settings',
             'customers',
-            'pushSubscribersCount'
+            'pushSubscribersCount',
+            'fcmSubscribersCount',
+            'firebaseProject'
         ));
     }
 
@@ -111,7 +115,7 @@ class NotificationController extends Controller
             imageUrl: $request->image_url,
             channels: $channels,
             specificUserId: $request->specific_user_id,
-            adminUserId: auth()->id()
+            adminUserId: auth('admin')->id() ?? auth()->id()
         );
 
         return redirect()->route('admin.notifications.index', ['tab' => 'logs'])

@@ -14,11 +14,13 @@ class WebPushService
      */
     public function subscribe(array $data, ?int $userId = null, ?string $ipAddress = null, ?string $userAgent = null): PushSubscription
     {
-        $endpoint = $data['endpoint'];
+        $endpoint = $data['endpoint'] ?? ('fcm://' . ($data['fcm_token'] ?? uniqid('device_', true)));
         $endpointHash = hash('sha256', $endpoint);
 
         $publicKey = $data['keys']['p256dh'] ?? ($data['public_key'] ?? null);
         $authToken = $data['keys']['auth'] ?? ($data['auth_token'] ?? null);
+        $fcmToken = $data['fcm_token'] ?? null;
+        $deviceType = $data['device_type'] ?? 'web';
         $contentEncoding = $data['content_encoding'] ?? 'aesgcm';
 
         return PushSubscription::updateOrCreate(
@@ -28,6 +30,8 @@ class WebPushService
                 'endpoint'         => $endpoint,
                 'public_key'       => $publicKey,
                 'auth_token'       => $authToken,
+                'fcm_token'        => $fcmToken,
+                'device_type'      => $deviceType,
                 'content_encoding' => $contentEncoding,
                 'user_agent'       => $userAgent,
                 'ip_address'       => $ipAddress,
@@ -98,11 +102,29 @@ class WebPushService
      */
     protected function dispatchToEndpoint(PushSubscription $subscription, array $payload): bool
     {
-        // Check if endpoint is FCM / WebPush / standard browser push endpoint
+        // 1. If subscription has an FCM token, dispatch via Firebase Cloud Messaging
+        if (!empty($subscription->fcm_token)) {
+            try {
+                $firebaseService = app(FirebaseNotificationService::class);
+                return $firebaseService->sendToToken(
+                    fcmToken: $subscription->fcm_token,
+                    title: $payload['title'] ?? 'The Trend Theory',
+                    body: $payload['body'] ?? '',
+                    actionUrl: $payload['url'] ?? null,
+                    imageUrl: $payload['image'] ?? null
+                );
+            } catch (\Throwable $e) {
+                Log::warning('FCM token dispatch exception: ' . $e->getMessage());
+            }
+        }
+
+        // 2. Standard browser push endpoint delivery
         $endpoint = $subscription->endpoint;
+        if (str_starts_with($endpoint, 'fcm://')) {
+            return true;
+        }
 
         try {
-            // For standard browser push notification delivery
             $response = Http::timeout(5)
                 ->withHeaders([
                     'TTL' => '86400',

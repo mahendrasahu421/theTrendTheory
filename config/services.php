@@ -53,4 +53,14 @@ return [
         'client_version' => env('PHONEPE_CLIENT_VERSION', '1'),
         'env'            => env('PHONEPE_ENV', 'UAT'), // 'UAT' or 'PRODUCTION'
     ],
+
+    'firebase' => [
+        'api_key'        => env('FIREBASE_API_KEY', 'AIzaSyBxewN-r_TDJfHBwuzcdIq2Bme6dyRCWVo'),
+        'project_id'     => env('FIREBASE_PROJECT_ID', 'the-trend-theory'),
+        'sender_id'      => env('FIREBASE_SENDER_ID', '664156075505'),
+        'storage_bucket' => env('FIREBASE_STORAGE_BUCKET', 'the-trend-theory.firebasestorage.app'),
+        'app_id'         => env('FIREBASE_APP_ID', '1:664156075505:ios:6e6b662021c3ce7eef0050'),
+        'server_key'     => env('FIREBASE_SERVER_KEY'),
+    ],
 ];
+

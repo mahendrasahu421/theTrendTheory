@@ -92,7 +92,7 @@
                                     <option value="support_staff" {{ old('role', $staff->role) === 'support_staff' ? 'selected' : '' }}>💬 Support &amp; Order Staff</option>
                                     <option value="hr" {{ old('role', $staff->role) === 'hr' ? 'selected' : '' }}>👥 HR Manager</option>
                                     <option value="admin" {{ old('role', $staff->role) === 'admin' ? 'selected' : '' }}>⭐ Admin (Full Unrestricted Access)</option>
-                                    @if(auth()->user()->isSuperAdmin())
+                                    @if((auth('admin')->user() ?? auth()->user())?->isSuperAdmin())
                                         <option value="super_admin" {{ old('role', $staff->role) === 'super_admin' ? 'selected' : '' }}>👑 Super Admin (Full Root Access)</option>
                                     @endif
                                 </select>

@@ -720,6 +720,47 @@
             @csrf
             <input type="hidden" id="editMediaId">
             <div class="modal-body-custom">
+                {{-- Current Media Preview --}}
+                <div class="form-group-modal">
+                    <label class="label-modal">
+                        <span>Current Showcase Asset</span>
+                    </label>
+                    <div id="editCurrentMediaContainer" style="background:#0f172a; border-radius:12px; overflow:hidden; position:relative; min-height:160px; max-height:220px; display:flex; align-items:center; justify-content:center; border: 1.5px solid #cbd5e1;">
+                        <img id="editCurrentImg" src="" style="width:100%; max-height:220px; object-fit:contain; display:none;">
+                        <video id="editCurrentVideo" src="" controls style="width:100%; max-height:220px; object-fit:contain; display:none;"></video>
+                        <span id="editCurrentBadge" class="media-type-badge" style="position:absolute; top:12px; right:12px; z-index:2;"></span>
+                    </div>
+                </div>
+
+                {{-- Replace Media Drop Zone --}}
+                <div class="form-group-modal">
+                    <label class="label-modal">
+                        <span>Replace Photo or Video File</span>
+                        <span class="text-muted font-xs">Optional</span>
+                    </label>
+                    <div class="upload-zone-modal" onclick="document.getElementById('editFileInput').click()" id="editDropZone" style="padding:16px;">
+                        <div class="upload-icon-circle" style="width:38px; height:38px; margin-bottom:6px;">
+                            <i class="bi bi-cloud-arrow-up-fill" style="font-size:18px;"></i>
+                        </div>
+                        <strong class="d-block font-xs text-navy mb-1" id="editFileName">Click or Drag &amp; Drop New File to Replace</strong>
+                        <span class="text-muted font-xs">Leave empty to keep existing media &bull; Max 50MB</span>
+                        <input type="file" name="file" id="editFileInput" accept="image/*,video/*" class="d-none" onchange="handleEditFileSelectedGallery(this)">
+                    </div>
+
+                    <div id="editNewFilePreview" style="display:none; margin-top:10px; text-align:center; padding:12px; background:#f0fdf4; border:1.5px dashed #86efac; border-radius:12px;">
+                        <div style="font-size:11.5px; font-weight:700; color:#15803d; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                            <i class="bi bi-check-circle-fill"></i> New File Selected (Will Replace on Save)
+                        </div>
+                        <img id="editNewFileImg" src="" style="max-height:140px; border-radius:10px; display:none; margin:0 auto; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                        <video id="editNewFileVideo" src="" controls style="max-height:140px; border-radius:10px; display:none; margin:0 auto; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></video>
+                        <div style="margin-top:10px;">
+                            <button type="button" class="btn btn-sm btn-outline-danger" style="font-size:11.5px; font-weight:700; border-radius:8px;" onclick="clearEditFileGallery()">
+                                <i class="bi bi-x-circle"></i> Cancel Replacement (Keep Original)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Title / Headline --}}
                 <div class="form-group-modal">
                     <label class="label-modal">
@@ -845,7 +886,52 @@
         });
     }
 
+    function clearEditFileGallery() {
+        const fileInput = document.getElementById('editFileInput');
+        if (fileInput) fileInput.value = '';
+        const previewDiv = document.getElementById('editNewFilePreview');
+        if (previewDiv) previewDiv.style.display = 'none';
+        const prevImg = document.getElementById('editNewFileImg');
+        if (prevImg) { prevImg.src = ''; prevImg.style.display = 'none'; }
+        const prevVid = document.getElementById('editNewFileVideo');
+        if (prevVid) { prevVid.src = ''; prevVid.style.display = 'none'; }
+        const labelText = document.getElementById('editFileName');
+        if (labelText) {
+            labelText.textContent = 'Click or Drag & Drop New File to Replace';
+        }
+    }
+
+    function handleEditFileSelectedGallery(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const labelText = document.getElementById('editFileName');
+            if (labelText) {
+                labelText.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            }
+
+            const previewDiv = document.getElementById('editNewFilePreview');
+            const prevImg = document.getElementById('editNewFileImg');
+            const prevVid = document.getElementById('editNewFileVideo');
+
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    if (prevImg) { prevImg.src = ev.target.result; prevImg.style.display = 'inline-block'; }
+                    if (prevVid) { prevVid.style.display = 'none'; }
+                    if (previewDiv) previewDiv.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                const url = URL.createObjectURL(file);
+                if (prevVid) { prevVid.src = url; prevVid.style.display = 'inline-block'; }
+                if (prevImg) { prevImg.style.display = 'none'; }
+                if (previewDiv) previewDiv.style.display = 'block';
+            }
+        }
+    }
+
     function openEditModal(mediaId) {
+        clearEditFileGallery();
         fetch(`/admin/media/gallery/${mediaId}`, {
             headers: { 'Accept': 'application/json' }
         })
@@ -855,6 +941,26 @@
             document.getElementById('editTitle').value = data.title || '';
             document.getElementById('editSubtitle').value = data.subtitle || '';
             document.getElementById('editButtonLink').value = data.button_link || '';
+
+            // Current media preview
+            const currentImg = document.getElementById('editCurrentImg');
+            const currentVid = document.getElementById('editCurrentVideo');
+            const currentBadge = document.getElementById('editCurrentBadge');
+
+            const isVideo = data.type === 'video' || (data.mime_type && data.mime_type.startsWith('video/'));
+            if (isVideo) {
+                if (currentVid) { currentVid.src = data.url; currentVid.style.display = 'block'; }
+                if (currentImg) { currentImg.style.display = 'none'; }
+                if (currentBadge) {
+                    currentBadge.innerHTML = '<i class="bi bi-camera-video-fill me-1"></i> Current Video';
+                }
+            } else {
+                if (currentImg) { currentImg.src = data.url; currentImg.style.display = 'block'; }
+                if (currentVid) { currentVid.style.display = 'none'; }
+                if (currentBadge) {
+                    currentBadge.innerHTML = '<i class="bi bi-image-fill me-1"></i> Current Photo';
+                }
+            }
 
             // Reset product checkboxes
             document.querySelectorAll('.edit-prod-check').forEach(cb => {
@@ -877,30 +983,27 @@
         const btn = document.getElementById('editSubmitBtn');
 
         const formData = new FormData(form);
-        const dataObj = {
-            title: formData.get('title'),
-            subtitle: formData.get('subtitle'),
-            button_link: formData.get('button_link'),
-            product_ids: formData.getAll('product_ids[]')
-        };
+        formData.append('_method', 'PUT');
 
+        const originalHtml = btn.innerHTML;
         btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat spin me-1"></i> Saving Changes...';
 
         fetch(`/admin/media/gallery/${mediaId}`, {
-            method: 'PUT',
+            method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Accept': 'application/json'
             },
-            body: JSON.stringify(dataObj)
+            body: formData
         })
         .then(res => res.json())
         .then(data => {
             btn.disabled = false;
+            btn.innerHTML = originalHtml;
             if (data.success) {
                 closeEditModal();
-                showToast('Media details saved successfully!');
+                showToast('Media details and file saved successfully!');
                 setTimeout(() => window.location.reload(), 600);
             } else {
                 alert(data.message || 'Update failed');
@@ -908,7 +1011,8 @@
         })
         .catch(err => {
             btn.disabled = false;
-            alert('Failed to update media');
+            btn.innerHTML = originalHtml;
+            alert('Failed to update media: ' + err.message);
         });
     }
 

@@ -372,7 +372,7 @@
             </div>
             <h1 class="backups-banner-title">Database Backups &amp; Archive</h1>
             <p class="backups-banner-desc">
-                Generate full SQL database dumps, download offline snapshots, and ensure high availability data redundancy for Vayu.
+                Generate full SQL database dumps, download offline snapshots, and ensure high availability data redundancy for THE TREND THEORY.
             </p>
             <form method="POST" action="{{ route('admin.backup.create') }}" class="d-inline" id="createBackupForm">
                 @csrf

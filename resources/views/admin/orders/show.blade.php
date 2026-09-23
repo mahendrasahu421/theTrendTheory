@@ -37,62 +37,53 @@
 
     /* ── 1. Executive Studio Banner ── */
     .order-hero-banner {
-        background: linear-gradient(135deg, #0b192e 0%, #0f2b54 50%, #1e3a8a 100%);
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
         border-radius: 22px;
-        padding: 28px 36px;
-        color: #ffffff;
+        padding: 26px 32px;
+        color: #0f172a;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 12px 35px rgba(11, 25, 46, 0.22);
-    }
-    .order-hero-glow {
-        position: absolute;
-        top: -60px;
-        right: -60px;
-        width: 280px;
-        height: 280px;
-        background: radial-gradient(circle, rgba(96, 165, 250, 0.22) 0%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
+        box-shadow: 0 4px 20px rgba(0, 40, 90, 0.03);
     }
     .order-hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 5px 14px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        padding: 4px 12px;
         border-radius: 999px;
         font-size: 11px;
         font-weight: 800;
-        letter-spacing: 0.8px;
+        letter-spacing: 0.6px;
         text-transform: uppercase;
-        color: #60a5fa;
-        margin-bottom: 10px;
+        color: #2563eb;
+        margin-bottom: 8px;
     }
     .order-pulse-dot {
         width: 7px;
         height: 7px;
-        background: #60a5fa;
+        background: #2563eb;
         border-radius: 50%;
-        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
     }
     .order-hero-title {
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 800;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.4px;
         margin: 0 0 6px;
-        color: #ffffff;
+        color: #00285a;
         display: flex;
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
     }
     .order-hero-desc {
-        font-size: 13.5px;
+        font-size: 13px;
         line-height: 1.5;
-        color: rgba(255, 255, 255, 0.85);
-        margin: 0 0 18px;
+        color: #64748b;
+        margin: 0;
         max-width: 650px;
     }
     .order-hero-actions {
@@ -102,9 +93,9 @@
         flex-wrap: wrap;
     }
     .btn-hero-back {
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        color: #ffffff;
+        background: #f8fafc;
+        border: 1.5px solid #cbd5e1;
+        color: #334155;
         padding: 8px 16px;
         border-radius: 10px;
         font-size: 12.5px;
@@ -116,8 +107,9 @@
         transition: all 0.15s ease;
     }
     .btn-hero-back:hover {
-        background: #ffffff;
-        color: #0b192e;
+        background: #eff6ff;
+        border-color: #2563eb;
+        color: #2563eb;
     }
 
     /* ── 2. Top 4 Bento KPI Cards ── */
@@ -648,8 +640,6 @@
 
     {{-- ── 1. Executive Studio Banner ── --}}
     <div class="order-hero-banner">
-        <div class="order-hero-glow"></div>
-        
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
                 <div class="order-hero-badge">
@@ -659,11 +649,11 @@
                 <h1 class="order-hero-title">
                     <span>Order {{ $order->order_number }}</span>
                     @if($isCod)
-                        <span style="font-size:11.5px; padding:5px 11px; border-radius:8px; background:rgba(245, 158, 11, 0.25); color:#fef3c7; border:1px solid rgba(245, 158, 11, 0.4); font-weight:800;">
+                        <span style="font-size:11.5px; padding:4px 10px; border-radius:8px; background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-weight:800;">
                             <i class="bi bi-cash-stack"></i> CASH ON DELIVERY
                         </span>
                     @else
-                        <span style="font-size:11.5px; padding:5px 11px; border-radius:8px; background:rgba(59, 130, 246, 0.25); color:#dbeafe; border:1px solid rgba(59, 130, 246, 0.4); font-weight:800;">
+                        <span style="font-size:11.5px; padding:4px 10px; border-radius:8px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:800;">
                             <i class="bi bi-credit-card-2-front-fill"></i> PREPAID ({{ $payMethod }})
                         </span>
                     @endif
@@ -677,10 +667,10 @@
                 <a href="{{ route('admin.orders.index') }}" class="btn-hero-back">
                     <i class="bi bi-arrow-left"></i> All Orders
                 </a>
-                <a href="{{ route('admin.orders.invoice', $order) }}" target="_blank" class="btn btn-sm btn-light fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none;">
+                <a href="{{ route('admin.orders.invoice', $order) }}" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; color:#334155;">
                     <i class="bi bi-file-earmark-pdf-fill me-1 text-danger"></i> PDF Tax Invoice
                 </a>
-                <a href="{{ route('admin.orders.shipping-label', $order) }}" target="_blank" class="btn btn-sm btn-dark fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; background:#0f172a; color:#fff;">
+                <a href="{{ route('admin.orders.shipping-label', $order) }}" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; color:#334155;">
                     <i class="bi bi-tag-fill me-1 text-warning"></i> Parcel Label (Sticker)
                 </a>
                 @if($order->shipping_phone)

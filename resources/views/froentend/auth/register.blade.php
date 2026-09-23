@@ -2,15 +2,15 @@
 @extends('froentend.layouts.app')
 
 @section('custom_seo')
-    <title>Create Account | Vayu — Luxury Streetwear</title>
-    <meta name="description" content="Join Vayu for exclusive streetwear drops, wishlist sync, and fast checkout.">
+    <title>Create Account | THE TREND THEORY — Luxury Streetwear</title>
+    <meta name="description" content="Join THE TREND THEORY for exclusive streetwear drops, wishlist sync, and fast checkout.">
     <meta name="robots" content="noindex, nofollow">
 @endsection
 
 @section('main')
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Vayu — LUXURY REGISTRATION UI
+   THE TREND THEORY — LUXURY REGISTRATION UI
    ═══════════════════════════════════════════════════════════════════ */
 :root {
     --auth-navy: #00285a;
@@ -347,21 +347,21 @@
         {{-- ── LEFT: COMPACT EDITORIAL PHOTO CARD (NO CONTENT CLUTTER) ── --}}
         <div class="auth-visual-card">
             <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&auto=format&fit=crop&q=85" 
-                 alt="Vayu Luxury Streetwear" 
+                 alt="THE TREND THEORY Luxury Streetwear" 
                  class="auth-visual-img">
             
             <div class="auth-visual-tag">
                 <span class="tag-dot"></span>
-                Vayu &bull; LUXURY STREETWEAR
+                THE TREND THEORY &bull; LUXURY STREETWEAR
             </div>
         </div>
 
         {{-- ── RIGHT: REGISTRATION CARD PANEL ── --}}
         <div class="auth-card-panel">
             <div class="auth-card-header">
-                <div class="auth-brand-mini">Vayu</div>
+                <div class="auth-brand-mini">THE TREND THEORY</div>
                 <h1 class="auth-card-title">Create Account</h1>
-                <p class="auth-card-sub">Join Vayu for exclusive drops &amp; rewards</p>
+                <p class="auth-card-sub">Join THE TREND THEORY for exclusive drops &amp; rewards</p>
             </div>
 
             {{-- Error Alerts --}}

@@ -219,7 +219,7 @@
                                         <span>Permissions</span>
                                     </a>
 
-                                    @if($u->id !== auth()->id())
+                                    @if($u->id !== (auth('admin')->id() ?? auth()->id()))
                                         <form method="POST" action="{{ route('admin.staff.toggle-status', $u) }}" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="m-action-icon-btn" title="{{ $u->status === 'active' ? 'Deactivate Account' : 'Activate Account' }}">

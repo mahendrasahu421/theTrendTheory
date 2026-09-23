@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\UserPermission;
+use App\Models\Admin;
+use App\Models\AdminPermission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -19,8 +20,7 @@ class StaffPermissionController extends Controller
         $search = $request->input('search');
         $roleFilter = $request->input('role');
 
-        $query = User::where('role', '!=', 'customer')
-            ->with(['userPermissions']);
+        $query = Admin::with(['adminPermissions']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -37,12 +37,12 @@ class StaffPermissionController extends Controller
         $staffUsers = $query->latest()->paginate(15)->withQueryString();
 
         // Metrics
-        $totalStaff = User::where('role', '!=', 'customer')->count();
-        $superAdminCount = User::where('role', 'super_admin')->count();
-        $adminCount = User::where('role', 'admin')->count();
-        $subStaffCount = User::whereNotIn('role', ['customer', 'super_admin', 'admin'])->count();
+        $totalStaff = Admin::count();
+        $superAdminCount = Admin::where('role', 'super_admin')->count();
+        $adminCount = Admin::where('role', 'admin')->count();
+        $subStaffCount = Admin::whereNotIn('role', ['super_admin', 'admin'])->count();
 
-        $permissionGroups = User::getDefinedPermissionGroups();
+        $permissionGroups = Admin::getDefinedPermissionGroups();
 
         return view('admin.staff.index', compact(
             'staffUsers',
@@ -61,8 +61,8 @@ class StaffPermissionController extends Controller
      */
     public function create()
     {
-        $permissionGroups = User::getDefinedPermissionGroups();
-        $staff = new User();
+        $permissionGroups = Admin::getDefinedPermissionGroups();
+        $staff = new Admin();
 
         return view('admin.staff.form', [
             'staff'            => $staff,
@@ -79,44 +79,39 @@ class StaffPermissionController extends Controller
     {
         $request->validate([
             'name'         => 'required|string|max:255',
-            'email'        => 'required|email|max:255|unique:users,email',
-            'phone'        => 'nullable|string|max:20|unique:users,phone',
+            'email'        => 'required|email|max:255|unique:admins,email',
+            'phone'        => 'nullable|string|max:20|unique:admins,phone',
             'role'         => ['required', 'string', Rule::in(['super_admin', 'admin', 'hr', 'product_manager', 'product_editor', 'support_staff', 'staff'])],
             'password'     => 'required|string|min:6',
             'permissions'  => 'nullable|array',
             'permissions.*'=> 'string',
         ]);
 
-        $user = User::create([
+        $admin = Admin::create([
             'name'      => $request->input('name'),
             'email'     => $request->input('email'),
             'phone'     => $request->input('phone'),
             'role'      => $request->input('role'),
             'password'  => Hash::make($request->input('password')),
-            'status'    => 'active',
+            'is_active' => true,
         ]);
 
         // If user is not super_admin or admin, sync custom permissions
-        if (!in_array($user->role, ['super_admin', 'admin'], true)) {
-            $user->syncPermissions($request->input('permissions', []));
+        if (!in_array($admin->role, ['super_admin', 'admin'], true)) {
+            $admin->syncPermissions($request->input('permissions', []));
         }
 
         return redirect()->route('admin.staff.index')
-            ->with('success', "Staff member '{$user->name}' created successfully with assigned permissions!");
+            ->with('success', "Staff member '{$admin->name}' created successfully with assigned permissions!");
     }
 
     /**
      * Show form to edit staff member and permissions.
      */
-    public function edit(User $staff)
+    public function edit(Admin $staff)
     {
-        // Don't allow editing customer as staff here
-        if ($staff->role === 'customer') {
-            abort(404);
-        }
-
-        $permissionGroups = User::getDefinedPermissionGroups();
-        $assignedPerms = $staff->userPermissions()->pluck('permission')->toArray();
+        $permissionGroups = Admin::getDefinedPermissionGroups();
+        $assignedPerms = $staff->adminPermissions()->pluck('permission')->toArray();
 
         return view('admin.staff.form', [
             'staff'            => $staff,
@@ -129,16 +124,12 @@ class StaffPermissionController extends Controller
     /**
      * Update staff member details and permissions.
      */
-    public function update(Request $request, User $staff)
+    public function update(Request $request, Admin $staff)
     {
-        if ($staff->role === 'customer') {
-            abort(404);
-        }
-
         $request->validate([
             'name'         => 'required|string|max:255',
-            'email'        => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($staff->id)],
-            'phone'        => ['nullable', 'string', 'max:20', Rule::unique('users', 'phone')->ignore($staff->id)],
+            'email'        => ['required', 'email', 'max:255', Rule::unique('admins', 'email')->ignore($staff->id)],
+            'phone'        => ['nullable', 'string', 'max:20', Rule::unique('admins', 'phone')->ignore($staff->id)],
             'role'         => ['required', 'string', Rule::in(['super_admin', 'admin', 'hr', 'product_manager', 'product_editor', 'support_staff', 'staff'])],
             'password'     => 'nullable|string|min:6',
             'permissions'  => 'nullable|array',
@@ -147,7 +138,7 @@ class StaffPermissionController extends Controller
 
         // Prevent demoting the last super_admin
         if ($staff->role === 'super_admin' && $request->input('role') !== 'super_admin') {
-            $otherSuper = User::where('role', 'super_admin')->where('id', '!=', $staff->id)->count();
+            $otherSuper = Admin::where('role', 'super_admin')->where('id', '!=', $staff->id)->count();
             if ($otherSuper === 0) {
                 return back()->with('error', 'Cannot change role. At least one Super Admin must remain in the system.');
             }
@@ -171,7 +162,7 @@ class StaffPermissionController extends Controller
             $staff->syncPermissions($request->input('permissions', []));
         } else {
             // Super Admin & Admin have all access; clean up individual overrides
-            $staff->userPermissions()->delete();
+            $staff->adminPermissions()->delete();
         }
 
         return redirect()->route('admin.staff.index')
@@ -181,37 +172,39 @@ class StaffPermissionController extends Controller
     /**
      * Toggle staff active status.
      */
-    public function toggleStatus(User $staff)
+    public function toggleStatus(Admin $staff)
     {
-        if ($staff->id === auth()->id()) {
+        $currentAdminId = Auth::guard('admin')->id() ?? Auth::id();
+        if ($staff->id === $currentAdminId) {
             return back()->with('error', 'You cannot deactivate your own logged-in account.');
         }
 
-        $staff->status = ($staff->status === 'active') ? 'inactive' : 'active';
+        $staff->is_active = !$staff->is_active;
         $staff->save();
 
-        $statusLabel = $staff->status === 'active' ? 'activated' : 'deactivated';
+        $statusLabel = $staff->is_active ? 'activated' : 'deactivated';
         return back()->with('success', "Staff member '{$staff->name}' has been {$statusLabel}.");
     }
 
     /**
      * Delete staff member.
      */
-    public function destroy(User $staff)
+    public function destroy(Admin $staff)
     {
-        if ($staff->id === auth()->id()) {
+        $currentAdminId = Auth::guard('admin')->id() ?? Auth::id();
+        if ($staff->id === $currentAdminId) {
             return back()->with('error', 'You cannot delete your own account.');
         }
 
         if ($staff->role === 'super_admin') {
-            $otherSuper = User::where('role', 'super_admin')->where('id', '!=', $staff->id)->count();
+            $otherSuper = Admin::where('role', 'super_admin')->where('id', '!=', $staff->id)->count();
             if ($otherSuper === 0) {
                 return back()->with('error', 'Cannot delete the only Super Admin.');
             }
         }
 
         $name = $staff->name;
-        $staff->userPermissions()->delete();
+        $staff->adminPermissions()->delete();
         $staff->delete();
 
         return redirect()->route('admin.staff.index')

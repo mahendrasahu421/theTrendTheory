@@ -302,15 +302,15 @@
             <tr>
                 <td style="width: 55%; vertical-align: top;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                        <img src="{{ public_path('images/vayu-logo-dark.png') }}" style="height: 36px; width: auto;" alt="VAYU">
-                        <span class="brand-logo-text" style="font-size: 16pt; font-weight: 800; color: #00285a; letter-spacing: 2px;">VAYU</span>
+                        <img src="{{ public_path('images/THE TREND THEORY-logo-dark.png') }}" style="height: 36px; width: auto;" alt="THE TREND THEORY">
+                        <span class="brand-logo-text" style="font-size: 16pt; font-weight: 800; color: #00285a; letter-spacing: 2px;">THE TREND THEORY</span>
                     </div>
                     <div class="brand-tagline">Luxury Streetwear &bull; Official Tax Invoice</div>
                     <div class="company-info">
-                        <strong>VAYU Apparels Pvt. Ltd.</strong><br>
+                        <strong>THE TREND THEORY Apparels Pvt. Ltd.</strong><br>
                         Plot No. 42, Luxury Fashion Hub, Andheri East, Mumbai, MH - 400069<br>
                         <strong>GSTIN:</strong> 27AABCT9988A1Z5 &bull; <strong>PAN:</strong> AABCT9988A<br>
-                        <strong>Email:</strong> support@vayu.com &bull; <strong>Web:</strong> vayu.com
+                        <strong>Email:</strong> support@THE TREND THEORY.com &bull; <strong>Web:</strong> THE TREND THEORY.com
                     </div>
                 </td>
                 <td style="width: 45%; vertical-align: top;" class="text-right">
@@ -505,12 +505,12 @@
                     <div class="terms-title">Terms &amp; Conditions</div>
                     <div class="terms-content">
                         &bull; 7-Day hassle-free return or exchange with brand tags intact in original box.<br>
-                        &bull; This invoice is legal proof of purchase and warranty for VAYU products.<br>
+                        &bull; This invoice is legal proof of purchase and warranty for THE TREND THEORY products.<br>
                         &bull; Computer generated official tax invoice; no physical signature required.
                     </div>
                 </td>
                 <td style="width: 40%; vertical-align: bottom;" class="sign-area">
-                    <div class="sign-company">For VAYU Apparels Pvt. Ltd.</div>
+                    <div class="sign-company">For THE TREND THEORY Apparels Pvt. Ltd.</div>
                     <div class="sign-img">Mahendra Sahu</div>
                     <div class="sign-label">Authorized Signatory</div>
                 </td>
@@ -520,7 +520,7 @@
 
     {{-- ── 7. Subtle Bottom Bar ── --}}
     <div class="bottom-bar">
-        Official Brand Store &bull; Thank you for shopping with VAYU! &bull; www.vayu.com
+        Official Brand Store &bull; Thank you for shopping with THE TREND THEORY! &bull; www.THE TREND THEORY.com
     </div>
 </div>
 

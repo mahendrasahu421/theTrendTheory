@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Vayu - LUXURY CHECKOUT & BUY IT NOW POPUP MODAL
+   THE TREND THEORY - LUXURY CHECKOUT & BUY IT NOW POPUP MODAL
    ========================================================================== */
 
 /* ─── BASE RESET & POPUP WRAPPER ─── */
@@ -62,33 +62,39 @@
 
 /* ─── CENTER MODAL DISPLAY ─── */
 .checkout-pop.center-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 100005 !important;
     display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 16px !important;
 }
 
 .checkout-pop.center-modal.is-open {
-    display: flex;
-    pointer-events: auto;
+    display: flex !important;
+    pointer-events: auto !important;
 }
 
 .checkout-pop.center-modal .checkout-pop__panel {
-    position: relative;
-    top: auto;
-    right: auto;
-    width: min(520px, calc(100vw - 24px));
-    max-width: 520px;
-    height: min(88vh, 800px);
-    max-height: 800px;
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    margin: auto !important;
+    width: min(520px, calc(100vw - 24px)) !important;
+    max-width: 520px !important;
+    height: min(88vh, 760px) !important;
+    max-height: 88vh !important;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 20px;
+    border-radius: 20px !important;
     box-shadow: 0 25px 65px -10px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
-    transform: none;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    transform: none !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
     animation: gcoPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -1440,19 +1446,21 @@
     transition: background 0.15s ease;
 }
 
-/* ─── MOBILE MODAL (BOTTOM SHEET) ─── */
+/* ─── MOBILE MODAL (CENTERED LUXURY POPUP) ─── */
 @media (max-width: 600px) {
     .checkout-pop.center-modal {
-        padding: 0 !important;
-        align-items: flex-end !important;
+        padding: 12px !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     .checkout-pop.center-modal .checkout-pop__panel {
-        width: 100% !important;
+        width: min(520px, calc(100vw - 20px)) !important;
         max-width: 100% !important;
-        height: 92vh !important;
-        max-height: 92vh !important;
-        border-radius: 20px 20px 0 0 !important;
+        height: min(90vh, 720px) !important;
+        max-height: 90vh !important;
+        border-radius: 20px !important;
+        margin: auto !important;
     }
 
     .checkout-pop__top {

@@ -42,7 +42,7 @@ class WhatsAppService
         $invoiceUrl = route('invoice.download', $order->order_number);
 
         // Clean structured WhatsApp Confirmation & Invoice Message
-        $message = "🎉 *ORDER CONFIRMED & INVOICE — Vayu*\n\n"
+        $message = "🎉 *ORDER CONFIRMED & INVOICE — THE TREND THEORY*\n\n"
                  . "Hello *{$order->shipping_name}*,\n"
                  . "Thank you for shopping with us! Your order *#{$order->order_number}* has been confirmed and is being prepared for dispatch.\n\n"
                  . "📋 *Order Details:*\n"
@@ -64,7 +64,7 @@ class WhatsAppService
                  . "🚚 *Live Order Tracking:* {$trackingUrl}\n"
                  . "🧾 *Download Tax Invoice (PDF):* {$invoiceUrl}\n\n"
                  . "💬 *Need Help?* Reply to this WhatsApp message or call our support team.\n"
-                 . "✨ *Vayu* — It's Not Just a Trend, It's a Theory.";
+                 . "✨ *THE TREND THEORY* — It's Not Just a Trend, It's a Theory.";
 
         // Direct WhatsApp Click-to-Chat Link for Instant Customer & Admin Verification
         $directWaUrl = "https://wa.me/{$phone}?text=" . urlencode($message);

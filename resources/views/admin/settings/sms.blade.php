@@ -373,7 +373,7 @@
                                     <strong class="font-xs text-navy">Order Placed SMS</strong>
                                     <input type="checkbox" name="sms_trigger_order_placed" value="1" @checked($settings['sms_trigger_order_placed'] ?? '1' == '1') class="form-check-input">
                                 </div>
-                                <textarea name="sms_template_order_placed" class="form-textarea-custom">{{ $settings['sms_template_order_placed'] ?? "Hi {customer_name}, your order #{order_id} for ₹{order_total} is confirmed! - Vayu" }}</textarea>
+                                <textarea name="sms_template_order_placed" class="form-textarea-custom">{{ $settings['sms_template_order_placed'] ?? "Hi {customer_name}, your order #{order_id} for ₹{order_total} is confirmed! - THE TREND THEORY" }}</textarea>
                             </div>
                         </div>
 
@@ -383,7 +383,7 @@
                                     <strong class="font-xs text-navy">Order Shipped SMS</strong>
                                     <input type="checkbox" name="sms_trigger_order_shipped" value="1" @checked($settings['sms_trigger_order_shipped'] ?? '1' == '1') class="form-check-input">
                                 </div>
-                                <textarea name="sms_template_order_shipped" class="form-textarea-custom">{{ $settings['sms_template_order_shipped'] ?? "Your package #{order_id} has shipped via {courier_name}. Track here: {tracking_url} - Vayu" }}</textarea>
+                                <textarea name="sms_template_order_shipped" class="form-textarea-custom">{{ $settings['sms_template_order_shipped'] ?? "Your package #{order_id} has shipped via {courier_name}. Track here: {tracking_url} - THE TREND THEORY" }}</textarea>
                             </div>
                         </div>
 
@@ -393,7 +393,7 @@
                                     <strong class="font-xs text-navy">Order Delivered SMS</strong>
                                     <input type="checkbox" name="sms_trigger_order_delivered" value="1" @checked($settings['sms_trigger_order_delivered'] ?? '1' == '1') class="form-check-input">
                                 </div>
-                                <textarea name="sms_template_order_delivered" class="form-textarea-custom">{{ $settings['sms_template_order_delivered'] ?? "Your order #{order_id} from Vayu has been delivered. Enjoy styling!" }}</textarea>
+                                <textarea name="sms_template_order_delivered" class="form-textarea-custom">{{ $settings['sms_template_order_delivered'] ?? "Your order #{order_id} from THE TREND THEORY has been delivered. Enjoy styling!" }}</textarea>
                             </div>
                         </div>
                     </div>

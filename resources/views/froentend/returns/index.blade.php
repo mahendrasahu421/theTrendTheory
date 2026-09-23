@@ -2,7 +2,7 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>My Returns &amp; Exchanges | Vayu</title>
+    <title>My Returns &amp; Exchanges | THE TREND THEORY</title>
     <meta name="robots" content="noindex, nofollow">
 @endpush
 

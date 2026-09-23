@@ -251,7 +251,7 @@
     <div class="order-strip">
         <div>
             <div class="merchant-name">Paying to</div>
-            <div class="merchant-store">Vayu</div>
+            <div class="merchant-store">THE TREND THEORY</div>
         </div>
         <div class="order-amount-box">
             <div class="order-amount-label">Amount Payable</div>

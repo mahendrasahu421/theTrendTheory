@@ -2,15 +2,15 @@
 @extends('froentend.layouts.app')
 
 @section('custom_seo')
-    <title>Privacy Policy | Vayu — Luxury Streetwear</title>
-    <meta name="description" content="Learn how Vayu protects and manages your personal information, payment security, and data privacy.">
+    <title>Privacy Policy | THE TREND THEORY — Luxury Streetwear</title>
+    <meta name="description" content="Learn how THE TREND THEORY protects and manages your personal information, payment security, and data privacy.">
     <link rel="canonical" href="{{ url()->current() }}">
 @endsection
 
 @section('main')
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Vayu — PRIVACY POLICY STYLES
+   THE TREND THEORY — PRIVACY POLICY STYLES
    ═══════════════════════════════════════════════════════════════════ */
 :root {
     --policy-navy: #00285a;
@@ -268,7 +268,7 @@
             <section id="intro" class="policy-section">
                 <h2 class="policy-sec-heading"><i class="bi bi-shield-shaded"></i> 1. Overview &amp; Commitment</h2>
                 <p class="policy-text">
-                    At <strong>Vayu</strong> (operated by <strong>Vayu Apparels Pvt. Ltd.</strong>), we value your trust and are deeply committed to protecting your personal privacy. This Privacy Policy outlines what data we collect, how it is secured, and your rights under Indian Information Technology (IT) laws and global privacy standards.
+                    At <strong>THE TREND THEORY</strong> (operated by <strong>THE TREND THEORY Apparels Pvt. Ltd.</strong>), we value your trust and are deeply committed to protecting your personal privacy. This Privacy Policy outlines what data we collect, how it is secured, and your rights under Indian Information Technology (IT) laws and global privacy standards.
                 </p>
             </section>
 
@@ -300,7 +300,7 @@
             <section id="security" class="policy-section">
                 <h2 class="policy-sec-heading"><i class="bi bi-credit-card-2-front"></i> 4. Payment Security &amp; Encryption</h2>
                 <div class="policy-callout">
-                    <strong>Zero Card Data Storage:</strong> Vayu does NOT store your credit/debit card numbers, CVVs, or Net Banking credentials on our servers.
+                    <strong>Zero Card Data Storage:</strong> THE TREND THEORY does NOT store your credit/debit card numbers, CVVs, or Net Banking credentials on our servers.
                 </div>
                 <p class="policy-text">
                     All financial transactions are processed through RBI-approved, PCI-DSS Level 1 compliant payment gateways (Razorpay) using end-to-end <strong>256-bit SSL encryption</strong>.
@@ -346,7 +346,7 @@
                 <div class="policy-contact-box">
                     <div style="font-weight: 800; color: #00285a; font-size: 15px; margin-bottom: 6px;">Grievance Officer: Mahendra Sahu</div>
                     <div style="font-size: 13.5px; color: #475569; line-height: 1.6;">
-                        Vayu Apparels Pvt. Ltd.<br>
+                        THE TREND THEORY Apparels Pvt. Ltd.<br>
                         Plot No. 42, Luxury Fashion Hub, Andheri East, Mumbai, MH - 400069<br>
                         <strong>Privacy Email:</strong> <a href="mailto:privacy@thetrendtheory.com" style="color: #00285a; font-weight: 700;">privacy@thetrendtheory.com</a><br>
                         <strong>Support Helpline:</strong> +91 98765 43210 (Mon - Sat, 10 AM - 7 PM IST)

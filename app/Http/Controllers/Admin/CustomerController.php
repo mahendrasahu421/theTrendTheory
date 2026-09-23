@@ -17,7 +17,7 @@ class CustomerController extends Controller
     {
         $perPage = max(5, min((int) $request->get('per_page', 15), 100));
         $page = max(1, (int) $request->get('page', 1));
-        $status = $request->get('status', '');
+        $status = $request->has('status') ? $request->get('status') : '1';
 
         $query = $this->customerQuery($request)
             ->withCount('orders')
@@ -25,7 +25,7 @@ class CustomerController extends Controller
                 $query->where('payment_status', 'paid');
             }], 'total_amount');
 
-        if ($status !== '') {
+        if ($status !== '' && $status !== null) {
             $query->where('is_active', (bool) (int) $status);
         }
 
@@ -60,19 +60,35 @@ class CustomerController extends Controller
     {
         abort_unless($user->isCustomer(), 404);
 
-        $user->load(['orders' => fn($q) => $q->latest()]);
-        $totalSpent = $user->orders()->where('payment_status', 'paid')->sum('total_amount');
+        $user->load([
+            'orders' => fn($q) => $q->with('items')->latest(),
+            'addresses',
+        ]);
+        $totalSpent = (float) $user->orders()->where('payment_status', 'paid')->sum('total_amount');
         
         $activities = \App\Models\UserActivity::where('user_id', $user->id)
-            ->orWhere('session_id', request()->session()->getId())
             ->latest()
-            ->limit(20)
+            ->limit(30)
             ->get();
+
+        if ($activities->isEmpty()) {
+            $activities = \App\Models\UserActivity::where('session_id', request()->session()->getId())
+                ->latest()
+                ->limit(20)
+                ->get();
+        }
 
         $visitorLogs = \App\Models\VisitorLog::where('user_id', $user->id)
             ->latest()
-            ->limit(5)
+            ->limit(10)
             ->get();
+
+        if ($visitorLogs->isEmpty()) {
+            $visitorLogs = \App\Models\VisitorLog::where('session_id', request()->session()->getId())
+                ->latest()
+                ->limit(5)
+                ->get();
+        }
 
         return view('admin.customers.show', compact('user', 'totalSpent', 'activities', 'visitorLogs'));
     }

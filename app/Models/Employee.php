@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     protected $fillable = [
-        'user_id','employee_id','name','email','phone',
+        'admin_id','user_id','employee_id','name','email','phone',
         'role','department','designation','salary',
         'joining_date','status','profile_image','address',
     ];
     protected $casts = ['joining_date'=>'date','salary'=>'decimal:2'];
 
+    public function admin()      { return $this->belongsTo(Admin::class); }
     public function user()       { return $this->belongsTo(User::class); }
     public function attendance() { return $this->hasMany(Attendance::class); }
 

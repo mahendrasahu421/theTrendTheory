@@ -280,7 +280,7 @@
         <div>
             <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;letter-spacing:2px">Product Editor Panel
             </div>
-            <div style="font-size:12px;opacity:.65;margin-top:3px">Welcome, {{ auth()->user()->name }} ·
+            <div style="font-size:12px;opacity:.65;margin-top:3px">Welcome, {{ (auth('admin')->user() ?? auth()->user())?->name }} ·
                 {{ now()->format('d M Y') }}</div>
         </div>
         <a href="{{ route('admin.products.create') }}"

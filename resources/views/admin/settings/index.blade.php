@@ -1568,6 +1568,44 @@
                     @method('PUT')
                     <input type="hidden" name="media_id" id="edit_media_id">
                     <div style="display:flex; flex-direction:column; gap:16px;">
+                        {{-- Current Media Asset Display --}}
+                        <div class="form-grp">
+                            <label><i class="bi bi-eye"></i> Current Media Asset</label>
+                            <div id="edit_media_current_container" style="background:#0f172a; border-radius:12px; overflow:hidden; position:relative; min-height:160px; max-height:220px; display:flex; align-items:center; justify-content:center; border: 1.5px solid #cbd5e1;">
+                                <img id="edit_media_current_img" src="" style="width:100%; max-height:220px; object-fit:contain; display:none;">
+                                <video id="edit_media_current_video" src="" controls style="width:100%; max-height:220px; object-fit:contain; display:none;"></video>
+                                <span id="edit_media_current_badge" class="media-type-badge" style="position:absolute; top:12px; right:12px;"></span>
+                            </div>
+                        </div>
+
+                        {{-- Replace Media File Option --}}
+                        <div class="form-grp">
+                            <label><i class="bi bi-cloud-arrow-up"></i> Replace Image or Video File (Optional)</label>
+                            <div class="file-upload-area">
+                                <label class="file-upload-label" id="edit_media_file_label" for="edit_media_file">
+                                    <span id="edit_media_file_text" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%">
+                                        <i class="bi bi-cloud-arrow-up" style="font-size:22px"></i> Click to Choose Replacement Image / Video
+                                    </span>
+                                    <input type="file" name="file" id="edit_media_file" class="file-upload-input" accept="image/*,video/*" onchange="handleEditFileSelected(this)">
+                                </label>
+                            </div>
+                            <div class="hint">Leave empty if you only want to update details. Supported: JPG, PNG, WebP, MP4, MOV, WebM (Max 50MB)</div>
+                            
+                            {{-- New Replacement Preview --}}
+                            <div id="edit_media_new_preview" class="image-preview" style="display:none; margin-top:10px; text-align:center; padding:12px; background:#f0fdf4; border:1.5px dashed #86efac; border-radius:12px;">
+                                <div style="font-size:11.5px; font-weight:700; color:#15803d; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                    <i class="bi bi-check-circle-fill"></i> New File Selected (Will Replace Current Media on Save)
+                                </div>
+                                <img id="edit_media_new_preview_img" src="" style="max-height:140px; border-radius:10px; display:none; margin:0 auto; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                                <video id="edit_media_new_preview_video" src="" controls style="max-height:140px; border-radius:10px; display:none; margin:0 auto; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></video>
+                                <div style="margin-top:10px;">
+                                    <button type="button" class="btn-admin btn-danger btn-sm" onclick="clearEditMediaFile()">
+                                        <i class="bi bi-x-circle"></i> Cancel Replacement (Keep Original)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-grp">
                             <label>Title *</label>
                             <input type="text" name="title" id="edit_media_title" class="form-control-admin" required>
@@ -2068,7 +2106,52 @@
                 });
             }
 
+            function clearEditMediaFile() {
+                const fileInput = document.getElementById('edit_media_file');
+                if (fileInput) fileInput.value = '';
+                const previewDiv = document.getElementById('edit_media_new_preview');
+                if (previewDiv) previewDiv.style.display = 'none';
+                const prevImg = document.getElementById('edit_media_new_preview_img');
+                if (prevImg) { prevImg.src = ''; prevImg.style.display = 'none'; }
+                const prevVid = document.getElementById('edit_media_new_preview_video');
+                if (prevVid) { prevVid.src = ''; prevVid.style.display = 'none'; }
+                const labelText = document.getElementById('edit_media_file_text');
+                if (labelText) {
+                    labelText.innerHTML = `<i class="bi bi-cloud-arrow-up" style="font-size:22px"></i> Click to Choose Replacement Image / Video`;
+                }
+            }
+
+            function handleEditFileSelected(input) {
+                if (input.files && input.files[0]) {
+                    const file = input.files[0];
+                    const labelText = document.getElementById('edit_media_file_text');
+                    if (labelText) {
+                        labelText.innerHTML = `<i class="bi bi-file-earmark-check-fill" style="font-size:22px; color:#10b981"></i> <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                    }
+
+                    const previewDiv = document.getElementById('edit_media_new_preview');
+                    const prevImg = document.getElementById('edit_media_new_preview_img');
+                    const prevVid = document.getElementById('edit_media_new_preview_video');
+
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            if (prevImg) { prevImg.src = ev.target.result; prevImg.style.display = 'inline-block'; }
+                            if (prevVid) { prevVid.style.display = 'none'; }
+                            if (previewDiv) previewDiv.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type.startsWith('video/')) {
+                        const url = URL.createObjectURL(file);
+                        if (prevVid) { prevVid.src = url; prevVid.style.display = 'inline-block'; }
+                        if (prevImg) { prevImg.style.display = 'none'; }
+                        if (previewDiv) previewDiv.style.display = 'block';
+                    }
+                }
+            }
+
             function editMedia(id) {
+                clearEditMediaFile();
                 fetch(`/admin/media/gallery/${id}`)
                     .then(response => response.json())
                     .then(data => {
@@ -2079,6 +2162,28 @@
                         linkInput.value = data.button_link || '';
                         linkInput.dataset.auto = linkInput.value ? 'false' : 'true';
                         
+                        // Set Current Media Preview
+                        const currentImg = document.getElementById('edit_media_current_img');
+                        const currentVid = document.getElementById('edit_media_current_video');
+                        const currentBadge = document.getElementById('edit_media_current_badge');
+                        
+                        const isVideo = data.type === 'video' || (data.mime_type && data.mime_type.startsWith('video/'));
+                        if (isVideo) {
+                            if (currentVid) { currentVid.src = data.url; currentVid.style.display = 'block'; }
+                            if (currentImg) { currentImg.style.display = 'none'; }
+                            if (currentBadge) {
+                                currentBadge.textContent = 'CURRENT VIDEO';
+                                currentBadge.className = 'media-type-badge video';
+                            }
+                        } else {
+                            if (currentImg) { currentImg.src = data.url; currentImg.style.display = 'block'; }
+                            if (currentVid) { currentVid.style.display = 'none'; }
+                            if (currentBadge) {
+                                currentBadge.textContent = 'CURRENT IMAGE';
+                                currentBadge.className = 'media-type-badge image';
+                            }
+                        }
+
                         // Sync multi-product selection
                         let select = document.getElementById('edit_media_product_ids');
                         let selectedIds = (data.product_ids || []).map(i => i.toString());
@@ -2102,28 +2207,32 @@
                 let select = document.getElementById('edit_media_product_ids');
                 let productIds = Array.from(select.selectedOptions).map(o => o.value);
 
-                const formData = {
-                    title: document.getElementById('edit_media_title').value,
-                    subtitle: document.getElementById('edit_media_description').value,
-                    button_link: document.getElementById('edit_media_button_link').value,
-                    product_ids: productIds,
-                    sort_order: document.getElementById('edit_media_sort_order').value
-                };
+                const formData = new FormData();
+                formData.append('_method', 'PUT');
+                formData.append('title', document.getElementById('edit_media_title').value);
+                formData.append('subtitle', document.getElementById('edit_media_description').value);
+                formData.append('button_link', document.getElementById('edit_media_button_link').value);
+                productIds.forEach(pId => formData.append('product_ids[]', pId));
+                formData.append('sort_order', document.getElementById('edit_media_sort_order').value || 0);
+
+                const fileInput = document.getElementById('edit_media_file');
+                if (fileInput && fileInput.files && fileInput.files[0]) {
+                    formData.append('file', fileInput.files[0]);
+                }
                 
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Updating...';
+                submitBtn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Saving Changes...';
                 submitBtn.disabled = true;
 
                 try {
                     const response = await fetch(`/admin/media/gallery/${id}`, {
-                        method: 'PUT',
+                        method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify(formData)
+                        body: formData
                     });
                     const data = await response.json();
                     if (data.success) {
@@ -2133,7 +2242,7 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error updating media');
+                    alert('Error updating media: ' + error.message);
                 } finally {
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;

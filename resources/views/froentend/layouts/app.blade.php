@@ -8,13 +8,13 @@
         @yield('custom_seo')
     @else
         @stack('seo')
-        <title>{{ $meta_title ?? 'VAYU' }}</title>
+        <title>{{ $meta_title ?? 'THE TREND THEORY' }}</title>
         <meta name="description" content="{{ $meta_description ?? 'Shop latest fashion and luxury oversized streetwear.' }}">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
-        <meta property="og:site_name" content="VAYU">
+        <meta property="og:site_name" content="THE TREND THEORY">
         <meta property="og:type" content="{{ $og_type ?? 'website' }}">
         <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
-        <meta property="og:title" content="{{ $meta_title ?? 'VAYU' }}">
+        <meta property="og:title" content="{{ $meta_title ?? 'THE TREND THEORY' }}">
         <meta property="og:description" content="{{ $meta_description ?? 'Shop latest luxury streetwear drops.' }}">
         <meta property="og:image" content="{{ $og_image ?? asset('images/og-default.jpg') }}">
         <meta property="og:image:secure_url" content="{{ $og_image ?? asset('images/og-default.jpg') }}">
@@ -23,7 +23,7 @@
         
         <!-- Twitter / WhatsApp Cards -->
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="{{ $meta_title ?? 'VAYU' }}">
+        <meta name="twitter:title" content="{{ $meta_title ?? 'THE TREND THEORY' }}">
         <meta name="twitter:description" content="{{ $meta_description ?? 'Shop latest luxury streetwear drops.' }}">
         <meta name="twitter:image" content="{{ $og_image ?? asset('images/og-default.jpg') }}">
     @endif
@@ -40,6 +40,8 @@
     <link href="{{ asset('frontend/style.css') }}?v={{ filemtime(public_path('frontend/style.css')) }}" rel="stylesheet" />
     <link href="{{ asset('frontend/checkout-pop.css') }}?v={{ filemtime(public_path('frontend/checkout-pop.css')) }}" rel="stylesheet" />
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
     @stack('styles')
     <style>
         .ttt-auth-pop{position:fixed;inset:0;z-index:12000;display:none;align-items:center;justify-content:center;padding:20px}
@@ -332,8 +334,8 @@
             {{-- CENTER: Brand --}}
             <div class="brand-center">
                 <a href="{{ route('home') }}" class="brand-link d-inline-flex align-items-center gap-2 text-decoration-none">
-                    <img src="{{ asset('images/vayu-logo-dark.png') }}" alt="VAYU" class="brand-logo-img" style="height: 36px; width: auto; object-fit: contain;">
-                    <span class="brand-text">VAYU</span>
+                    {{-- <img src="{{ asset('images/THE TREND THEORY-logo-dark.png') }}" alt="THE TREND THEORY" class="brand-logo-img" style="height: 36px; width: auto; object-fit: contain;"> --}}
+                    <span class="brand-text">THE TREND THEORY</span>
                 </a>
             </div>
 
@@ -357,10 +359,6 @@
                                 <span class="ttt-notif-title"><i class="bi bi-bell-fill"></i> Notifications</span>
                                 <span class="ttt-notif-subtitle">Orders, drops and offers</span>
                             </div>
-                            <button type="button" class="ttt-mark-read-btn" onclick="markAllNotificationsRead()" aria-label="Mark all notifications as read">
-                                <i class="bi bi-check2-all"></i>
-                                <span>Read all</span>
-                            </button>
                         </div>
                         {{-- Push Permission Quick Action Bar --}}
                         <div class="ttt-notif-perm-bar" id="tttNotifPermBar">
@@ -414,7 +412,7 @@
             <button type="button" class="ttt-auth-close" onclick="closeTttAuthModal()" aria-label="Close">×</button>
             <div class="ttt-auth-media">
                 <img src="{{ asset('storage/gallery/images/main-desktop-wide-fc7f45c7-98d4-4647-9121-851811d07ec6-2800x1000-crop-center-1784095408-jydom4.webp') }}"
-                     alt="Vayu new fashion drop"
+                     alt="THE TREND THEORY new fashion drop"
                      onerror="this.src='{{ asset('images/TheTrendTheory.jpg') }}'">
                 <div class="ttt-auth-media-copy">
                     <div class="ttt-auth-kicker">
@@ -426,7 +424,7 @@
                 </div>
             </div>
             <div class="ttt-auth-form-panel">
-                <div class="ttt-auth-brand">VAYU</div>
+                <div class="ttt-auth-brand">THE TREND THEORY</div>
                 <h3 class="ttt-auth-title">Login with mobile</h3>
               
                 <div class="ttt-auth-field">
@@ -453,7 +451,7 @@
                         Create account
                     </a>
                 </div>
-                <p class="ttt-auth-terms">By continuing, you agree to receive login OTP and account updates from VAYU.</p>
+                <p class="ttt-auth-terms">By continuing, you agree to receive login OTP and account updates from THE TREND THEORY.</p>
             </div>
         </div>
     </div>
@@ -467,7 +465,7 @@
                     <i class="bi bi-bell-fill"></i>
                 </div>
                 <div class="push-text-wrap">
-                    <h4 class="push-title">Stay updated with VAYU</h4>
+                    <h4 class="push-title">Stay updated with THE TREND THEORY</h4>
                     <p class="push-desc">Get order updates, new drops and selected offers on your device.</p>
                 </div>
             </div>
@@ -494,7 +492,7 @@
             <div class="gco-view active" id="gcoViewMain">
                 <div class="checkout-pop__top">
                     <div class="checkout-pop__brand">
-                        <i class="bi bi-gem"></i> VAYU
+                        <i class="bi bi-gem"></i> THE TREND THEORY
                     </div>
                     <div class="checkout-pop__secure">
                         <i class="bi bi-shield-fill-check"></i> 100% SECURE
@@ -890,7 +888,7 @@
                     <div id="productGallery" class="quick-gallery-strip"></div>
                 </div>
                 <div class="product-right">
-                    <div class="slider-brand-tag">VAYU • SIGNATURE</div>
+                    <div class="slider-brand-tag">THE TREND THEORY • SIGNATURE</div>
                     <h2 class="product-title" id="sliderProductName">Loading Product...</h2>
                     
                     <div class="price-row">
@@ -2403,7 +2401,7 @@
                     amount: data.amount,
                     currency: data.currency || 'INR',
                     order_id: data.razorpay_order_id,
-                    name: 'VAYU',
+                    name: 'THE TREND THEORY',
                     description: 'Fashion Order Payment',
                     image: '/favicon.ico',
                     prefill: {
@@ -2928,7 +2926,7 @@
                         if (typeof window.openGlobalCheckoutModal === 'function') {
                             window.openGlobalCheckoutModal(cart, fallbackProduct);
                         } else {
-                            window.location.href = '/checkout';
+                            window.location.href = '/checkout?buy_now=1&product_id=' + encodeURIComponent(currentProductId) + '&size=' + encodeURIComponent(size || '') + '&design_side=' + encodeURIComponent(currentSliderPrintSide || '') + '&qty=' + encodeURIComponent(qty || 1);
                         }
                     } else if (window.TTT_AUTH_MODAL && window.TTT_AUTH_MODAL.needsAuth(data)) {
                         window.TTT_AUTH_MODAL.open(retrySliderBuyNow);
@@ -3190,7 +3188,10 @@
             if (!dd) return;
             if (dd.style.display === 'none' || dd.style.display === '') {
                 dd.style.display = 'block';
-                loadTttNotifications();
+                var countBadge = document.getElementById('notif-count');
+                if (countBadge) countBadge.style.display = 'none';
+                loadTttNotifications(true);
+                autoMarkAllReadBackend();
             } else {
                 dd.style.display = 'none';
             }
@@ -3204,19 +3205,30 @@
             }
         });
 
-        function loadTttNotifications() {
+        function loadTttNotifications(autoMarkRead) {
+            var dd = document.getElementById('tttNotifDropdown');
+            var isDropdownOpen = dd && (dd.style.display === 'block');
+
             fetch('{{ route('notifications.feed') }}')
                 .then(function(r) { return r.json(); })
                 .then(function(res) {
                     var list = document.getElementById('tttNotifList');
                     var countBadge = document.getElementById('notif-count');
-                    if (!list || !countBadge) return;
-                    
-                    if (res.unread_count > 0) {
-                        countBadge.innerText = res.unread_count > 9 ? '9+' : res.unread_count;
-                        countBadge.style.display = 'flex';
+                    if (!list) return;
+
+                    // If opening or dropdown is open, automatically clear unread badge and mark read
+                    if (autoMarkRead || isDropdownOpen) {
+                        if (countBadge) countBadge.style.display = 'none';
+                        autoMarkAllReadBackend();
                     } else {
-                        countBadge.style.display = 'none';
+                        if (countBadge) {
+                            if (res.unread_count > 0) {
+                                countBadge.innerText = res.unread_count > 9 ? '9+' : res.unread_count;
+                                countBadge.style.display = 'flex';
+                            } else {
+                                countBadge.style.display = 'none';
+                            }
+                        }
                     }
 
                     if (!res.notifications || res.notifications.length === 0) {
@@ -3230,7 +3242,9 @@
                     }
 
                     res.notifications.forEach(function(n) {
-                        var unreadClass = n.is_read ? '' : 'unread';
+                        // When dropdown is viewed, mark read automatically
+                        var isUnread = (!autoMarkRead && !isDropdownOpen && !n.is_read);
+                        var unreadClass = isUnread ? 'unread' : '';
                         var title = escapeTttNotifHtml(n.title || 'Notification');
                         var message = escapeTttNotifHtml(n.message || '');
                         var timeAgo = escapeTttNotifHtml(n.time_ago || '');
@@ -3239,11 +3253,12 @@
                         var imgTag = n.image_url ? '<img src="' + escapeTttNotifAttr(n.image_url) + '" class="ttt-notif-thumb" alt="">' : '<div class="ttt-notif-icon-box"><i class="bi ' + escapeTttNotifAttr(n.icon || 'bi-bell-fill') + '"></i></div>';
                         
                         html += '<div class="ttt-notif-item ' + unreadClass + '" onclick="handleNotifClick(' + Number(n.id) + ', decodeURIComponent(\'' + actionUrl + '\'))">';
-                        html += '<span class="ttt-notif-unread-dot"></span>';
+                        if (isUnread) {
+                            html += '<span class="ttt-notif-unread-dot"></span>';
+                        }
                         html += imgTag;
                         html += '<div class="ttt-notif-content">';
                         html += '<div class="ttt-notif-item-head"><strong>' + title + '</strong><span class="ttt-notif-time">' + timeAgo + '</span></div>';
-                        // html += '<p class="ttt-notif-item-msg">' + message + '</p>';
                         if (n.action_label) {
                             html += '<span class="ttt-notif-action-link">' + actionLabel + ' <i class="bi bi-arrow-right-short"></i></span>';
                         }
@@ -3258,6 +3273,21 @@
                         list.innerHTML = '<div class="ttt-notif-empty"><span class="ttt-notif-empty-icon"><i class="bi bi-wifi-off"></i></span><strong>Could not load</strong><span>Please try again in a moment.</span></div>';
                     }
                 });
+        }
+
+        function autoMarkAllReadBackend() {
+            fetch('{{ route('notifications.markAllRead') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            }).then(function() {
+                var badge = document.getElementById('notif-count');
+                if (badge) badge.style.display = 'none';
+            }).catch(function(e) {
+                console.log('Auto mark read notice:', e);
+            });
         }
 
         function escapeTttNotifHtml(value) {
@@ -3284,25 +3314,10 @@
             });
         }
 
-        function markAllNotificationsRead() {
-            fetch('{{ route('notifications.markAllRead') }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            }).then(function() {
-                var badge = document.getElementById('notif-count');
-                if (badge) badge.style.display = 'none';
-                loadTttNotifications();
-            });
-        }
-
-        // Auto load unread count on page start & check push notification prompt
+        // Auto load unread count on page start
         document.addEventListener('DOMContentLoaded', function() {
             loadTttNotifications();
             updatePushPermUI();
-            setTimeout(initPushPermissionPrompt, 800);
         });
 
         /* ─── Web Push Permission Handling ─── */
@@ -3375,10 +3390,45 @@
             requestBrowserNotificationPermission();
         }
 
+        // ─── Firebase Cloud Messaging Initialization ───
+        var tttFirebaseConfig = {
+            apiKey: "{{ config('services.firebase.api_key', 'AIzaSyBxewN-r_TDJfHBwuzcdIq2Bme6dyRCWVo') }}",
+            authDomain: "{{ config('services.firebase.project_id', 'the-trend-theory') }}.firebaseapp.com",
+            projectId: "{{ config('services.firebase.project_id', 'the-trend-theory') }}",
+            storageBucket: "{{ config('services.firebase.storage_bucket', 'the-trend-theory.firebasestorage.app') }}",
+            messagingSenderId: "{{ config('services.firebase.sender_id', '664156075505') }}",
+            appId: "{{ config('services.firebase.app_id', '1:664156075505:ios:6e6b662021c3ce7eef0050') }}"
+        };
+
+        var tttFcmMessaging = null;
+        try {
+            if (typeof firebase !== 'undefined') {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(tttFirebaseConfig);
+                }
+                if (firebase.messaging && firebase.messaging.isSupported()) {
+                    tttFcmMessaging = firebase.messaging();
+                    tttFcmMessaging.onMessage(function(payload) {
+                        console.log('[Firebase FCM] Foreground notification:', payload);
+                        var title = (payload.notification && payload.notification.title) || (payload.data && payload.data.title) || 'The Trend Theory';
+                        var body = (payload.notification && payload.notification.body) || (payload.data && payload.data.body) || '';
+                        if (typeof showWishToast === 'function') {
+                            showWishToast(title + (body ? ': ' + body : ''));
+                        }
+                        if (typeof loadTttNotifications === 'function') {
+                            loadTttNotifications();
+                        }
+                    });
+                }
+            }
+        } catch(e) {
+            console.log('[Firebase FCM] Init error:', e);
+        }
+
         // Register Service Worker for Web Push Notifications
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js').then(function(reg) {
                     console.log('Service Worker Registered successfully:', reg.scope);
                     if (Notification.permission === 'granted') {
                         syncPushSubscription(reg);
@@ -3391,28 +3441,65 @@
 
         function syncPushSubscription(swReg) {
             try {
-                var endpoint = 'https://webpush.thetrendtheory.com/sub/' + (localStorage.getItem('ttt_device_id') || (function() {
+                var deviceId = localStorage.getItem('ttt_device_id') || (function() {
                     var did = 'dev_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
                     localStorage.setItem('ttt_device_id', did);
                     return did;
-                })());
+                })();
 
-                fetch('/api/push/subscribe', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : ''
-                    },
-                    body: JSON.stringify({
-                        endpoint: endpoint,
-                        public_key: 'p256dh_' + (localStorage.getItem('ttt_device_id') || 'key'),
-                        auth_token: 'auth_' + (localStorage.getItem('ttt_device_id') || 'secret'),
-                        content_encoding: 'aesgcm'
-                    })
-                }).catch(function(e) { console.log('Push sync error:', e); });
+                if (tttFcmMessaging && swReg) {
+                    tttFcmMessaging.getToken({
+                        serviceWorkerRegistration: swReg
+                    }).then(function(currentToken) {
+                        if (currentToken) {
+                            console.log('[Firebase FCM] Device token acquired:', currentToken);
+                            localStorage.setItem('ttt_fcm_token', currentToken);
+                            dispatchSubscriptionPayload({
+                                endpoint: 'https://fcm.googleapis.com/fcm/send/' + currentToken,
+                                fcm_token: currentToken,
+                                device_type: 'web',
+                                public_key: 'fcm_key_' + deviceId,
+                                auth_token: 'fcm_auth_' + deviceId,
+                                content_encoding: 'aesgcm'
+                            });
+                            return;
+                        }
+                        fallbackSubscriptionSync(deviceId);
+                    }).catch(function(err) {
+                        console.log('[Firebase FCM] getToken notice:', err);
+                        fallbackSubscriptionSync(deviceId);
+                    });
+                } else {
+                    fallbackSubscriptionSync(deviceId);
+                }
             } catch(e) {
                 console.log('Subscription sync notice:', e);
             }
+        }
+
+        function fallbackSubscriptionSync(deviceId) {
+            var endpoint = 'https://webpush.thetrendtheory.com/sub/' + deviceId;
+            dispatchSubscriptionPayload({
+                endpoint: endpoint,
+                device_type: 'web',
+                public_key: 'p256dh_' + deviceId,
+                auth_token: 'auth_' + deviceId,
+                content_encoding: 'aesgcm'
+            });
+        }
+
+        function dispatchSubscriptionPayload(payload) {
+            fetch('/api/push/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : ''
+                },
+                body: JSON.stringify(payload)
+            }).then(function(r) { return r.json(); })
+              .then(function(res) {
+                  console.log('[Push] Subscription registered:', res);
+              }).catch(function(e) { console.log('[Push] Sync error:', e); });
         }
 
         function requestBrowserNotificationPermission() {
@@ -5096,11 +5183,11 @@
     @stack('scripts')
 
     {{-- ═══════════════════════════════════════════════════════════════════
-         VAYU AI STYLE ASSISTANT WIDGET
+         THE TREND THEORY AI STYLE ASSISTANT WIDGET
          ═══════════════════════════════════════════════════════════════════ --}}
 
     {{-- Floating Launcher Button --}}
-    <button type="button" id="tttAILauncher" onclick="tttAIOpen()" aria-label="Open VAYU AI Style Assistant">
+    <button type="button" id="tttAILauncher" onclick="tttAIOpen()" aria-label="Open THE TREND THEORY AI Style Assistant">
         <span class="ttt-ai-avatar-ring">
             <span class="ttt-ai-avatar-inner">V</span>
         </span>
@@ -5118,7 +5205,7 @@
                     <span class="ttt-ai-status-dot"></span>
                 </div>
                 <div class="ttt-ai-header-info">
-                    <h5>VAYU AI <span class="ttt-ai-badge">LIVE</span></h5>
+                    <h5>THE TREND THEORY AI <span class="ttt-ai-badge">LIVE</span></h5>
                     <p><span class="ttt-ai-online-blink">●</span> Online · Style Support</p>
                 </div>
             </div>
@@ -5133,7 +5220,7 @@
             <div class="ttt-ai-msg ttt-ai-msg--bot">
                 <div class="ttt-ai-msg-avatar">V</div>
                 <div class="ttt-ai-msg-bubble">
-                    <p>Hi, I am <strong>VAYU AI</strong>, your style assistant at <strong>Vayu</strong>.</p>
+                    <p>Hi, I am <strong>THE TREND THEORY AI</strong>, your style assistant at <strong>THE TREND THEORY</strong>.</p>
                     <p style="margin-top:6px;">Ask me about sizes, delivery, offers, returns, or styling help.</p>
                     <div class="ttt-ai-quick-chips" id="tttAIQuickChips">
                         <button onclick="tttAIQuickSend('What sizes do you have?')">📏 Sizes</button>
@@ -5152,7 +5239,7 @@
             <div class="ttt-ai-typing-bubbles">
                 <span></span><span></span><span></span>
             </div>
-            <span style="font-size:11px;color:#94a3b8;margin-left:4px;">VAYU AI is typing...</span>
+            <span style="font-size:11px;color:#94a3b8;margin-left:4px;">THE TREND THEORY AI is typing...</span>
         </div>
 
         {{-- Input Bar --}}
@@ -5162,11 +5249,11 @@
                 <i class="bi bi-send-fill"></i>
             </button>
         </div>
-        <div class="ttt-ai-footer-note">VAYU AI · Style Assistant by Vayu</div>
+        <div class="ttt-ai-footer-note">THE TREND THEORY AI · Style Assistant by THE TREND THEORY</div>
     </div>
 
     <style>
-    /* VAYU AI WIDGET */
+    /* THE TREND THEORY AI WIDGET */
     #tttAILauncher {
         position: fixed;
         bottom: 26px;
@@ -5523,6 +5610,12 @@
         flex-shrink: 0;
     }
 
+    @media (max-width: 991px) {
+        #tttAILauncher, #tttAIChatWindow {
+            display: none !important;
+        }
+    }
+
     @media (max-width: 480px) {
         #tttAIChatWindow { left: 10px; bottom: 80px; width: calc(100vw - 20px); }
         #tttAILauncher { left: 14px; bottom: 20px; }
@@ -5534,7 +5627,7 @@
     </style>
 
     <script>
-    // VAYU AI STATE
+    // THE TREND THEORY AI STATE
     var tttAIIsOpen = false;
     var tttAIConversation = []; // {role:'user'|'bot', text:''}
     var tttAITypingTimer = null;
@@ -5641,7 +5734,7 @@
         }
         // Authenticity
         if (m.match(/original|genuine|fake|authentic|quality/)) {
-            return "✅ Every product at Vayu is **100% authentic** and quality-checked before dispatch. We work directly with designers and trusted manufacturers.\n\nNot satisfied? Our 7-day return policy has you covered.";
+            return "✅ Every product at THE TREND THEORY is **100% authentic** and quality-checked before dispatch. We work directly with designers and trusted manufacturers.\n\nNot satisfied? Our 7-day return policy has you covered.";
         }
         // Contact / Support
         if (m.match(/contact|support|help|human|agent|call|email/)) {
@@ -5653,7 +5746,7 @@
         }
         // Hello/greeting
         if (m.match(/^(hi|hello|hey|good morning|good evening|hii|helo|namaste|sup|yo)/)) {
-            return "Hi, great to see you. I am **VAYU AI**, your style assistant at Vayu. Ask me about sizes, styling tips, delivery, offers, or anything else.";
+            return "Hi, great to see you. I am **THE TREND THEORY AI**, your style assistant at THE TREND THEORY. Ask me about sizes, styling tips, delivery, offers, or anything else.";
         }
         // Thank you
         if (m.match(/thank|thanks|ty|great|awesome|perfect|cool/)) {
@@ -5661,7 +5754,7 @@
         }
         // Bye
         if (m.match(/bye|goodbye|see you|later|cya|ok thanks/)) {
-            return "Goodbye! 👋 Come back anytime. Happy shopping at Vayu! 🛍️✨";
+            return "Goodbye! 👋 Come back anytime. Happy shopping at THE TREND THEORY! 🛍️✨";
         }
         // Short unknown
         if (m.length < 3) {

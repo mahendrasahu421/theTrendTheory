@@ -42,20 +42,23 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         $remember    = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
+        // 1. Attempt Customer/User login
+        if (Auth::guard('web')->attempt($credentials, $remember)) {
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
-               
-            if (Auth::user()->role === 'super_admin') {
+            return redirect()->intended(route('home'));
+        }
+
+        // 2. Fallback: Attempt Admin login seamlessly if staff enters credentials
+        if (Auth::guard('admin')->attempt($credentials, $remember)) {
+            RateLimiter::clear($throttleKey);
+            $request->session()->regenerate();
+
+            $admin = Auth::guard('admin')->user();
+            if ($admin->isSuperAdmin()) {
                 return redirect()->route('admin.dashboard.super');
             }
-
-            if (Auth::user()->isStaff()) {
-                return redirect()->route('admin.dashboard');
-            }
-
-            // Intended URL ya home
-            return redirect()->intended(route('home'));
+            return redirect()->route('admin.dashboard');
         }
 
         RateLimiter::hit($throttleKey, 60);
@@ -183,13 +186,14 @@ class AuthController extends Controller
         event(new Registered($user));
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Welcome to Vayu!');
+        return redirect()->route('home')->with('success', 'Welcome to THE TREND THEORY!');
     }
 
     // ── LOGOUT ─────────────────────────────────────────────
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
+        Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('home');

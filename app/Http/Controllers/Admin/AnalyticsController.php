@@ -232,7 +232,8 @@ class AnalyticsController extends Controller
      */
     public function clearOldLogs(Request $request)
     {
-        if (!auth()->user()->isSuperAdmin()) {
+        $adminUser = auth('admin')->user() ?? auth()->user();
+        if (!$adminUser || !$adminUser->isSuperAdmin()) {
             abort(403, 'Only Super Admin can purge analytics logs.');
         }
 
@@ -346,7 +347,7 @@ class AnalyticsController extends Controller
             try {
                 \Illuminate\Support\Facades\Mail::raw($request->message, function ($m) use ($email, $request) {
                     $m->to($email)
-                      ->subject($request->subject ?: 'Message from ' . config('app.name', 'Vayu'));
+                      ->subject($request->subject ?: 'Message from ' . config('app.name', 'THE TREND THEORY'));
                 });
             } catch (\Throwable $e) {
                 report($e);

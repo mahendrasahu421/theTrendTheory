@@ -8,7 +8,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $user = auth('admin')->user() ?? auth()->user();
 
         return match($user->role) {
             'super_admin'    => redirect()->route('admin.dashboard.super'),

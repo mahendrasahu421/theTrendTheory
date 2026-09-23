@@ -2,15 +2,15 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>Secure Luxury Checkout | Vayu</title>
-    <meta name="description" content="Complete your luxury streetwear order securely with Vayu. Fast express delivery, instant discounts & 100% secure checkout.">
+    <title>Secure Luxury Checkout | THE TREND THEORY</title>
+    <meta name="description" content="Complete your luxury streetwear order securely with THE TREND THEORY. Fast express delivery, instant discounts & 100% secure checkout.">
     <meta name="robots" content="noindex, nofollow">
 @endpush
 
 @push('styles')
 <style>
 /* ═══════════════════════════════════════════════════════════
-   ULTRA-LUXURY MODERN CHECKOUT SYSTEM - Vayu
+   ULTRA-LUXURY MODERN CHECKOUT SYSTEM - THE TREND THEORY
    ═══════════════════════════════════════════════════════════ */
 :root {
     --co-navy: #14213d;
@@ -1248,13 +1248,493 @@
     .co-final-total-val {
         font-size: 23px;
     }
+}
 
-    .btn-checkout-primary-cta {
-        height: auto;
-        min-height: 52px;
-        padding: 12px;
+/* ── Mobile Collapsible Sections (Delivery Details & Payment Method) ── */
+.co-panel-collapse-chevron {
+    display: none;
+}
+
+.mobile-section-summary {
+    display: none;
+}
+
+@media (min-width: 769px) {
+    .co-collapsible-panel .co-panel-collapse-body {
+        max-height: none !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        display: block !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .co-collapsible-panel {
+        transition: all 0.25s ease;
+    }
+
+    .co-collapsible-panel .co-panel-head {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        transition: margin-bottom 0.25s ease, padding-bottom 0.25s ease;
+    }
+
+    .co-collapsible-panel .co-panel-head-left {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .co-collapsible-panel .co-panel-head-title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .co-panel-collapse-chevron {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 13px;
+        transition: transform 0.28s ease, background 0.2s ease, color 0.2s ease;
+        flex-shrink: 0;
+        margin-left: 10px;
+    }
+
+    .co-collapsible-panel.is-open .co-panel-collapse-chevron {
+        transform: rotate(180deg);
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .co-collapsible-panel .co-panel-collapse-body {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+    }
+
+    .co-collapsible-panel.is-open .co-panel-collapse-body {
+        max-height: 1800px;
+        opacity: 1;
+        overflow: visible;
+    }
+
+    .co-collapsible-panel:not(.is-open) {
+        padding-bottom: 16px !important;
+    }
+
+    .co-collapsible-panel:not(.is-open) .co-panel-head {
+        margin-bottom: 0 !important;
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+    }
+
+    .mobile-section-summary {
+        display: inline-block;
+        font-size: 11.5px;
+        color: #2563eb;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+        background: #f0f7ff;
+        border: 1px solid #dbeafe;
+        padding: 3px 8px;
+        border-radius: 6px;
+        max-width: fit-content;
+    }
+
+    .co-collapsible-panel.is-open .mobile-section-summary {
+        display: none !important;
+    }
+}
+
+/* ── Order Summary Collapsible on Mobile ── */
+.co-summary-mobile-total {
+    display: none;
+}
+
+@media (min-width: 769px) {
+    .co-summary-collapsible-body {
+        display: block !important;
+        max-height: none !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .co-sidebar-summary {
+        padding: 0 !important;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 16px;
+        border: 1.5px solid #dbe2ea;
+        box-shadow: 0 2px 14px rgba(15, 23, 42, 0.05);
+        background: #ffffff;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .co-sidebar-summary.is-open {
+        border-color: #cbd5e1;
+        box-shadow: 0 6px 22px rgba(15, 23, 42, 0.09);
+    }
+
+    .co-summary-header {
+        padding: 14px 16px;
+        margin: 0;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 0 solid transparent;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .co-sidebar-summary.is-open .co-summary-header {
+        border-bottom: 1px solid #f1f5f9;
+        background-color: #f8fafc;
+    }
+
+    .co-summary-mobile-total {
+        display: inline-block !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--co-navy);
+        letter-spacing: -0.2px;
+    }
+
+    .co-summary-toggle-icon {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #0f172a;
+        font-size: 12px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+    }
+
+    .co-sidebar-summary.is-open .co-summary-toggle-icon {
+        transform: rotate(180deg);
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .co-summary-collapsible-body {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        padding: 0 16px;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
+    }
+
+    .co-sidebar-summary.is-open .co-summary-collapsible-body {
+        max-height: 1800px;
+        opacity: 1;
+        padding: 14px 16px 16px;
+    }
+
+    .co-sidebar-summary.is-open #coCartItemsScroll {
+        display: flex !important;
+    }
+}
+
+/* ── Fixed Bottom Sticky Pay Bar on Mobile (Full-Width Button & Collapsible Drawer) ── */
+.checkout-mobile-sticky-wrap {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .checkout-main-wrapper {
+        padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    .checkout-right-column .btn-checkout-primary-cta {
+        display: none !important; /* On mobile, the sticky bottom full-width button is the primary CTA */
+    }
+
+    .checkout-mobile-sticky-wrap {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+        pointer-events: none;
+    }
+
+    /* Dim backdrop behind the collapsible bill drawer */
+    .mobile-sticky-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+        z-index: 10001;
+        pointer-events: none;
+    }
+
+    .mobile-sticky-backdrop.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    /* Bottom sticky container */
+    .mobile-sticky-card {
+        position: relative;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -10px 32px rgba(15, 23, 42, 0.16);
+        padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+        z-index: 10002;
+        pointer-events: auto;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+    }
+
+    /* Collapsible Bill Drawer */
+    .mobile-sticky-drawer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), padding 0.32s ease, opacity 0.25s ease;
+        opacity: 0;
+        border-bottom: 0 solid #f1f5f9;
+    }
+
+    .mobile-sticky-drawer.is-open {
+        max-height: 450px;
+        opacity: 1;
+        padding-bottom: 12px;
+        margin-bottom: 10px;
+        border-bottom: 1.5px solid #f1f5f9;
+    }
+
+    .mobile-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .mobile-drawer-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .mobile-drawer-close {
+        background: #f1f5f9;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .mobile-drawer-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .mobile-drawer-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         font-size: 12.5px;
-        line-height: 1.3;
+        color: #475569;
+    }
+
+    .mobile-drawer-row strong {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .mobile-drawer-row.text-success strong {
+        color: #059669;
+    }
+
+    .mobile-drawer-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 4px 0;
+    }
+
+    .mobile-drawer-total-row {
+        font-size: 13.5px;
+        padding-top: 2px;
+    }
+
+    .mobile-drawer-total-label {
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .mobile-drawer-total-val {
+        font-family: 'Cinzel', serif !important;
+        font-size: 20px;
+        font-weight: 900;
+        color: #00285a;
+    }
+
+    .mobile-drawer-savings {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-align: center;
+        margin-top: 4px;
+    }
+
+    /* Sticky Bar Header (Total + Collapse Trigger) */
+    .mobile-sticky-bar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 8px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .mobile-sticky-header-left {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .mobile-sticky-total-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    .mobile-sticky-amount {
+        font-family: 'Cinzel', serif !important;
+        font-size: 19px;
+        font-weight: 900;
+        color: #00285a;
+        line-height: 1;
+    }
+
+    .badge-saving-pill {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .badge-cod-pill {
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 6px;
+    }
+
+    .mobile-view-bill-btn {
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #2563eb;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 4px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .mobile-view-bill-btn i {
+        font-size: 10px;
+        transition: transform 0.25s ease;
+    }
+
+    .mobile-view-bill-btn i.rotated {
+        transform: rotate(180deg);
+    }
+
+    /* Full-Width Mobile CTA Button */
+    .mobile-sticky-btn-row {
+        width: 100%;
+    }
+
+    .btn-checkout-mobile-cta-full {
+        width: 100% !important;
+        height: 52px;
+        background: linear-gradient(135deg, #001838 0%, #00285a 100%);
+        color: #ffffff !important;
+        border: none;
+        border-radius: 12px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        box-shadow: 0 4px 18px rgba(0, 40, 90, 0.35);
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+    }
+
+    .btn-checkout-mobile-cta-full:active {
+        transform: scale(0.99);
+        opacity: 0.95;
+    }
+
+    /* iOS Safari zoom prevention on inputs */
+    .co-input-field,
+    .co-textarea-field {
+        font-size: 16px !important;
     }
 }
 
@@ -1275,6 +1755,9 @@
 @section('main')
 @php
     $totalItemsCount = collect($cart)->sum(fn($item) => (int) ($item['quantity'] ?? 1));
+    $prepaidDiscount = round($subtotal * 0.05);
+    $prepaidTotal = max(1, round($total - $prepaidDiscount));
+    $totalSavings = round($couponDiscount + $prepaidDiscount);
 @endphp
 <div class="checkout-main-wrapper">
     <div class="checkout-container">
@@ -1282,7 +1765,7 @@
         {{-- ── 1. Top Header & Segmented Stepper ── --}}
         <div class="checkout-header-bar">
             <div class="checkout-brand-title-wrap">
-                <h1 class="checkout-brand-title">Vayu</h1>
+                <h1 class="checkout-brand-title">THE TREND THEORY</h1>
                 <div class="checkout-secure-badge">
                     <i class="bi bi-shield-fill-check"></i> 100% ENCRYPTED CHECKOUT
                 </div>
@@ -1306,206 +1789,238 @@
         {{-- ── 2. Checkout Form Two-Column Grid ── --}}
         <form action="{{ route('checkout.place') }}" method="POST" id="checkoutForm">
             @csrf
+            @if(!empty($isBuyNow) && !empty($buyNowItem))
+                <input type="hidden" name="buy_now" value="1">
+                <input type="hidden" name="product_id" value="{{ $buyNowItem['id'] }}">
+                <input type="hidden" name="qty" value="{{ $buyNowItem['quantity'] }}">
+                <input type="hidden" name="size" value="{{ $buyNowItem['size'] }}">
+                <input type="hidden" name="color" value="{{ $buyNowItem['color'] }}">
+                <input type="hidden" name="design_side" value="{{ $buyNowItem['design_side'] }}">
+            @endif
             <div class="checkout-two-columns">
 
                 {{-- ── LEFT COLUMN: Shipping Address & Payment ── --}}
                 <div class="checkout-left-column">
 
-                    {{-- Section 1: Delivery Address --}}
-                    <div class="co-panel">
-                        <div class="co-panel-head">
-                            <h2 class="co-panel-title">
-                                <span class="co-panel-icon-circle"><i class="bi bi-truck"></i></span>
-                                1. Delivery Details
-                            </h2>
-                            <span style="font-size: 11.5px; color: var(--co-emerald); font-weight: 700; background: var(--co-emerald-bg); border: 1px solid var(--co-emerald-border); padding: 3px 10px; border-radius: 999px;">
-                                <i class="bi bi-lightning-charge-fill"></i> Express Delivery
-                            </span>
+                    {{-- Section 1: Delivery Address (Collapsible on mobile) --}}
+                    <div class="co-panel co-collapsible-panel is-open" id="sectionDelivery">
+                        <div class="co-panel-head" onclick="toggleCheckoutSection('sectionDelivery')">
+                            <div class="co-panel-head-left">
+                                <div class="co-panel-head-title-row">
+                                    <h2 class="co-panel-title">
+                                        <span class="co-panel-icon-circle"><i class="bi bi-truck"></i></span>
+                                        1. Delivery Details
+                                    </h2>
+                                    <span style="font-size: 11.5px; color: var(--co-emerald); font-weight: 700; background: var(--co-emerald-bg); border: 1px solid var(--co-emerald-border); padding: 3px 10px; border-radius: 999px;">
+                                        <i class="bi bi-lightning-charge-fill"></i> Express Delivery
+                                    </span>
+                                </div>
+                                <div class="mobile-section-summary" id="deliverySummarySnippet">
+                                    {{ old('name', $user->name ?? '') ? old('name', $user->name ?? '') . ' • ' . (old('city', $user->city ?? '') ?: old('pincode', $user->pincode ?? 'Address set')) : 'Tap to enter recipient name & address' }}
+                                </div>
+                            </div>
+                            <div class="co-panel-head-right">
+                                <i class="bi bi-chevron-down co-panel-collapse-chevron" id="chevronDelivery"></i>
+                            </div>
                         </div>
 
-                        {{-- Name & Phone --}}
-                        <div class="co-form-row">
+                        <div class="co-panel-collapse-body" id="bodyDelivery">
+                            {{-- Name & Phone --}}
+                            <div class="co-form-row">
+                                <div class="co-input-group">
+                                    <label class="co-input-label" for="co_name">
+                                        <span>Recipient Full Name <span class="text-danger">*</span></span>
+                                    </label>
+                                    <div class="co-input-wrapper">
+                                        <i class="bi bi-person-fill co-input-icon"></i>
+                                        <input type="text" id="co_name" name="name" class="co-input-field" value="{{ old('name', $user->name ?? '') }}" placeholder="Enter full name" required style="text-transform: capitalize;">
+                                    </div>
+                                </div>
+
+                                <div class="co-input-group">
+                                    <label class="co-input-label" for="co_phone">
+                                        <span>Mobile Number (WhatsApp) <span class="text-danger">*</span></span>
+                                    </label>
+                                    <div class="co-input-wrapper">
+                                        <i class="bi bi-whatsapp co-input-icon text-success"></i>
+                                        <input type="tel" id="co_phone" name="phone" class="co-input-field" value="{{ old('phone', $user->phone ?? '') }}" placeholder="10-digit mobile number" maxlength="15" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Street Address --}}
                             <div class="co-input-group">
-                                <label class="co-input-label" for="co_name">
-                                    <span>Recipient Full Name <span class="text-danger">*</span></span>
+                                <label class="co-input-label" for="co_address">
+                                    <span>Complete House / Flat / Street Address <span class="text-danger">*</span></span>
                                 </label>
                                 <div class="co-input-wrapper">
-                                    <i class="bi bi-person-fill co-input-icon"></i>
-                                    <input type="text" id="co_name" name="name" class="co-input-field" value="{{ old('name', $user->name ?? '') }}" placeholder="Enter full name" required style="text-transform: capitalize;">
+                                    <i class="bi bi-house-door-fill co-input-icon"></i>
+                                    <textarea id="co_address" name="address" class="co-textarea-field" rows="2" placeholder="House No, Apartment/Building, Street" required>{{ old('address', $user->address ?? '') }}</textarea>
                                 </div>
                             </div>
 
+                            {{-- Nearby Landmark --}}
                             <div class="co-input-group">
-                                <label class="co-input-label" for="co_phone">
-                                    <span>Mobile Number (WhatsApp) <span class="text-danger">*</span></span>
+                                <label class="co-input-label" for="co_landmark">
+                                    <span>Nearby Landmark <span style="color:#94a3b8; font-weight:700;">(Optional)</span></span>
                                 </label>
                                 <div class="co-input-wrapper">
-                                    <i class="bi bi-whatsapp co-input-icon text-success"></i>
-                                    <input type="tel" id="co_phone" name="phone" class="co-input-field" value="{{ old('phone', $user->phone ?? '') }}" placeholder="10-digit mobile number" maxlength="15" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Street Address --}}
-                        <div class="co-input-group">
-                            <label class="co-input-label" for="co_address">
-                                <span>Complete House / Flat / Street Address <span class="text-danger">*</span></span>
-                            </label>
-                            <div class="co-input-wrapper">
-                                <i class="bi bi-house-door-fill co-input-icon"></i>
-                                <textarea id="co_address" name="address" class="co-textarea-field" rows="2" placeholder="House No, Apartment/Building, Street" required>{{ old('address', $user->address ?? '') }}</textarea>
-                            </div>
-                        </div>
-
-                        {{-- Nearby Landmark --}}
-                        <div class="co-input-group">
-                            <label class="co-input-label" for="co_landmark">
-                                <span>Nearby Landmark <span style="color:#94a3b8; font-weight:700;">(Optional)</span></span>
-                            </label>
-                            <div class="co-input-wrapper">
-                                <i class="bi bi-geo-alt-fill co-input-icon"></i>
-                                <input type="text" id="co_landmark" name="landmark" class="co-input-field" value="{{ old('landmark') }}" placeholder="Example: near metro station, school, temple">
-                            </div>
-                        </div>
-
-                        {{-- Pincode & Country (Row 3) --}}
-                        <div class="co-form-row">
-                            <div class="co-input-group">
-                                <label class="co-input-label" for="co_pincode">
-                                    <span>Postal Pincode <span class="text-danger">*</span></span>
-                                    <span id="pincodeStatus" style="font-size: 11px; margin-left: auto; text-transform: none;"></span>
-                                </label>
-                                <div class="co-input-wrapper">
-                                    <i class="bi bi-pin-map-fill co-input-icon"></i>
-                                    <input type="text" id="co_pincode" name="pincode" class="co-input-field" value="{{ old('pincode', $user->pincode ?? '') }}" placeholder="6-digit pincode (e.g. 492001)" maxlength="6" required>
+                                    <i class="bi bi-geo-alt-fill co-input-icon"></i>
+                                    <input type="text" id="co_landmark" name="landmark" class="co-input-field" value="{{ old('landmark') }}" placeholder="Example: near metro station, school, temple">
                                 </div>
                             </div>
 
-                            <div class="co-input-group">
-                                <label class="co-input-label">Country</label>
-                                <div class="co-input-wrapper">
-                                    <i class="bi bi-globe2 co-input-icon"></i>
-                                    <input type="text" class="co-input-field" value="India (IN)" readonly style="background: #f8fafc; color: #475569; font-weight: 700;">
+                            {{-- Pincode & Country (Row 3) --}}
+                            <div class="co-form-row">
+                                <div class="co-input-group">
+                                    <label class="co-input-label" for="co_pincode">
+                                        <span>Postal Pincode <span class="text-danger">*</span></span>
+                                        <span id="pincodeStatus" style="font-size: 11px; margin-left: auto; text-transform: none;"></span>
+                                    </label>
+                                    <div class="co-input-wrapper">
+                                        <i class="bi bi-pin-map-fill co-input-icon"></i>
+                                        <input type="text" id="co_pincode" name="pincode" class="co-input-field" value="{{ old('pincode', $user->pincode ?? '') }}" placeholder="6-digit pincode (e.g. 492001)" maxlength="6" required>
+                                    </div>
+                                </div>
+
+                                <div class="co-input-group">
+                                    <label class="co-input-label">Country</label>
+                                    <div class="co-input-wrapper">
+                                        <i class="bi bi-globe2 co-input-icon"></i>
+                                        <input type="text" class="co-input-field" value="India (IN)" readonly style="background: #f8fafc; color: #475569; font-weight: 700;">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- State & City (Row 4) --}}
-                        <div class="co-form-row" style="margin-bottom: 0;">
-                            <div class="co-input-group" style="margin-bottom: 0;">
-                                <label class="co-input-label" for="co_state">
-                                    <span>State <span class="text-danger">*</span></span>
-                                </label>
-                                <div class="co-input-wrapper">
-                                    <i class="bi bi-map-fill co-input-icon"></i>
-                                    <input type="text" id="co_state" name="state" class="co-input-field" value="{{ old('state', $user->state ?? '') }}" placeholder="State (Auto-detected)" required style="text-transform: capitalize;">
+                            {{-- State & City (Row 4) --}}
+                            <div class="co-form-row" style="margin-bottom: 0;">
+                                <div class="co-input-group" style="margin-bottom: 0;">
+                                    <label class="co-input-label" for="co_state">
+                                        <span>State <span class="text-danger">*</span></span>
+                                    </label>
+                                    <div class="co-input-wrapper">
+                                        <i class="bi bi-map-fill co-input-icon"></i>
+                                        <input type="text" id="co_state" name="state" class="co-input-field" value="{{ old('state', $user->state ?? '') }}" placeholder="State (Auto-detected)" required style="text-transform: capitalize;">
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="co-input-group" style="margin-bottom: 0;">
-                                <label class="co-input-label" for="co_city">
-                                    <span>City / District <span class="text-danger">*</span></span>
-                                </label>
-                                <div class="co-input-wrapper">
-                                    <i class="bi bi-building-fill co-input-icon"></i>
-                                    <input type="text" id="co_city" name="city" class="co-input-field" value="{{ old('city', $user->city ?? '') }}" placeholder="City (Auto-detected)" required style="text-transform: capitalize;">
+                                <div class="co-input-group" style="margin-bottom: 0;">
+                                    <label class="co-input-label" for="co_city">
+                                        <span>City / District <span class="text-danger">*</span></span>
+                                    </label>
+                                    <div class="co-input-wrapper">
+                                        <i class="bi bi-building-fill co-input-icon"></i>
+                                        <input type="text" id="co_city" name="city" class="co-input-field" value="{{ old('city', $user->city ?? '') }}" placeholder="City (Auto-detected)" required style="text-transform: capitalize;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Section 2: Payment Method (with Brand Badges) --}}
-                    <div class="co-panel">
-                        <div class="co-panel-head">
-                            <h2 class="co-panel-title">
-                                <span class="co-panel-icon-circle"><i class="bi bi-shield-check"></i></span>
-                                2. Select Payment Method
-                            </h2>
-                            <span class="pm-offer-pill">⚡ 5% Instant Discount on Prepaid</span>
+                    {{-- Section 2: Payment Method (Collapsible on mobile) --}}
+                    <div class="co-panel co-collapsible-panel is-open" id="sectionPayment">
+                        <div class="co-panel-head" onclick="toggleCheckoutSection('sectionPayment')">
+                            <div class="co-panel-head-left">
+                                <div class="co-panel-head-title-row">
+                                    <h2 class="co-panel-title">
+                                        <span class="co-panel-icon-circle"><i class="bi bi-shield-check"></i></span>
+                                        2. Select Payment Method
+                                    </h2>
+                                    <span class="pm-offer-pill">⚡ 5% Instant Discount on Prepaid</span>
+                                </div>
+                                <div class="mobile-section-summary" id="paymentSummarySnippet">
+                                    Online / UPI / Cards (5% Instant Discount)
+                                </div>
+                            </div>
+                            <div class="co-panel-head-right">
+                                <i class="bi bi-chevron-down co-panel-collapse-chevron" id="chevronPayment"></i>
+                            </div>
                         </div>
 
-                        <input type="hidden" name="payment" id="selectedPaymentMethod" value="razorpay">
+                        <div class="co-panel-collapse-body" id="bodyPayment">
+                            <input type="hidden" name="payment" id="selectedPaymentMethod" value="razorpay">
 
-                        <div class="payment-selector-stack">
+                            <div class="payment-selector-stack">
 
-                            {{-- Option 1: UPI & Online Prepaid --}}
-                            <div class="payment-method-card active" data-payment="razorpay" onclick="selectPaymentMethod('razorpay')">
-                                <div class="pm-card-top-row">
-                                    <div class="pm-left-side">
-                                        <div class="pm-radio-disc"></div>
-                                        <div class="pm-details">
-                                            <h4>
-                                                UPI, Cards & Net Banking
-                                                <span class="pm-offer-pill"><i class="bi bi-patch-check-fill"></i> Save 5%</span>
-                                            </h4>
-                                            <p>Pay via Google Pay, PhonePe, Paytm, BHIM, Cards or NetBanking. Instant VIP dispatch.</p>
+                                {{-- Option 1: UPI & Online Prepaid --}}
+                                <div class="payment-method-card active" data-payment="razorpay" onclick="selectPaymentMethod('razorpay')">
+                                    <div class="pm-card-top-row">
+                                        <div class="pm-left-side">
+                                            <div class="pm-radio-disc"></div>
+                                            <div class="pm-details">
+                                                <h4>
+                                                    UPI, Cards & Net Banking
+                                                    <span class="pm-offer-pill"><i class="bi bi-patch-check-fill"></i> Save 5%</span>
+                                                </h4>
+                                                <p>Pay via Google Pay, PhonePe, Paytm, BHIM, Cards or NetBanking. Instant VIP dispatch.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Authentic SVG Brand Badges --}}
+                                    <div class="pm-brand-logos-row">
+                                        {{-- Google Pay --}}
+                                        <div class="pm-brand-badge" title="Google Pay">
+                                            <svg viewBox="0 0 48 48" style="width: 20px; height: 20px;">
+                                                <path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                                <path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                                                <path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                                            </svg>
+                                            <span>GPay</span>
+                                        </div>
+
+                                        {{-- PhonePe --}}
+                                        <div class="pm-brand-badge" style="color: #5f259f;" title="PhonePe">
+                                            <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #5f259f;">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.6 15.5l-3.2-4.5v4.5H8.8V6.5h3.6c2.4 0 4.1 1.5 4.1 3.7 0 1.6-.9 2.8-2.2 3.3l3.6 4h-4.3zm0-8.2c0-.9-.7-1.6-1.7-1.6h-1.5v3.2h1.5c1 0 1.7-.7 1.7-1.6z"/>
+                                            </svg>
+                                            <span>PhonePe</span>
+                                        </div>
+
+                                        {{-- Paytm --}}
+                                        <div class="pm-brand-badge" style="color: #002e6e;" title="Paytm">
+                                            <span style="color: #00b9f5; font-weight: 900;">Pay</span><span style="color: #002970; font-weight: 900;">tm</span>
+                                        </div>
+
+                                        {{-- BHIM UPI --}}
+                                        <div class="pm-brand-badge" style="color: #00875a;" title="BHIM UPI">
+                                            <i class="bi bi-qr-code-scan" style="color: #00875a; font-size: 13px;"></i>
+                                            <span>UPI</span>
+                                        </div>
+
+                                        {{-- Visa / Mastercard --}}
+                                        <div class="pm-brand-badge" title="Debit & Credit Cards">
+                                            <i class="bi bi-credit-card-2-front-fill" style="color: var(--co-navy); font-size: 13px;"></i>
+                                            <span>Cards</span>
+                                        </div>
+
+                                        {{-- NetBanking --}}
+                                        <div class="pm-brand-badge" title="Net Banking">
+                                            <i class="bi bi-bank2" style="color: #475569; font-size: 13px;"></i>
+                                            <span>NetBanking</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {{-- Authentic SVG Brand Badges --}}
-                                <div class="pm-brand-logos-row">
-                                    {{-- Google Pay --}}
-                                    <div class="pm-brand-badge" title="Google Pay">
-                                        <svg viewBox="0 0 48 48" style="width: 20px; height: 20px;">
-                                            <path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                                            <path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                                            <path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                                        </svg>
-                                        <span>GPay</span>
-                                    </div>
-
-                                    {{-- PhonePe --}}
-                                    <div class="pm-brand-badge" style="color: #5f259f;" title="PhonePe">
-                                        <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #5f259f;">
-                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.6 15.5l-3.2-4.5v4.5H8.8V6.5h3.6c2.4 0 4.1 1.5 4.1 3.7 0 1.6-.9 2.8-2.2 3.3l3.6 4h-4.3zm0-8.2c0-.9-.7-1.6-1.7-1.6h-1.5v3.2h1.5c1 0 1.7-.7 1.7-1.6z"/>
-                                        </svg>
-                                        <span>PhonePe</span>
-                                    </div>
-
-                                    {{-- Paytm --}}
-                                    <div class="pm-brand-badge" style="color: #002e6e;" title="Paytm">
-                                        <span style="color: #00b9f5; font-weight: 900;">Pay</span><span style="color: #002970; font-weight: 900;">tm</span>
-                                    </div>
-
-                                    {{-- BHIM UPI --}}
-                                    <div class="pm-brand-badge" style="color: #00875a;" title="BHIM UPI">
-                                        <i class="bi bi-qr-code-scan" style="color: #00875a; font-size: 13px;"></i>
-                                        <span>UPI</span>
-                                    </div>
-
-                                    {{-- Visa / Mastercard --}}
-                                    <div class="pm-brand-badge" title="Debit & Credit Cards">
-                                        <i class="bi bi-credit-card-2-front-fill" style="color: var(--co-navy); font-size: 13px;"></i>
-                                        <span>Cards</span>
-                                    </div>
-
-                                    {{-- NetBanking --}}
-                                    <div class="pm-brand-badge" title="Net Banking">
-                                        <i class="bi bi-bank2" style="color: #475569; font-size: 13px;"></i>
-                                        <span>NetBanking</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Option 2: Cash on Delivery --}}
-                            <div class="payment-method-card" data-payment="cod" onclick="selectPaymentMethod('cod')">
-                                <div class="pm-card-top-row" style="margin-bottom: 0;">
-                                    <div class="pm-left-side">
-                                        <div class="pm-radio-disc"></div>
-                                        <div class="pm-details">
-                                            <h4>Cash on Delivery (COD)</h4>
-                                            <p>Pay in cash or scan QR scanner with delivery partner at your doorstep.</p>
+                                {{-- Option 2: Cash on Delivery --}}
+                                <div class="payment-method-card" data-payment="cod" onclick="selectPaymentMethod('cod')">
+                                    <div class="pm-card-top-row" style="margin-bottom: 0;">
+                                        <div class="pm-left-side">
+                                            <div class="pm-radio-disc"></div>
+                                            <div class="pm-details">
+                                                <h4>Cash on Delivery (COD)</h4>
+                                                <p>Pay in cash or scan QR scanner with delivery partner at your doorstep.</p>
+                                            </div>
+                                        </div>
+                                        <div class="pm-brand-badge" style="background: #f1f5f9;">
+                                            <i class="bi bi-cash-stack text-success" style="font-size: 14px;"></i>
+                                            <span>Cash / QR</span>
                                         </div>
                                     </div>
-                                    <div class="pm-brand-badge" style="background: #f1f5f9;">
-                                        <i class="bi bi-cash-stack text-success" style="font-size: 14px;"></i>
-                                        <span>Cash / QR</span>
-                                    </div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
                     </div>
 
@@ -1583,114 +2098,120 @@
 
                 {{-- ── RIGHT COLUMN: Order Summary & Pay CTA ── --}}
                 <div class="checkout-right-column">
-                    <div class="co-sidebar-summary">
+                    <div class="co-sidebar-summary" id="coSidebarSummaryCard">
                         
                         <div class="co-summary-header" id="coSummaryHeader" onclick="toggleOrderSummaryDetails()" style="cursor: pointer; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <h3 class="co-summary-title">
                                     <i class="bi bi-bag-check-fill text-primary"></i> Order Summary ({{ $totalItemsCount }})
                                 </h3>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="co-summary-mobile-total" id="coSummaryHeaderTotal">₹{{ number_format($prepaidTotal) }}</span>
+                                <div onclick="event.stopPropagation();">
+                                    <a href="{{ route('cart.index') }}" class="co-summary-edit-link">Edit Bag</a>
+                                </div>
                                 <i class="bi bi-chevron-down co-summary-toggle-icon" id="coSummaryChevron"></i>
                             </div>
-                            <div onclick="event.stopPropagation();">
-                                <a href="{{ route('cart.index') }}" class="co-summary-edit-link">Edit Bag</a>
-                            </div>
                         </div>
 
-                        {{-- Comprehensive Cart Items Preview (Collapsed by Default) --}}
-                        <div class="co-cart-items-scroll" id="coCartItemsScroll" style="display: none;">
-                            @foreach($cart as $key => $item)
-                                <div class="co-cart-item-row">
-                                    <div class="co-cart-item-thumb">
-                                        <img src="{{ $item['image'] ?? asset('images/placeholder-product.jpg') }}" alt="{{ $item['name'] }}" onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
-                                    </div>
-                                    <div class="co-cart-item-info">
-                                        <div class="co-cart-item-name" title="{{ $item['name'] }}">{{ $item['name'] }}</div>
-                                        <div class="co-cart-item-meta">
-                                            <span class="co-item-pill">Size: {{ $item['size'] ?? 'Free' }}</span>
-                                            <span class="co-item-pill">Qty: {{ $item['quantity'] }}</span>
-                                            @if(!empty($item['design_side']))
-                                                <span class="co-item-pill" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;">
-                                                    <i class="bi bi-aspect-ratio me-1"></i>Print: {{ ucfirst($item['design_side']) }} Side
-                                                </span>
-                                            @endif
+                        {{-- Collapsible Body on Mobile --}}
+                        <div class="co-summary-collapsible-body" id="coSummaryCollapsibleBody">
+                            {{-- Comprehensive Cart Items Preview --}}
+                            <div class="co-cart-items-scroll" id="coCartItemsScroll" style="display: none;">
+                                @foreach($cart as $key => $item)
+                                    <div class="co-cart-item-row">
+                                        <div class="co-cart-item-thumb">
+                                            <img src="{{ $item['image'] ?? asset('images/placeholder-product.jpg') }}" alt="{{ $item['name'] }}" onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
+                                        </div>
+                                        <div class="co-cart-item-info">
+                                            <div class="co-cart-item-name" title="{{ $item['name'] }}">{{ $item['name'] }}</div>
+                                            <div class="co-cart-item-meta">
+                                                <span class="co-item-pill">Size: {{ $item['size'] ?? 'Free' }}</span>
+                                                <span class="co-item-pill">Qty: {{ $item['quantity'] }}</span>
+                                                @if(!empty($item['design_side']))
+                                                    <span class="co-item-pill" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;">
+                                                        <i class="bi bi-aspect-ratio me-1"></i>Print: {{ ucfirst($item['design_side']) }} Side
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="co-cart-item-price-block">
+                                            <div class="co-cart-item-price">₹{{ number_format(round($item['price'] * $item['quantity'])) }}</div>
+                                            <div class="co-cart-item-unit-price">@ ₹{{ number_format(round($item['price'])) }}</div>
                                         </div>
                                     </div>
-                                    <div class="co-cart-item-price-block">
-                                        <div class="co-cart-item-price">₹{{ number_format(round($item['price'] * $item['quantity'])) }}</div>
-                                        <div class="co-cart-item-unit-price">@ ₹{{ number_format(round($item['price'])) }}</div>
+                                @endforeach
+                            </div>
+
+                            {{-- Offers & Rewards and Bottom Sheet Modal --}}
+                            @include('froentend.partials.coupon-section', ['subtotal' => $subtotal])
+
+                            {{-- Calculations --}}
+                            @php
+                                $prepaidDiscount = round($subtotal * 0.05);
+                                $prepaidTotal = max(1, round($total - $prepaidDiscount));
+                                $totalSavings = round($couponDiscount + $prepaidDiscount);
+                            @endphp
+
+                            {{-- Savings Banner --}}
+                            <div class="co-savings-highlight-banner" id="savingsHighlightBanner">
+                                <i class="bi bi-stars" style="font-size: 15px;"></i>
+                                <span>You are saving <b>₹{{ number_format($totalSavings) }}</b> on this order!</span>
+                            </div>
+
+                            {{-- Detailed Bill Breakdown --}}
+                            <div class="co-bill-breakdown-box">
+                                <div class="co-bill-row">
+                                    <span>Bag Subtotal ({{ $totalItemsCount }} {{ $totalItemsCount === 1 ? 'Item' : 'Items' }})</span>
+                                    <strong>₹{{ number_format(round($subtotal)) }}</strong>
+                                </div>
+
+                                @if($couponDiscount > 0)
+                                    <div class="co-bill-row green">
+                                        <span>Coupon Discount Applied</span>
+                                        <strong>-₹{{ number_format(round($couponDiscount)) }}</strong>
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        {{-- Offers & Rewards and Bottom Sheet Modal --}}
-                        @include('froentend.partials.coupon-section', ['subtotal' => $subtotal])
-
-                        {{-- Calculations --}}
-                        @php
-                            $prepaidDiscount = round($subtotal * 0.05);
-                            $prepaidTotal = max(1, round($total - $prepaidDiscount));
-                            $totalSavings = round($couponDiscount + $prepaidDiscount);
-                        @endphp
-
-                        {{-- Savings Banner --}}
-                        <div class="co-savings-highlight-banner" id="savingsHighlightBanner">
-                            <i class="bi bi-stars" style="font-size: 15px;"></i>
-                            <span>You are saving <b>₹{{ number_format($totalSavings) }}</b> on this order!</span>
-                        </div>
-
-                        {{-- Detailed Bill Breakdown --}}
-                        <div class="co-bill-breakdown-box">
-                            <div class="co-bill-row">
-                                <span>Bag Subtotal ({{ $totalItemsCount }} {{ $totalItemsCount === 1 ? 'Item' : 'Items' }})</span>
-                                <strong>₹{{ number_format(round($subtotal)) }}</strong>
-                            </div>
-
-                            @if($couponDiscount > 0)
-                                <div class="co-bill-row green">
-                                    <span>Coupon Discount Applied</span>
-                                    <strong>-₹{{ number_format(round($couponDiscount)) }}</strong>
-                                </div>
-                            @endif
-
-                            <div class="co-bill-row green" id="prepaidDiscountRow">
-                                <span>⚡ 5% Instant Prepaid Discount</span>
-                                <strong>-₹{{ number_format($prepaidDiscount) }}</strong>
-                            </div>
-
-                            <div class="co-bill-row">
-                                <span>Shipping & Express Handling</span>
-                                @if($shipping == 0)
-                                    <strong class="text-success"><i class="bi bi-patch-check-fill"></i> FREE</strong>
-                                @else
-                                    <strong>₹{{ number_format(round($shipping)) }}</strong>
                                 @endif
-                            </div>
-                        </div>
 
-                        {{-- Total Row --}}
-                        <div class="co-final-total-row">
-                            <div>
-                                <div class="co-final-total-label">Total Payable</div>
-                                <span class="co-tax-inclusive-tag">(Inclusive of all taxes & GST)</span>
-                            </div>
-                            <div class="co-final-total-val" id="displayGrandTotal">
-                                ₹{{ number_format($prepaidTotal) }}
-                            </div>
-                        </div>
+                                <div class="co-bill-row green" id="prepaidDiscountRow">
+                                    <span>⚡ 5% Instant Prepaid Discount</span>
+                                    <strong>-₹{{ number_format($prepaidDiscount) }}</strong>
+                                </div>
 
-                        {{-- Submit Order Button --}}
-                        <button type="submit" class="btn-checkout-primary-cta" id="btnSubmitOrder">
-                            <span id="btnSubmitText">PAY ₹{{ number_format($prepaidTotal) }} & PLACE ORDER</span>
-                            <i class="bi bi-shield-lock-fill"></i>
-                        </button>
+                                <div class="co-bill-row">
+                                    <span>Shipping & Express Handling</span>
+                                    @if($shipping == 0)
+                                        <strong class="text-success"><i class="bi bi-patch-check-fill"></i> FREE</strong>
+                                    @else
+                                        <strong>₹{{ number_format(round($shipping)) }}</strong>
+                                    @endif
+                                </div>
+                            </div>
 
-                        {{-- Trust Badges Strip --}}
-                        <div class="co-trust-strip">
-                            <span><i class="bi bi-shield-fill-check text-success"></i> 256-Bit SSL</span>
-                            <span><i class="bi bi-patch-check-fill text-primary"></i> 100% Genuine</span>
-                            <span><i class="bi bi-arrow-repeat text-dark"></i> 7-Day Returns</span>
+                            {{-- Total Row --}}
+                            <div class="co-final-total-row">
+                                <div>
+                                    <div class="co-final-total-label">Total Payable</div>
+                                    <span class="co-tax-inclusive-tag">(Inclusive of all taxes & GST)</span>
+                                </div>
+                                <div class="co-final-total-val" id="displayGrandTotal">
+                                    ₹{{ number_format($prepaidTotal) }}
+                                </div>
+                            </div>
+
+                            {{-- Submit Order Button --}}
+                            <button type="submit" class="btn-checkout-primary-cta" id="btnSubmitOrder">
+                                <span id="btnSubmitText">PAY ₹{{ number_format($prepaidTotal) }} & PLACE ORDER</span>
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </button>
+
+                            {{-- Trust Badges Strip --}}
+                            <div class="co-trust-strip">
+                                <span><i class="bi bi-shield-fill-check text-success"></i> 256-Bit SSL</span>
+                                <span><i class="bi bi-patch-check-fill text-primary"></i> 100% Genuine</span>
+                                <span><i class="bi bi-arrow-repeat text-dark"></i> 7-Day Returns</span>
+                            </div>
                         </div>
 
                     </div>
@@ -1699,6 +2220,97 @@
             </div>
         </form>
 
+    </div>
+</div>
+
+{{-- ── 3. Mobile Fixed Bottom Pay Bar with Collapsible Bill Details & Full-Width CTA ── --}}
+<div class="checkout-mobile-sticky-wrap" id="mobileStickyPayBar">
+    {{-- Dim backdrop when bill drawer is expanded --}}
+    <div class="mobile-sticky-backdrop" id="mobileStickyBackdrop" onclick="toggleMobileBillCollapse(false)"></div>
+
+    <div class="mobile-sticky-card">
+        {{-- Collapsible Bill Details Drawer --}}
+        <div class="mobile-sticky-drawer" id="mobileStickyDrawer">
+            <div class="mobile-drawer-header">
+                <span class="mobile-drawer-title">
+                    <i class="bi bi-receipt-cutoff text-primary"></i> Detailed Bill Summary
+                </span>
+                <button type="button" class="mobile-drawer-close" onclick="toggleMobileBillCollapse(false)" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="mobile-drawer-body">
+                <div class="mobile-drawer-row">
+                    <span>Items Subtotal ({{ $totalItemsCount }} {{ $totalItemsCount === 1 ? 'Item' : 'Items' }})</span>
+                    <strong>₹{{ number_format(round($subtotal)) }}</strong>
+                </div>
+
+                @if($couponDiscount > 0)
+                    <div class="mobile-drawer-row text-success">
+                        <span><i class="bi bi-tag-fill me-1"></i> Coupon Discount</span>
+                        <strong>-₹{{ number_format(round($couponDiscount)) }}</strong>
+                    </div>
+                @endif
+
+                <div class="mobile-drawer-row text-success" id="mobilePrepaidDiscountRow">
+                    <span><i class="bi bi-lightning-charge-fill me-1"></i> 5% Instant Prepaid Off</span>
+                    <strong id="mobilePrepaidDiscountVal">-₹{{ number_format($prepaidDiscount) }}</strong>
+                </div>
+
+                <div class="mobile-drawer-row">
+                    <span>Delivery & Handling</span>
+                    @if($shipping == 0)
+                        <strong class="text-success"><i class="bi bi-patch-check-fill"></i> FREE</strong>
+                    @else
+                        <strong>₹{{ number_format(round($shipping)) }}</strong>
+                    @endif
+                </div>
+
+                <div class="mobile-drawer-divider"></div>
+
+                <div class="mobile-drawer-row mobile-drawer-total-row">
+                    <div>
+                        <span class="mobile-drawer-total-label">Total Payable</span>
+                        <small class="d-block text-muted" style="font-size: 11px;">(Inclusive of GST & all taxes)</small>
+                    </div>
+                    <span class="mobile-drawer-total-val" id="mobileCollapseTotalAmount">₹{{ number_format($prepaidTotal) }}</span>
+                </div>
+
+                <div class="mobile-drawer-savings" id="mobileCollapseSavingsPill">
+                    <i class="bi bi-stars"></i> You are saving <b id="mobileCollapseSavingsVal">₹{{ number_format($totalSavings) }}</b> on this order!
+                </div>
+            </div>
+        </div>
+
+        {{-- Sticky Header Bar (Total + Collapsible Toggle) --}}
+        <div class="mobile-sticky-bar-header" onclick="toggleMobileBillCollapse()">
+            <div class="mobile-sticky-header-left">
+                <span class="mobile-sticky-total-label">To Pay:</span>
+                <span class="mobile-sticky-amount" id="mobileStickyTotal">₹{{ number_format($prepaidTotal) }}</span>
+                <span class="mobile-sticky-subtext" id="mobileStickySubtext">
+                    @if($prepaidDiscount > 0)
+                        <span class="badge-saving-pill"><i class="bi bi-lightning-charge-fill"></i> 5% Off</span>
+                    @else
+                        <span class="badge-cod-pill">COD</span>
+                    @endif
+                </span>
+            </div>
+            <div class="mobile-sticky-header-right">
+                <span class="mobile-view-bill-btn">
+                    <span id="mobileToggleActionText">View Bill</span>
+                    <i class="bi bi-chevron-up" id="mobileToggleChevron"></i>
+                </span>
+            </div>
+        </div>
+
+        {{-- Full-Width Mobile Pay / Submit CTA Button --}}
+        <div class="mobile-sticky-btn-row">
+            <button type="button" class="btn-checkout-mobile-cta-full" id="btnMobileSubmitOrder" onclick="triggerMobileCheckoutSubmit()">
+                <span id="btnMobileSubmitText">PAY ₹{{ number_format($prepaidTotal) }} & PLACE ORDER</span>
+                <i class="bi bi-shield-lock-fill"></i>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1731,6 +2343,15 @@ function selectPaymentMethod(method) {
     const savingsBanner = document.getElementById('savingsHighlightBanner');
     const totalVal = document.getElementById('displayGrandTotal');
     const submitText = document.getElementById('btnSubmitText');
+    const mobileTotal = document.getElementById('mobileStickyTotal');
+    const mobileBtnText = document.getElementById('btnMobileSubmitText');
+    const mobileSubtext = document.getElementById('mobileStickySubtext');
+
+    // Mobile Collapsible Drawer Elements
+    const mobileCollapseTotal = document.getElementById('mobileCollapseTotalAmount');
+    const mobilePrepaidRow = document.getElementById('mobilePrepaidDiscountRow');
+    const mobileCollapseSavings = document.getElementById('mobileCollapseSavingsPill');
+    const mobileCollapseSavingsVal = document.getElementById('mobileCollapseSavingsVal');
 
     if (method === 'cod') {
         if (discountRow) discountRow.style.display = 'none';
@@ -1744,26 +2365,67 @@ function selectPaymentMethod(method) {
         }
         if (totalVal) totalVal.textContent = formatRoundedCurrency(baseTotal);
         if (submitText) submitText.textContent = 'CONFIRM CASH ON DELIVERY ORDER (' + formatRoundedCurrency(baseTotal) + ')';
+        
+        // Mobile Sticky Elements
+        if (mobileTotal) mobileTotal.textContent = formatRoundedCurrency(baseTotal);
+        if (mobileBtnText) mobileBtnText.textContent = 'CONFIRM CASH ON DELIVERY (' + formatRoundedCurrency(baseTotal) + ')';
+        if (mobileSubtext) mobileSubtext.innerHTML = '<span class="badge-cod-pill">COD</span>';
+
+        const coHeaderTot = document.getElementById('coSummaryHeaderTotal');
+        if (coHeaderTot) coHeaderTot.textContent = formatRoundedCurrency(baseTotal);
+
+        // Mobile Drawer Breakdown
+        if (mobileCollapseTotal) mobileCollapseTotal.textContent = formatRoundedCurrency(baseTotal);
+        if (mobilePrepaidRow) mobilePrepaidRow.style.display = 'none';
+        if (mobileCollapseSavings) {
+            if (couponDiscountVal > 0) {
+                if (mobileCollapseSavingsVal) mobileCollapseSavingsVal.textContent = formatRoundedCurrency(couponDiscountVal);
+                mobileCollapseSavings.style.display = 'block';
+            } else {
+                mobileCollapseSavings.style.display = 'none';
+            }
+        }
     } else {
         if (discountRow) discountRow.style.display = 'flex';
+        const totSav = couponDiscountVal + prepaidDiscountAmount;
         if (savingsBanner) {
-            const totSav = couponDiscountVal + prepaidDiscountAmount;
             savingsBanner.innerHTML = '<i class="bi bi-stars"></i> <span>You are saving <b>' + formatRoundedCurrency(totSav) + '</b> on this order!</span>';
             savingsBanner.style.display = 'flex';
         }
         if (totalVal) totalVal.textContent = formatRoundedCurrency(prepaidFinalTotal);
         if (submitText) submitText.textContent = 'PAY ' + formatRoundedCurrency(prepaidFinalTotal) + ' & PLACE ORDER';
+
+        // Mobile Sticky Elements
+        if (mobileTotal) mobileTotal.textContent = formatRoundedCurrency(prepaidFinalTotal);
+        if (mobileBtnText) mobileBtnText.textContent = 'PAY ' + formatRoundedCurrency(prepaidFinalTotal) + ' & PLACE ORDER';
+        if (mobileSubtext) mobileSubtext.innerHTML = '<span class="badge-saving-pill"><i class="bi bi-lightning-charge-fill"></i> 5% Off</span>';
+
+        const coHeaderTot = document.getElementById('coSummaryHeaderTotal');
+        if (coHeaderTot) coHeaderTot.textContent = formatRoundedCurrency(prepaidFinalTotal);
+
+        // Mobile Drawer Breakdown
+        if (mobileCollapseTotal) mobileCollapseTotal.textContent = formatRoundedCurrency(prepaidFinalTotal);
+        if (mobilePrepaidRow) mobilePrepaidRow.style.display = 'flex';
+        if (mobileCollapseSavings) {
+            if (mobileCollapseSavingsVal) mobileCollapseSavingsVal.textContent = formatRoundedCurrency(totSav);
+            mobileCollapseSavings.style.display = 'block';
+        }
     }
+    updateSectionSummaries();
 }
 
-// Auto Capitalize Name, City, State on blur
-['co_name', 'co_city', 'co_state'].forEach(id => {
+// Auto Capitalize Name, City, State on blur and update section summary
+['co_name', 'co_city', 'co_state', 'co_pincode'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
         el.addEventListener('blur', function() {
-            if (this.value) {
+            if (this.value && id !== 'co_pincode') {
                 this.value = this.value.replace(/\b\w/g, char => char.toUpperCase());
             }
+            updateSectionSummaries();
+        });
+        el.addEventListener('input', function() {
+            updateSectionSummaries();
         });
     }
 });
@@ -1883,21 +2545,79 @@ function toggleCheckoutFaq(btn) {
 }
 
 function toggleOrderSummaryDetails() {
-    const scrollBox = document.getElementById('coCartItemsScroll');
-    const chevron = document.getElementById('coSummaryChevron');
-    const header = document.getElementById('coSummaryHeader');
-    if (!scrollBox) return;
-
-    if (scrollBox.style.display === 'none' || !scrollBox.style.display) {
-        scrollBox.style.display = 'flex';
-        if (chevron) chevron.style.transform = 'rotate(180deg)';
-        if (header) header.classList.add('is-open');
+    if (window.innerWidth <= 768) {
+        const card = document.getElementById('coSidebarSummaryCard');
+        if (!card) return;
+        card.classList.toggle('is-open');
     } else {
-        scrollBox.style.display = 'none';
-        if (chevron) chevron.style.transform = 'rotate(0deg)';
-        if (header) header.classList.remove('is-open');
+        const scrollBox = document.getElementById('coCartItemsScroll');
+        const chevron = document.getElementById('coSummaryChevron');
+        const header = document.getElementById('coSummaryHeader');
+        if (!scrollBox) return;
+
+        if (scrollBox.style.display === 'none' || !scrollBox.style.display) {
+            scrollBox.style.display = 'flex';
+            if (chevron) chevron.style.transform = 'rotate(180deg)';
+            if (header) header.classList.add('is-open');
+        } else {
+            scrollBox.style.display = 'none';
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+            if (header) header.classList.remove('is-open');
+        }
     }
 }
+
+function toggleCheckoutSection(sectionId) {
+    if (window.innerWidth > 768) return;
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    section.classList.toggle('is-open');
+    updateSectionSummaries();
+}
+
+function ensureSectionOpen(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section && !section.classList.contains('is-open')) {
+        section.classList.add('is-open');
+    }
+}
+
+function updateSectionSummaries() {
+    // Delivery summary snippet
+    const nameInput = document.getElementById('co_name');
+    const cityInput = document.getElementById('co_city');
+    const pinInput = document.getElementById('co_pincode');
+    const name = nameInput ? nameInput.value.trim() : '';
+    const city = cityInput ? cityInput.value.trim() : '';
+    const pin = pinInput ? pinInput.value.trim() : '';
+    const delSnippet = document.getElementById('deliverySummarySnippet');
+    if (delSnippet) {
+        if (name && (city || pin)) {
+            delSnippet.textContent = name + ' • ' + (city ? city + ' ' : '') + (pin ? '(' + pin + ')' : '');
+        } else if (name) {
+            delSnippet.textContent = name + ' • Tap to view address';
+        } else {
+            delSnippet.textContent = 'Tap to enter recipient name & address';
+        }
+    }
+
+    // Payment summary snippet
+    const methodInput = document.getElementById('selectedPaymentMethod');
+    const method = methodInput ? methodInput.value : 'razorpay';
+    const paySnippet = document.getElementById('paymentSummarySnippet');
+    if (paySnippet) {
+        if (method === 'cod') {
+            paySnippet.textContent = 'Cash on Delivery (Pay at doorstep)';
+        } else {
+            paySnippet.textContent = 'Online / UPI / Cards (5% Instant Discount)';
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateSectionSummaries();
+});
 </script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
@@ -1951,13 +2671,69 @@ function showOrderSuccessAndRedirect(redirectUrl, orderNumber) {
 function resetSubmitButton() {
     checkoutSubmitInProgress = false;
     hideOrderPlaceLoader();
-    if (!btnPlaceOrder) return;
-    btnPlaceOrder.disabled = false;
     const method = document.getElementById('selectedPaymentMethod').value;
-    if (method === 'cod') {
-        btnPlaceOrder.innerHTML = '<span id="btnSubmitText">CONFIRM CASH ON DELIVERY ORDER (' + formatRoundedCurrency(baseTotal) + ')</span> <i class="bi bi-shield-lock-fill"></i>';
+    
+    // Desktop Button Reset
+    if (btnPlaceOrder) {
+        btnPlaceOrder.disabled = false;
+        if (method === 'cod') {
+            btnPlaceOrder.innerHTML = '<span id="btnSubmitText">CONFIRM CASH ON DELIVERY ORDER (' + formatRoundedCurrency(baseTotal) + ')</span> <i class="bi bi-shield-lock-fill"></i>';
+        } else {
+            btnPlaceOrder.innerHTML = '<span id="btnSubmitText">PAY ' + formatRoundedCurrency(prepaidFinalTotal) + ' & PLACE ORDER</span> <i class="bi bi-shield-lock-fill"></i>';
+        }
+    }
+
+    // Mobile Fixed Bottom Button Reset
+    const btnMobile = document.getElementById('btnMobileSubmitOrder');
+    if (btnMobile) {
+        btnMobile.disabled = false;
+        if (method === 'cod') {
+            btnMobile.innerHTML = '<span id="btnMobileSubmitText">CONFIRM CASH ON DELIVERY (' + formatRoundedCurrency(baseTotal) + ')</span> <i class="bi bi-shield-lock-fill"></i>';
+        } else {
+            btnMobile.innerHTML = '<span id="btnMobileSubmitText">PAY ' + formatRoundedCurrency(prepaidFinalTotal) + ' & PLACE ORDER</span> <i class="bi bi-shield-lock-fill"></i>';
+        }
+    }
+}
+
+function toggleMobileBillCollapse(forceState) {
+    const drawer = document.getElementById('mobileStickyDrawer');
+    const backdrop = document.getElementById('mobileStickyBackdrop');
+    const chevron = document.getElementById('mobileToggleChevron');
+    const actionText = document.getElementById('mobileToggleActionText');
+    if (!drawer) return;
+
+    const isOpen = drawer.classList.contains('is-open');
+    const shouldOpen = typeof forceState === 'boolean' ? forceState : !isOpen;
+
+    if (shouldOpen) {
+        drawer.classList.add('is-open');
+        if (backdrop) backdrop.classList.add('is-open');
+        if (chevron) chevron.classList.add('rotated');
+        if (actionText) actionText.textContent = 'Hide Bill';
     } else {
-        btnPlaceOrder.innerHTML = '<span id="btnSubmitText">PAY ' + formatRoundedCurrency(prepaidFinalTotal) + ' & PLACE ORDER</span> <i class="bi bi-shield-lock-fill"></i>';
+        drawer.classList.remove('is-open');
+        if (backdrop) backdrop.classList.remove('is-open');
+        if (chevron) chevron.classList.remove('rotated');
+        if (actionText) actionText.textContent = 'View Bill';
+    }
+}
+
+function scrollToOrderSummary() {
+    const summary = document.querySelector('.co-sidebar-summary');
+    if (summary) {
+        summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const scrollBox = document.getElementById('coCartItemsScroll');
+        if (scrollBox && (scrollBox.style.display === 'none' || !scrollBox.style.display)) {
+            toggleOrderSummaryDetails();
+        }
+    }
+}
+
+function triggerMobileCheckoutSubmit() {
+    if (btnPlaceOrder) {
+        btnPlaceOrder.click();
+    } else if (checkoutForm) {
+        checkoutForm.requestSubmit();
     }
 }
 
@@ -1974,6 +2750,8 @@ if (checkoutForm) {
             
             // Validate form HTML5 fields
             if (!checkoutForm.checkValidity()) {
+                ensureSectionOpen('sectionDelivery');
+                ensureSectionOpen('sectionPayment');
                 checkoutForm.reportValidity();
                 return;
             }
@@ -1997,6 +2775,11 @@ if (checkoutForm) {
             if (btnPlaceOrder) {
                 btnPlaceOrder.disabled = true;
                 btnPlaceOrder.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="width: 14px; height: 14px; border-width: 2px;"></span> OPENING SECURE GATEWAY...';
+            }
+            const btnMobileInit = document.getElementById('btnMobileSubmitOrder');
+            if (btnMobileInit) {
+                btnMobileInit.disabled = true;
+                btnMobileInit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="width: 14px; height: 14px; border-width: 2px;"></span> CONNECTING...';
             }
 
             fetch("{{ route('payment.razorpay.create') }}", {
@@ -2022,7 +2805,7 @@ if (checkoutForm) {
                     key: res.key,
                     amount: res.amount,
                     currency: res.currency || 'INR',
-                    name: "Vayu",
+                    name: "THE TREND THEORY",
                     description: "Order Payment",
                     order_id: res.razorpay_order_id,
                     prefill: {
@@ -2037,6 +2820,11 @@ if (checkoutForm) {
                         showOrderPlaceLoader('Verifying payment', 'Payment received. We are placing your order now.');
                         if (btnPlaceOrder) {
                             btnPlaceOrder.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="width: 14px; height: 14px; border-width: 2px;"></span> VERIFYING PAYMENT...';
+                        }
+                        const btnMobileVerify = document.getElementById('btnMobileSubmitOrder');
+                        if (btnMobileVerify) {
+                            btnMobileVerify.disabled = true;
+                            btnMobileVerify.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="width: 14px; height: 14px; border-width: 2px;"></span> VERIFYING...';
                         }
 
                         fetch("{{ route('payment.razorpay.verify') }}", {
@@ -2061,7 +2849,15 @@ if (checkoutForm) {
                                     subtotal: {{ $subtotal }},
                                     shipping: {{ $shipping }},
                                     discount: {{ $couponDiscount + $prepaidDiscount }},
-                                    total: prepaidFinalTotal
+                                    total: prepaidFinalTotal,
+                                    @if(!empty($isBuyNow) && !empty($buyNowItem))
+                                    buy_now: 1,
+                                    product_id: {{ $buyNowItem['id'] }},
+                                    qty: {{ $buyNowItem['quantity'] }},
+                                    size: "{{ $buyNowItem['size'] }}",
+                                    color: "{{ $buyNowItem['color'] }}",
+                                    design_side: "{{ $buyNowItem['design_side'] }}",
+                                    @endif
                                 }
                             })
                         })
@@ -2103,6 +2899,8 @@ if (checkoutForm) {
             e.preventDefault();
 
             if (!checkoutForm.checkValidity()) {
+                ensureSectionOpen('sectionDelivery');
+                ensureSectionOpen('sectionPayment');
                 checkoutForm.reportValidity();
                 return;
             }
@@ -2112,6 +2910,11 @@ if (checkoutForm) {
             if (btnPlaceOrder) {
                 btnPlaceOrder.disabled = true;
                 btnPlaceOrder.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="width: 14px; height: 14px; border-width: 2px;"></span> PLACING ORDER...';
+            }
+            const btnMobilePlace = document.getElementById('btnMobileSubmitOrder');
+            if (btnMobilePlace) {
+                btnMobilePlace.disabled = true;
+                btnMobilePlace.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="width: 14px; height: 14px; border-width: 2px;"></span> PLACING ORDER...';
             }
 
             fetch(checkoutForm.action, {
@@ -2139,6 +2942,20 @@ if (checkoutForm) {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    @if(!empty($isBuyNow))
+        if (typeof ensureSectionOpen === 'function') {
+            ensureSectionOpen('sectionPayment');
+        }
+        @if(!empty($user->address) && !empty($user->phone))
+            setTimeout(function() {
+                var paySec = document.getElementById('sectionPayment');
+                if (paySec) paySec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        @endif
+    @endif
+});
 </script>
 @endpush
 

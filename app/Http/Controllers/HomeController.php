@@ -44,12 +44,12 @@ class HomeController extends Controller
             $heroVideo = $galleryMedia->where('type', 'video')->first();
 
             // ─────────────────────────────────────────────────────────
-            // 1. FETCH MOST PURCHASED (BEST SELLERS)
+            // 1. FETCH MOST PURCHASED (BEST SELLERS) - Shuffled
             // ─────────────────────────────────────────────────────────
             $mostPurchasedRaw = Product::active()
                 ->with(['productImages', 'media', 'variants'])
                 ->where('total_sold', '>', 0)
-                ->orderByDesc('total_sold')
+                ->inRandomOrder()
                 ->limit(10)
                 ->get();
 
@@ -57,13 +57,13 @@ class HomeController extends Controller
                 $mostPurchasedRaw = Product::active()
                     ->with(['productImages', 'media', 'variants'])
                     ->where('is_featured', true)
-                    ->orderByDesc('created_at')
+                    ->inRandomOrder()
                     ->limit(10)
                     ->get();
             }
 
             // ─────────────────────────────────────────────────────────
-            // 2. FETCH MEN'S PRODUCTS
+            // 2. FETCH MEN'S PRODUCTS - Shuffled
             // ─────────────────────────────────────────────────────────
             $menCategory = Category::active()
                 ->where(function ($q) {
@@ -85,12 +85,12 @@ class HomeController extends Controller
             $mensProductsRaw = Product::whereIn('category_id', $menCategoryIds)
                 ->active()
                 ->with(['category', 'productImages', 'media', 'variants'])
-                ->orderByDesc('created_at')
+                ->inRandomOrder()
                 ->limit(8)
                 ->get();
 
             // ─────────────────────────────────────────────────────────
-            // 3. FETCH WOMEN'S PRODUCTS
+            // 3. FETCH WOMEN'S PRODUCTS - Shuffled
             // ─────────────────────────────────────────────────────────
             $womenCategory = Category::active()
                 ->where(function ($q) {
@@ -112,34 +112,34 @@ class HomeController extends Controller
             $womensProductsRaw = Product::whereIn('category_id', $womenCategoryIds)
                 ->active()
                 ->with(['category', 'productImages', 'media', 'variants'])
-                ->orderByDesc('created_at')
+                ->inRandomOrder()
                 ->limit(8)
                 ->get();
 
             // ─────────────────────────────────────────────────────────
-            // 4. FETCH NEW ARRIVALS
+            // 4. FETCH NEW ARRIVALS - Shuffled
             // ─────────────────────────────────────────────────────────
             $newArrivalsRaw = Product::active()
                 ->with(['productImages', 'media', 'variants'])
                 ->where('is_new', true)
-                ->orderByDesc('created_at')
+                ->inRandomOrder()
                 ->limit(8)
                 ->get();
 
             $fillWithLatestActive = function ($products, int $limit) {
                 if ($products->count() >= $limit) {
-                    return $products->take($limit)->values();
+                    return $products->shuffle()->take($limit)->values();
                 }
 
                 $existingIds = $products->pluck('id')->all();
                 $fillers = Product::active()
                     ->with(['category', 'productImages', 'media', 'variants'])
                     ->when(!empty($existingIds), fn($q) => $q->whereNotIn('id', $existingIds))
-                    ->orderByDesc('created_at')
+                    ->inRandomOrder()
                     ->limit($limit - $products->count())
                     ->get();
 
-                return $products->concat($fillers)->take($limit)->values();
+                return $products->concat($fillers)->shuffle()->take($limit)->values();
             };
 
             $mostPurchasedRaw = $fillWithLatestActive($mostPurchasedRaw, 10);
@@ -205,7 +205,7 @@ class HomeController extends Controller
                 'heroPrimary' => $heroPrimary,
                 'heroMediaSlides' => $heroMediaSlides->toArray(),
                 'heroSlides' => $heroSlides->toArray(),
-                'title' => SiteSetting::get('site_name', 'Vayu'),
+                'title' => SiteSetting::get('site_name', 'THE TREND THEORY'),
                 'titleContent' => SiteSetting::get('site_tagline', 'Fashion That Speaks Without Saying a Word'),
                 'categories' => Category::homeCategories()->map(function ($category) {
                     return [
@@ -394,13 +394,13 @@ class HomeController extends Controller
             $reviewSchema = json_encode([
                 '@context' => 'https://schema.org',
                 '@type' => 'ItemList',
-                'name' => 'Customer Reviews — Vayu',
+                'name' => 'Customer Reviews — THE TREND THEORY',
                 'itemListElement' => $schemaItems,
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
 
         $seoData = [
-            'meta_title' => SiteSetting::get('meta_title', 'Vayu | Premium Fashion Store India'),
+            'meta_title' => SiteSetting::get('meta_title', 'THE TREND THEORY | Premium Fashion Store India'),
             'meta_description' => SiteSetting::get('meta_description', 'Shop latest men & women fashion.'),
             'og_image' => SiteSetting::get('og_image', asset('images/og-default.jpg')),
             'canonical' => url('/'),
@@ -410,7 +410,7 @@ class HomeController extends Controller
                 '@graph' => [
                     [
                         '@type' => 'WebSite',
-                        'name' => SiteSetting::get('site_name', 'Vayu'),
+                        'name' => SiteSetting::get('site_name', 'THE TREND THEORY'),
                         'url' => url('/'),
                         'potentialAction' => [
                             '@type' => 'SearchAction',
@@ -420,7 +420,7 @@ class HomeController extends Controller
                     ],
                     [
                         '@type' => 'ClothingStore',
-                        'name' => SiteSetting::get('site_name', 'Vayu'),
+                        'name' => SiteSetting::get('site_name', 'THE TREND THEORY'),
                         'url' => url('/'),
                         'logo' => asset('images/logo.png'),
                         'sameAs' => [

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Panel') — VAYU</title>
+    <title>@yield('title', 'Admin Panel') — THE TREND THEORY</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -1197,15 +1197,15 @@
 
 <body>
 
-    @php $user = auth()->user(); @endphp
+    @php $user = auth('admin')->user() ?? auth()->user(); @endphp
 
     <aside class="sidebar">
         {{-- Brand Box --}}
         <div class="sb-brand-box">
             <div class="sb-brand-flex">
-                <img src="{{ asset('images/vayu-logo-white-trans.png') }}" alt="VAYU" style="height: 36px; width: auto; object-fit: contain; margin-right: 10px;">
+                {{-- <img src="{{ asset('images/THE TREND THEORY-logo-white-trans.png') }}" alt="THE TREND THEORY" style="height: 36px; width: auto; object-fit: contain; margin-right: 10px;"> --}}
                 <div>
-                    <div class="sb-logo-text">VAYU</div>
+                    <div class="sb-logo-text">THE TREND THEORY</div>
                     <div class="sb-logo-sub">
                         <span class="sb-pulse-dot"></span>
                         <span>ADMIN STUDIO 2.0</span>
@@ -1290,7 +1290,7 @@
                     $pendingOrders = \App\Models\Order::where('status', 'pending')->count();
                     $pendingReturnsCount = \App\Models\OrderReturn::where('status', 'pending')->count();
                 @endphp
-                <div class="sb-dropdown-item {{ request()->routeIs('admin.orders*') || request()->routeIs('admin.returns*') || request()->routeIs('admin.pincodes*') || request()->is('admin/coupons*') || request()->routeIs('admin.customers*') || request()->routeIs('admin.sales*') ? 'open' : '' }}">
+                <div class="sb-dropdown-item {{ request()->routeIs('admin.orders*') || request()->routeIs('admin.returns*') || request()->routeIs('admin.pincodes*') || request()->is('admin/coupons*') || request()->routeIs('admin.customers*') || request()->routeIs('admin.sales*') || request()->routeIs('admin.investor*') ? 'open' : '' }}">
                     <button type="button" class="sb-dropdown-btn" onclick="toggleSbMenu(this)">
                         <span class="sb-section-label">Leads</span>
                         @if ($pendingOrders > 0)
@@ -1299,6 +1299,16 @@
                         <i class="bi bi-chevron-right sb-arrow"></i>
                     </button>
                     <div class="sb-submenu">
+                        @if ($user->isAdmin() || $user->isSuperAdmin())
+                            <a href="{{ route('admin.investor.dashboard') }}"
+                                class="sb-sublink {{ request()->routeIs('admin.investor.dashboard') ? 'active' : '' }}"
+                                style="{{ request()->routeIs('admin.investor.dashboard') ? '' : 'color:#3b82f6;' }}">
+                                <i class="bi bi-pie-chart-fill" style="color: #f59e0b;"></i>
+                                <span class="fw-bold">Investor Cockpit</span>
+                                <span class="badge bg-warning text-dark font-xs fw-bold ms-auto" style="font-size: 9px; padding: 2px 5px;">DECK</span>
+                            </a>
+                        @endif
+
                         @if ($user->isAdmin() || $user->isSuperAdmin() || $user->hasPermission('orders.view'))
                             <a href="{{ route('admin.sales.analytics') }}"
                                 class="sb-sublink {{ request()->routeIs('admin.sales.analytics') ? 'active' : '' }}">
@@ -1540,7 +1550,7 @@
                 <div class="sb-user-name">{{ $user->name }}</div>
                 <div class="sb-user-role-badge">{{ $user->email ?: $user->role_label }}</div>
             </div>
-            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+            <form method="POST" action="{{ route('admin.logout') }}" style="margin: 0;">
                 @csrf
                 <button type="submit" title="Logout" style="background:transparent; border:none; color:#94a3b8; font-size:14px; cursor:pointer; padding:4px;">
                     <i class="bi bi-box-arrow-right"></i>

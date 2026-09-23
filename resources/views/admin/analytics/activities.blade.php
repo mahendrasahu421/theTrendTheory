@@ -140,14 +140,14 @@
                     <select class="input-styled" id="emailTemplateSelect" onchange="applyEmailTemplate(this.value)">
                         <option value="custom">Custom Message</option>
                         <option value="cart_recovery">Cart Recovery (10% Extra Discount Promo)</option>
-                        <option value="welcome_offer">Welcome to Vayu (VIP Drops)</option>
+                        <option value="welcome_offer">Welcome to THE TREND THEORY (VIP Drops)</option>
                         <option value="styling_help">Sizing &amp; Styling Support</option>
                     </select>
                 </div>
 
                 <div class="form-row-group mb-3">
                     <label class="field-label">Email Subject:</label>
-                    <input type="text" name="subject" id="modalEmailSubject" class="input-styled" required value="Special Update from Vayu">
+                    <input type="text" name="subject" id="modalEmailSubject" class="input-styled" required value="Special Update from THE TREND THEORY">
                 </div>
 
                 <div class="form-row-group mb-3">
@@ -396,11 +396,11 @@ function applyEmailTemplate(type) {
     var name = currentCustomerName || 'there';
 
     if (type === 'cart_recovery') {
-        sub.value = "You left something stylish behind! Enjoy 10% OFF at Vayu";
+        sub.value = "You left something stylish behind! Enjoy 10% OFF at THE TREND THEORY";
         msg.value = "Hi " + name + ",\n\nWe noticed you left some exclusive pieces in your shopping bag. Complete your order today and use code TREND10 to enjoy an extra 10% instant discount at checkout!\n\nFinish your order here: " + window.location.origin + "/checkout\n\nWarm regards,\nThe Trend Theory Team";
     } else if (type === 'welcome_offer') {
-        sub.value = "Welcome to Vayu — Exclusive VIP drops for you";
-        msg.value = "Hi " + name + ",\n\nWelcome to Vayu. We craft premium oversized streetwear and modern luxury fits.\n\nExplore our latest arrivals and signature collection online: " + window.location.origin + "/shop\n\nNeed any help? Reply directly to this email or connect with us on WhatsApp anytime!\n\nBest,\nThe Trend Theory Crew";
+        sub.value = "Welcome to THE TREND THEORY — Exclusive VIP drops for you";
+        msg.value = "Hi " + name + ",\n\nWelcome to THE TREND THEORY. We craft premium oversized streetwear and modern luxury fits.\n\nExplore our latest arrivals and signature collection online: " + window.location.origin + "/shop\n\nNeed any help? Reply directly to this email or connect with us on WhatsApp anytime!\n\nBest,\nThe Trend Theory Crew";
     } else if (type === 'styling_help') {
         sub.value = "Can we help you find the perfect size & fit?";
         msg.value = "Hi " + name + ",\n\nWe saw you exploring our collection. If you have any questions regarding sizing, heavyweight cotton fabric, or express delivery, our styling team is ready to assist you!\n\nFeel free to reply to this email anytime.\n\nThe Trend Theory Team";

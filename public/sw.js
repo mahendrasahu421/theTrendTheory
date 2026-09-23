@@ -1,5 +1,5 @@
 /* ═════════════════════════════════════════════════════════════════════
-   Vayu — SERVICE WORKER & WEB PUSH NOTIFICATIONS
+   THE TREND THEORY — SERVICE WORKER & WEB PUSH NOTIFICATIONS
    ═════════════════════════════════════════════════════════════════════ */
 
 const CACHE_NAME = 'ttt-pwa-cache-v1';
@@ -15,7 +15,7 @@ self.addEventListener('activate', (event) => {
 // ── 1. Listen for Push Events from Web Push Server ──
 self.addEventListener('push', (event) => {
     let data = {
-        title: 'Vayu',
+        title: 'THE TREND THEORY',
         body: 'New drops & exclusive offers are live!',
         icon: '/assets/images/logo-icon.png',
         badge: '/assets/images/badge-icon.png',

@@ -1,7 +1,7 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>{{ $post->title }} — Vayu</title>
+    <title>{{ $post->title }} — THE TREND THEORY</title>
     <meta name="description" content="{{ $post->summary }}">
     <link rel="canonical" href="{{ route($post->type === 'news' ? 'news.show' : 'blogs.show', $post->slug) }}">
     <meta property="og:title" content="{{ $post->title }}">

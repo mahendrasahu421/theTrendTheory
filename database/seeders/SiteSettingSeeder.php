@@ -11,11 +11,11 @@ class SiteSettingSeeder extends Seeder
     public function run(): void
     {
         $settings = [
-            'site_name' => 'VAYU',
+            'site_name' => 'THE TREND THEORY',
             'site_tagline' => 'Breathe The Trend — Premium Streetwear',
             'address' => 'India',
             'phone' => '+91 7800789705',
-            'email' => 'support@vayu.com',
+            'email' => 'support@THE TREND THEORY.com',
             'currency' => 'INR',
             'currency_symbol' => 'Rs.',
             'shipping_free_above' => '999',
@@ -23,9 +23,9 @@ class SiteSettingSeeder extends Seeder
             'min_order_amount' => '299',
             'tax_rate' => '5',
             'shipping_rate' => '79',
-            'meta_title' => 'VAYU | Premium Fashion Store India',
-            'meta_description' => 'Shop modern streetwear, premium basics, dresses, shirts, and everyday essentials at VAYU.',
-            'meta_keywords' => 'vayu, streetwear, fashion, premium basics, shirts, dresses, India',
+            'meta_title' => 'THE TREND THEORY | Premium Fashion Store India',
+            'meta_description' => 'Shop modern streetwear, premium basics, dresses, shirts, and everyday essentials at THE TREND THEORY.',
+            'meta_keywords' => 'THE TREND THEORY, streetwear, fashion, premium basics, shirts, dresses, India',
             'facebook_url' => 'https://facebook.com/thetrendtheory',
             'instagram_url' => 'https://instagram.com/thetrendtheory',
             'whatsapp_number' => '+91 7800789705',

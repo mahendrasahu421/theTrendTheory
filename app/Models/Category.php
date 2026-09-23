@@ -122,7 +122,7 @@ class Category extends Model
 
     public function getSeoTitleAttribute(): string
     {
-        return $this->meta_title ?? $this->name . ' Online India | Vayu';
+        return $this->meta_title ?? $this->name . ' Online India | THE TREND THEORY';
     }
 
     public function getSeoDescriptionAttribute(): string

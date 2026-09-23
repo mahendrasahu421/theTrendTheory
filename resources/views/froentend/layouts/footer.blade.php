@@ -1,6 +1,6 @@
 @php
     // --- Dynamic Settings ---
-    $siteName = \App\Models\SiteSetting::get('site_name', 'VAYU');
+    $siteName = \App\Models\SiteSetting::get('site_name', 'THE TREND THEORY');
     $siteTagline = \App\Models\SiteSetting::get('site_tagline', "It's Not Just a Trend, It's a Theory.");
     $siteAddress = \App\Models\SiteSetting::get('address', 'India');
     $sitePhone = \App\Models\SiteSetting::get('phone', '+91 7800789705');
@@ -680,7 +680,7 @@
                 {{-- Brand Identity Column --}}
                 <div class="ttt-col-brand">
                     <a href="{{ url('/') }}" class="ttt-brand-title d-inline-flex align-items-center gap-2" style="text-decoration:none;">
-                        <img src="{{ asset('images/vayu-logo-white-trans.png') }}" alt="VAYU" style="height: 36px; width: auto; object-fit: contain;">
+                        {{-- <img src="{{ asset('images/THE TREND THEORY-logo-white-trans.png') }}" alt="THE TREND THEORY" style="height: 36px; width: auto; object-fit: contain;"> --}}
                         <span>{{ strtoupper($siteName) }}</span>
                     </a>
                     <div class="ttt-brand-tagline">{{ $siteTagline }}</div>
@@ -763,7 +763,7 @@
 
                 {{-- Newsletter Column --}}
                 <div class="ttt-col-newsletter">
-                    <h4 class="ttt-col-title">Join VAYU</h4>
+                    <h4 class="ttt-col-title">Join THE TREND THEORY</h4>
                     <p class="ttt-newsletter-desc">Get exclusive access to private drops, secret discounts, and style lookbooks.</p>
                     
                     <form action="{{ route('newsletter.subscribe') }}" method="POST">
@@ -777,7 +777,7 @@
                     <div class="ttt-contact-support">
                         <span><i class="bi bi-envelope"></i> {{ $siteEmail }}</span>
                         <a href="javascript:void(0)" onclick="tttAIOpen()" style="cursor:pointer;">
-                            <i class="bi bi-robot"></i> AI Assistant - VAYU
+                            <i class="bi bi-robot"></i> AI Assistant - THE TREND THEORY
                         </a>
                     </div>
                 </div>

@@ -2,15 +2,15 @@
 @extends('froentend.layouts.app')
 
 @section('custom_seo')
-    <title>Terms &amp; Conditions | Vayu — Luxury Streetwear</title>
-    <meta name="description" content="Read the official Terms & Conditions of Vayu Apparels Pvt. Ltd. regarding orders, shipping, returns, and intellectual property.">
+    <title>Terms &amp; Conditions | THE TREND THEORY — Luxury Streetwear</title>
+    <meta name="description" content="Read the official Terms & Conditions of THE TREND THEORY Apparels Pvt. Ltd. regarding orders, shipping, returns, and intellectual property.">
     <link rel="canonical" href="{{ url()->current() }}">
 @endsection
 
 @section('main')
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Vayu — LEGAL POLICY STYLES
+   THE TREND THEORY — LEGAL POLICY STYLES
    ═══════════════════════════════════════════════════════════════════ */
 :root {
     --policy-navy: #00285a;
@@ -241,7 +241,7 @@
         <div class="policy-hero-meta">
             <span><i class="bi bi-calendar3 me-1"></i> Last Updated: September 2026</span>
             <span>&bull;</span>
-            <span><i class="bi bi-building me-1"></i> Vayu Apparels Pvt. Ltd.</span>
+            <span><i class="bi bi-building me-1"></i> THE TREND THEORY Apparels Pvt. Ltd.</span>
         </div>
     </div>
 
@@ -269,7 +269,7 @@
             <section id="acceptance" class="policy-section">
                 <h2 class="policy-sec-heading"><i class="bi bi-check2-circle"></i> 1. Acceptance of Terms</h2>
                 <p class="policy-text">
-                    Welcome to <strong>Vayu</strong> (accessible via <code>www.thetrendtheory.com</code> and related mobile web services). By browsing, accessing, creating an account, or purchasing any luxury streetwear apparel from this website, you agree to be bound by these Terms and Conditions and our Privacy Policy.
+                    Welcome to <strong>THE TREND THEORY</strong> (accessible via <code>www.thetrendtheory.com</code> and related mobile web services). By browsing, accessing, creating an account, or purchasing any luxury streetwear apparel from this website, you agree to be bound by these Terms and Conditions and our Privacy Policy.
                 </p>
                 <p class="policy-text">
                     If you do not agree with any part of these terms, you must discontinue the use of our services immediately.
@@ -305,7 +305,7 @@
                 </p>
                 <ul class="policy-list">
                     <li>Orders are deemed confirmed upon receipt of transaction authorization or OTP confirmation for COD.</li>
-                    <li>Vayu reserves the right to cancel suspicious, fraudulent, or out-of-stock orders with a full refund.</li>
+                    <li>THE TREND THEORY reserves the right to cancel suspicious, fraudulent, or out-of-stock orders with a full refund.</li>
                 </ul>
             </section>
 
@@ -331,14 +331,14 @@
             <section id="ip" class="policy-section">
                 <h2 class="policy-sec-heading"><i class="bi bi-brush"></i> 7. Intellectual Property Rights</h2>
                 <p class="policy-text">
-                    All graphics, streetwear artworks, typography, brand logos, website designs, and media on Vayu are the exclusive intellectual property of <strong>Vayu Apparels Pvt. Ltd.</strong> Unauthorized reproduction, scraping, or commercial misuse is strictly prohibited by law.
+                    All graphics, streetwear artworks, typography, brand logos, website designs, and media on THE TREND THEORY are the exclusive intellectual property of <strong>THE TREND THEORY Apparels Pvt. Ltd.</strong> Unauthorized reproduction, scraping, or commercial misuse is strictly prohibited by law.
                 </p>
             </section>
 
             <section id="liability" class="policy-section">
                 <h2 class="policy-sec-heading"><i class="bi bi-shield-exclamation"></i> 8. Limitation of Liability</h2>
                 <p class="policy-text">
-                    Vayu will not be liable for any indirect, incidental, or punitive damages arising from the use of our website, payment gateways, or courier transit delays beyond our reasonable control.
+                    THE TREND THEORY will not be liable for any indirect, incidental, or punitive damages arising from the use of our website, payment gateways, or courier transit delays beyond our reasonable control.
                 </p>
             </section>
 
@@ -348,7 +348,7 @@
                     For any questions regarding these terms or your orders, our support team is available 24/7:
                 </p>
                 <div class="policy-contact-box">
-                    <div style="font-weight: 800; color: #00285a; font-size: 15px; margin-bottom: 6px;">Vayu Apparels Pvt. Ltd.</div>
+                    <div style="font-weight: 800; color: #00285a; font-size: 15px; margin-bottom: 6px;">THE TREND THEORY Apparels Pvt. Ltd.</div>
                     <div style="font-size: 13.5px; color: #475569; line-height: 1.6;">
                         Plot No. 42, Luxury Fashion Hub, Andheri East, Mumbai, MH - 400069<br>
                         <strong>Email:</strong> <a href="mailto:support@thetrendtheory.com" style="color: #00285a; font-weight: 700;">support@thetrendtheory.com</a><br>

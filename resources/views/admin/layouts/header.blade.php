@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
 
     <!-- Primary Meta Tags - SEO ke liye sabse important -->
-    <title>VAYU: Men's & Women's Streetwear | India's Fashion Brand</title>
+    <title>THE TREND THEORY: Men's & Women's Streetwear | India's Fashion Brand</title>
     <meta name="description"
-        content="VAYU - India's premium streetwear brand for men and women. Shop oversized t-shirts, cargo pants, printed boxers, co-ords, and more. ✓COD ✓Free Shipping ✓Easy Returns" />
+        content="THE TREND THEORY - India's premium streetwear brand for men and women. Shop oversized t-shirts, cargo pants, printed boxers, co-ords, and more. ✓COD ✓Free Shipping ✓Easy Returns" />
     <meta name="keywords"
-        content="vayu, streetwear india, oversized t-shirts, cargo pants, printed t-shirts, men's fashion, women's fashion, indian streetwear brand, printed boxers, co-ords set, hoodies india" />
-    <meta name="author" content="VAYU" />
+        content="THE TREND THEORY, streetwear india, oversized t-shirts, cargo pants, printed t-shirts, men's fashion, women's fashion, indian streetwear brand, printed boxers, co-ords set, hoodies india" />
+    <meta name="author" content="THE TREND THEORY" />
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
     <meta name="language" content="English" />
@@ -20,27 +20,27 @@
     <meta name="distribution" content="global" />
 
     <!-- Canonical URL - Duplicate content se bachata hai -->
-    <link rel="canonical" href="https://www.vayu.com" />
+    <link rel="canonical" href="https://www.THE TREND THEORY.com" />
 
     <!-- Favicon Icons - Browser tab mein dikhta hai -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Open Graph Tags - Facebook, LinkedIn, WhatsApp ke liye -->
-    <meta property="og:title" content="VAYU - Premium Streetwear for Men & Women" />
+    <meta property="og:title" content="THE TREND THEORY - Premium Streetwear for Men & Women" />
     <meta property="og:description"
         content="India's fastest growing streetwear brand. Shop oversized t-shirts, cargo pants, co-ords & more. ✓COD ✓Free Shipping" />
-    <meta property="og:image" content="https://www.vayu.com/og-image.jpg" />
+    <meta property="og:image" content="https://www.THE TREND THEORY.com/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:url" content="https://www.vayu.com" />
+    <meta property="og:url" content="https://www.THE TREND THEORY.com" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="VAYU" />
+    <meta property="og:site_name" content="THE TREND THEORY" />
     <meta property="og:locale" content="en_IN" />
 
     <!-- Twitter Cards - Twitter pe share karne ke liye -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="VAYU - Streetwear Brand India" />
+    <meta name="twitter:title" content="THE TREND THEORY - Streetwear Brand India" />
     <meta name="twitter:description"
         content="Shop the latest streetwear collection for men & women. Oversized tees, cargos & more." />
     <meta name="twitter:image" content="https://www.thetrendtheory.com/twitter-image.jpg" />
@@ -90,9 +90,9 @@
     {
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "VAYU",
-        "url": "https://www.vayu.com",
-        "logo": "https://www.vayu.com/logo.png",
+        "name": "THE TREND THEORY",
+        "url": "https://www.THE TREND THEORY.com",
+        "logo": "https://www.THE TREND THEORY.com/logo.png",
         "sameAs": [
             "https://instagram.com/thetrendtheory",
             "https://facebook.com/thetrendtheory",
@@ -114,7 +114,7 @@
     <link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.thetrendtheory.com" />
 
     <!-- RSS Feed (if you have blog) -->
-    <link rel="alternate" type="application/rss+xml" title="VAYU Blog" href="/blog/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="THE TREND THEORY Blog" href="/blog/feed.xml" />
 </head>
 
 <body>

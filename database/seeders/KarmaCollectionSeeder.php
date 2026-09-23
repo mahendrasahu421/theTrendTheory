@@ -19,7 +19,7 @@ class KarmaCollectionSeeder extends Seeder
             [
                 'name' => 'KARMA',
                 'description' => 'A dummy streetwear collection for KARMA oversized t-shirt drops.',
-                'meta_title' => 'KARMA Collection - Vayu',
+                'meta_title' => 'KARMA Collection - THE TREND THEORY',
                 'meta_description' => 'Shop dummy KARMA oversized t-shirt products and color variants.',
                 'image' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&auto=format&fit=crop&q=80',
                 'banner_image' => 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1600&auto=format&fit=crop&q=80',

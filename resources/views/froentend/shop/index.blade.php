@@ -1,6 +1,6 @@
 @extends('froentend.layouts.app')
 @push('seo')
-    <title>{{ $meta_title ?? 'Shop All Streetwear Drops — Vayu' }}</title>
+    <title>{{ $meta_title ?? 'Shop All Streetwear Drops — THE TREND THEORY' }}</title>
     <meta name="description" content="{{ $meta_description ?? 'Shop luxury streetwear, oversized tees, hoodies, cargos and drops.' }}">
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
 @endpush
@@ -1201,9 +1201,7 @@
         $activeCategories = request()->filled('category') ? (is_array(request('category')) ? request('category') : explode(',', request('category'))) : [];
         $activeSizes = request()->filled('size') ? (is_array(request('size')) ? request('size') : explode(',', request('size'))) : [];
         $activeColors = request()->filled('color') ? (is_array(request('color')) ? request('color') : explode(',', request('color'))) : [];
-        $activeFits = request()->filled('fit') ? (is_array(request('fit')) ? request('fit') : explode(',', request('fit'))) : [];
-        $activeFabrics = request()->filled('fabric') ? (is_array(request('fabric')) ? request('fabric') : explode(',', request('fabric'))) : [];
-        $activeFiltersCount = count($activeCategories) + count($activeSizes) + count($activeColors) + count($activeFits) + count($activeFabrics) + (request()->filled('min_price') || request()->filled('max_price') ? 1 : 0) + (request()->boolean('in_stock') ? 1 : 0) + (request()->boolean('on_sale') ? 1 : 0);
+        $activeFiltersCount = count($activeCategories) + count($activeSizes) + count($activeColors) + (request()->filled('min_price') || request()->filled('max_price') ? 1 : 0) + (request()->boolean('in_stock') ? 1 : 0) + (request()->boolean('on_sale') ? 1 : 0);
     @endphp
 
     <div class="shop-hero {{ $shopHeroImage ? 'has-image' : '' }}"
@@ -1360,51 +1358,6 @@
                     </div>
                 </div>
 
-                {{-- 5. FIT & SILHOUETTE --}}
-                <div class="filter-group">
-                    <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                        <span>Fit & Silhouette</span>
-                        <i class="bi bi-chevron-down filter-toggle-icon"></i>
-                    </div>
-                    <div class="filter-group-body">
-                        <div class="filter-options-list">
-                            @foreach ($allFits as $fitLabel => $fitVal)
-                                @php $isFitActive = in_array($fitVal, $activeFits); @endphp
-                                <label class="filter-checkbox-label">
-                                    <div class="filter-checkbox-left">
-                                        <input type="checkbox" value="{{ $fitVal }}"
-                                            {{ $isFitActive ? 'checked' : '' }}
-                                            onchange="toggleArrayFilterParam('fit', '{{ $fitVal }}')">
-                                        <span>{{ $fitLabel }}</span>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                {{-- 6. FABRIC & WEIGHT --}}
-                <div class="filter-group">
-                    <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                        <span>Fabric & GSM</span>
-                        <i class="bi bi-chevron-down filter-toggle-icon"></i>
-                    </div>
-                    <div class="filter-group-body">
-                        <div class="filter-options-list">
-                            @foreach ($allFabrics as $fabLabel => $fabVal)
-                                @php $isFabActive = in_array($fabVal, $activeFabrics); @endphp
-                                <label class="filter-checkbox-label">
-                                    <div class="filter-checkbox-left">
-                                        <input type="checkbox" value="{{ $fabVal }}"
-                                            {{ $isFabActive ? 'checked' : '' }}
-                                            onchange="toggleArrayFilterParam('fabric', '{{ $fabVal }}')">
-                                        <span>{{ $fabLabel }}</span>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
 
                 {{-- 7. AVAILABILITY & SALE --}}
                 <div class="filter-group">
@@ -1452,7 +1405,8 @@
                         <div class="sort-select-wrapper">
                             <label for="shopSortSelect">Sort:</label>
                             <select id="shopSortSelect" class="custom-sort-select" onchange="updateShopUrlParam('sort', this.value)">
-                                <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>Newest Drops</option>
+                                <option value="shuffle" {{ in_array(request('sort', 'shuffle'), ['shuffle', '']) ? 'selected' : '' }}>Featured (Shuffle Drops)</option>
+                                <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>Newest Drops</option>
                                 <option value="popular" {{ request('sort') === 'popular' ? 'selected' : '' }}>Best Sellers</option>
                                 <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
                                 <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
@@ -1483,16 +1437,6 @@
                         @foreach ($activeColors as $cVal)
                             <a href="javascript:void(0)" onclick="removeFilterParam('color', '{{ $cVal }}')" class="active-chip">
                                 Color: {{ $cVal }} <i class="bi bi-x"></i>
-                            </a>
-                        @endforeach
-                        @foreach ($activeFits as $fVal)
-                            <a href="javascript:void(0)" onclick="removeFilterParam('fit', '{{ $fVal }}')" class="active-chip">
-                                Fit: {{ $fVal }} <i class="bi bi-x"></i>
-                            </a>
-                        @endforeach
-                        @foreach ($activeFabrics as $fabVal)
-                            <a href="javascript:void(0)" onclick="removeFilterParam('fabric', '{{ $fabVal }}')" class="active-chip">
-                                Fabric: {{ $fabVal }} <i class="bi bi-x"></i>
                             </a>
                         @endforeach
                         @if (request()->boolean('in_stock'))
@@ -1690,51 +1634,6 @@
                 </div>
             </div>
 
-            {{-- 5. FIT & SILHOUETTE --}}
-            <div class="filter-group">
-                <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                    <span>Fit & Silhouette</span>
-                    <i class="bi bi-chevron-down filter-toggle-icon"></i>
-                </div>
-                <div class="filter-group-body">
-                    <div class="filter-options-list">
-                        @foreach ($allFits as $fitLabel => $fitVal)
-                            @php $isFitActive = in_array($fitVal, $activeFits); @endphp
-                            <label class="filter-checkbox-label">
-                                <div class="filter-checkbox-left">
-                                    <input type="checkbox" value="{{ $fitVal }}"
-                                        {{ $isFitActive ? 'checked' : '' }}
-                                        onchange="toggleArrayFilterParam('fit', '{{ $fitVal }}')">
-                                    <span>{{ $fitLabel }}</span>
-                                </div>
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-
-            {{-- 6. FABRIC & GSM --}}
-            <div class="filter-group">
-                <div class="filter-group-header" onclick="toggleFilterGroup(this)">
-                    <span>Fabric & GSM</span>
-                    <i class="bi bi-chevron-down filter-toggle-icon"></i>
-                </div>
-                <div class="filter-group-body">
-                    <div class="filter-options-list">
-                        @foreach ($allFabrics as $fabLabel => $fabVal)
-                            @php $isFabActive = in_array($fabVal, $activeFabrics); @endphp
-                            <label class="filter-checkbox-label">
-                                <div class="filter-checkbox-left">
-                                    <input type="checkbox" value="{{ $fabVal }}"
-                                        {{ $isFabActive ? 'checked' : '' }}
-                                        onchange="toggleArrayFilterParam('fabric', '{{ $fabVal }}')">
-                                    <span>{{ $fabLabel }}</span>
-                                </div>
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="mobile-drawer-footer">
             <button type="button" class="mobile-clear-btn" onclick="window.location='{{ url()->current() }}'">Clear All</button>
@@ -1924,6 +1823,15 @@
             let currentPage = {{ $products->currentPage() }};
             const totalCount = {{ $products->total() }};
 
+            // If the URL has a page parameter from a previous refresh/link, clean the address bar
+            if (window.history && window.history.replaceState) {
+                const initUrl = new URL(window.location.href);
+                if (initUrl.searchParams.has('page')) {
+                    initUrl.searchParams.delete('page');
+                    window.history.replaceState(null, '', initUrl.toString());
+                }
+            }
+
             const grid = document.getElementById('shopProductGrid');
             const loader = document.getElementById('infiniteScrollLoader');
             const endMsg = document.getElementById('infiniteScrollEnd');
@@ -1971,19 +1879,21 @@
                         nextPageUrl = data.nextPageUrl;
                         currentPage = data.currentPage;
 
-                        // URL bina reload ke page update karega
+                        // Keep URL clean so page reloads do not get stuck on subpage numbers
                         if (window.history && window.history.replaceState) {
                             const cleanUrl = new URL(window.location.href);
-                            cleanUrl.searchParams.set('page', currentPage);
-                            window.history.replaceState(null, '', cleanUrl.toString());
+                            if (cleanUrl.searchParams.has('page')) {
+                                cleanUrl.searchParams.delete('page');
+                                window.history.replaceState(null, '', cleanUrl.toString());
+                            }
                         }
 
                         // Product count badge update
-                        const countBadges = document.querySelectorAll('.shop-results-count');
-                        countBadges.forEach(b => {
+                        const toolbarInfo = document.querySelector('.shop-results-info');
+                        if (toolbarInfo) {
                             const loadedCount = grid.querySelectorAll('.shop-card').length;
-                            b.innerHTML = `Showing <strong>${loadedCount}</strong> of <strong>${totalCount}</strong> drops`;
-                        });
+                            toolbarInfo.innerHTML = `Showing <strong>1-${loadedCount}</strong> of <strong>${totalCount}</strong> Streetwear Drops`;
+                        }
                     }
 
                     if (!hasMorePages) {

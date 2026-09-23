@@ -21,7 +21,7 @@ return new class extends Migration
             $table->longText('content');
             $table->string('image_url')->nullable();
             $table->string('image_public_id')->nullable();
-            $table->string('author_name')->default('Vayu Editorial');
+            $table->string('author_name')->default('THE TREND THEORY Editorial');
             $table->string('read_time')->default('4 min read');
             $table->string('tags')->nullable();
             $table->boolean('is_published')->default(true);

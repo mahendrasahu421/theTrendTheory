@@ -10,6 +10,7 @@
         --orders-bg: #f8fafc;
         --orders-card-bg: #ffffff;
         --orders-border: #e2e8f0;
+        --orders-navy: #00285a;
         --orders-text-main: #0f172a;
         --orders-text-muted: #64748b;
         --orders-primary: #2563eb;
@@ -32,28 +33,29 @@
         gap: 16px;
         flex-wrap: wrap;
         background: #ffffff;
-        border: 1px solid var(--orders-border);
-        border-radius: 18px;
-        padding: 18px 24px;
-        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+        border: 1.5px solid var(--orders-border);
+        border-radius: 20px;
+        padding: 20px 26px;
+        box-shadow: 0 4px 20px rgba(0, 40, 90, 0.03);
     }
 
     .orders-heading {
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 4px;
     }
 
     .orders-title-row {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
     .orders-title {
-        font-size: 22px;
+        font-size: 23px;
         font-weight: 800;
-        color: #0b192e;
+        color: var(--orders-navy);
         letter-spacing: -0.4px;
         margin: 0;
     }
@@ -65,7 +67,7 @@
         background: #eff6ff;
         color: #2563eb;
         border: 1px solid #bfdbfe;
-        padding: 3px 10px;
+        padding: 3px 12px;
         border-radius: 999px;
         font-size: 11px;
         font-weight: 700;
@@ -73,8 +75,8 @@
     }
 
     .orders-pulse-dot {
-        width: 6px;
-        height: 6px;
+        width: 7px;
+        height: 7px;
         background: #2563eb;
         border-radius: 50%;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
@@ -83,11 +85,11 @@
 
     @keyframes pulseLive {
         0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.2); opacity: 0.7; }
+        50% { transform: scale(1.25); opacity: 0.7; }
     }
 
     .orders-subtitle {
-        font-size: 12.5px;
+        font-size: 13px;
         color: var(--orders-text-muted);
     }
 
@@ -99,12 +101,12 @@
     }
 
     .btn-orders-action {
-        height: 40px;
-        border-radius: 11px;
+        height: 42px;
+        border-radius: 12px;
         border: 1.5px solid #dbe4ef;
         background: #ffffff;
         color: #334155;
-        padding: 0 15px;
+        padding: 0 16px;
         font-size: 12.5px;
         font-weight: 700;
         cursor: pointer;
@@ -123,17 +125,35 @@
         transform: translateY(-1px);
     }
 
+    .btn-orders-action.active-guide {
+        background: #eff6ff;
+        border-color: #2563eb;
+        color: #2563eb;
+    }
+
+    .btn-orders-scanner {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+    .btn-orders-scanner:hover {
+        background: #dcfce7;
+        border-color: #86efac;
+        color: #15803d;
+    }
+
     .btn-orders-print {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        border-color: #0f172a;
+        background: var(--orders-navy);
+        border-color: var(--orders-navy);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+        box-shadow: 0 4px 14px rgba(0, 40, 90, 0.2);
     }
 
     .btn-orders-print:hover {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        border-color: #1e293b;
+        background: #001f46;
+        border-color: #001f46;
         color: #ffffff;
+        transform: translateY(-1px);
     }
 
     /* ── Interactive Bento KPI Summary ── */
@@ -145,13 +165,13 @@
 
     .orders-metric {
         background: #ffffff;
-        border: 1.5px solid #f1f5f9;
-        border-radius: 16px;
+        border: 1.5px solid #edf2f7;
+        border-radius: 18px;
         padding: 16px 18px;
         display: flex;
         align-items: center;
         gap: 14px;
-        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.02);
+        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.02);
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         cursor: pointer;
         user-select: none;
@@ -161,7 +181,7 @@
 
     .orders-metric:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 8px 24px rgba(0, 40, 90, 0.06);
         border-color: #cbd5e1;
     }
 
@@ -198,14 +218,122 @@
         font-size: 22px;
         line-height: 1.1;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--orders-navy);
     }
 
     .metric-hint {
-        font-size: 10px;
+        font-size: 10.5px;
         color: #94a3b8;
         margin-top: 2px;
     }
+
+    /* ── Order & Payment Clearance Flow Guide Component ── */
+    .orders-flow-guide {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 24px 28px;
+        box-shadow: 0 4px 20px rgba(0, 40, 90, 0.04);
+        border: 1.5px solid var(--orders-border);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2px;
+        display: none;
+        animation: flowSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .orders-flow-guide.open {
+        display: block;
+    }
+    @keyframes flowSlideDown {
+        from { opacity: 0; transform: translateY(-12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .flow-guide-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+    }
+    .flow-guide-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--orders-navy);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+    .flow-guide-badge {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #2563eb;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+    }
+    .flow-guide-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+    @media (max-width: 900px) {
+        .flow-guide-grid { grid-template-columns: 1fr; }
+    }
+    .flow-card-box {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px 20px;
+    }
+    .flow-card-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 13.5px;
+        font-weight: 800;
+    }
+    .flow-card-head.flow-head-track { color: #2563eb; }
+    .flow-card-head.flow-head-pay { color: #059669; }
+    .flow-stepper-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+    }
+    .flow-step-node {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 7px 11px;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #334155;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .flow-step-node i { font-size: 13px; }
+    .flow-step-arrow {
+        color: #94a3b8;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+    .flow-desc-note {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 10px;
+        line-height: 1.5;
+    }
+    .flow-desc-note strong { color: #0f172a; }
 
     /* ── Main Orders Card & Table ── */
     .orders-card {
@@ -213,7 +341,7 @@
         border: 1.5px solid var(--orders-border);
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.03);
+        box-shadow: 0 6px 24px rgba(0, 40, 90, 0.03);
         position: relative;
     }
 
@@ -229,9 +357,9 @@
     }
 
     .orders-card-title {
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--orders-navy);
         margin: 0;
         display: flex;
         align-items: center;
@@ -255,7 +383,7 @@
 
     .order-search {
         position: relative;
-        width: 260px;
+        width: 270px;
     }
 
     .order-search i.search-icon {
@@ -273,7 +401,7 @@
         height: 40px;
         border: 1.5px solid #e2e8f0;
         border-radius: 11px;
-        padding: 0 34px 0 36px;
+        padding: 0 60px 0 36px;
         font-size: 12.5px;
         font-family: inherit;
         outline: none;
@@ -284,13 +412,30 @@
     }
 
     .order-search input:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
+
+    .search-scanner-btn {
+        position: absolute;
+        right: 32px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #64748b;
+        font-size: 15px;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .search-scanner-btn:hover { color: #2563eb; }
 
     .search-clear-btn {
         position: absolute;
-        right: 32px;
+        right: 8px;
         top: 50%;
         transform: translateY(-50%);
         background: none;
@@ -299,275 +444,155 @@
         font-size: 14px;
         cursor: pointer;
         display: none;
-        padding: 0;
-    }
-    .search-clear-btn:hover { color: #0f172a; }
-
-    .search-scanner-btn {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #64748b;
-        font-size: 15px;
-        cursor: pointer;
-        padding: 0;
-        transition: color 0.15s ease;
-    }
-    .search-scanner-btn:hover { color: #2563eb; }
-
-    /* Scanner Modal Styles */
-    .scanner-mode-tabs {
-        display: flex;
-        gap: 8px;
-        background: #f1f5f9;
         padding: 4px;
-        border-radius: 12px;
-        margin-bottom: 18px;
     }
-    .btn-scanner-tab {
-        flex: 1;
-        padding: 9px 12px;
-        border: none;
-        background: transparent;
-        color: #64748b;
-        font-size: 12px;
-        font-weight: 800;
-        border-radius: 9px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        transition: all 0.15s ease;
-    }
-    .btn-scanner-tab.active {
-        background: #ffffff;
-        color: #0f172a;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }
-
-    .scanner-gun-pane {
-        background: #f8fafc;
-        border: 2px dashed #93c5fd;
-        border-radius: 16px;
-        padding: 22px 18px;
-        text-align: center;
-        transition: all 0.2s ease;
-    }
-    .scanner-gun-pane.listening {
-        border-color: #2563eb;
-        background: #eff6ff;
-    }
-    .scanner-gun-input {
-        width: 100%;
-        height: 48px;
-        font-size: 15px;
-        font-weight: 800;
-        font-family: 'JetBrains Mono', monospace;
-        letter-spacing: 1px;
-        text-align: center;
-        border: 2px solid #2563eb;
-        border-radius: 12px;
-        outline: none;
-        background: #ffffff;
-        color: #0f172a;
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
-        margin: 12px 0 6px;
-    }
-    .camera-viewport-wrap {
-        width: 100%;
-        max-width: 440px;
-        height: 240px;
-        border-radius: 16px;
-        overflow: hidden;
-        margin: 0 auto 12px;
-        background: #0f172a;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid #334155;
-    }
-    .camera-laser-line {
-        position: absolute;
-        top: 0;
-        left: 5%;
-        right: 5%;
-        height: 2px;
-        background: #ef4444;
-        box-shadow: 0 0 10px #ef4444;
-        animation: scanLaser 2s infinite ease-in-out;
-        z-index: 5;
-    }
-    @keyframes scanLaser {
-        0%, 100% { top: 12%; }
-        50% { top: 88%; }
-    }
-
-    .scanned-order-card {
-        margin-top: 18px;
-        background: #ffffff;
-        border: 1.5px solid #bfdbfe;
-        border-radius: 16px;
-        padding: 16px;
-        display: none;
-        box-shadow: 0 8px 22px rgba(37, 99, 235, 0.08);
-    }
-    .scanned-order-card.show {
-        display: block;
-        animation: fadeInScale 0.2s ease;
-    }
-    @keyframes fadeInScale {
-        from { opacity: 0; transform: scale(0.97); }
-        to { opacity: 1; transform: scale(1); }
-    }
+    .search-clear-btn:hover { color: #dc2626; }
 
     .orders-filter select {
         height: 40px;
         border: 1.5px solid #e2e8f0;
         border-radius: 11px;
-        padding: 0 14px;
+        padding: 0 12px;
         font-size: 12.5px;
-        font-family: inherit;
-        outline: none;
-        background: #ffffff;
-        color: #1e293b;
         font-weight: 600;
+        color: #334155;
+        background: #ffffff;
+        outline: none;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
     }
 
     .orders-filter select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
     .btn-filter-reset {
-        height: 40px;
         width: 40px;
-        border-radius: 11px;
+        height: 40px;
         border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
         background: #ffffff;
         color: #64748b;
+        cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
+        font-size: 15px;
         transition: all 0.2s ease;
     }
     .btn-filter-reset:hover {
-        background: #f1f5f9;
-        color: #0f172a;
         border-color: #cbd5e1;
+        color: #0f172a;
+        background: #f8fafc;
     }
 
-    /* ── Status Strip Tabs ── */
+    /* Fulfillment Status Chip Strip */
     .status-strip {
         display: flex;
         gap: 8px;
         padding: 12px 24px;
         border-bottom: 1px solid #f1f5f9;
-        background: #fafcff;
         overflow-x: auto;
+        background: #ffffff;
     }
 
     .status-chip {
-        padding: 7px 15px;
-        border-radius: 10px;
+        border: 1.5px solid #edf2f7;
+        background: #ffffff;
+        color: #475569;
         font-size: 12px;
         font-weight: 700;
-        color: #64748b;
-        background: transparent;
-        border: 1.5px solid transparent;
+        padding: 6px 14px;
+        border-radius: 999px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 7px;
-        transition: all 0.15s ease;
+        gap: 6px;
         white-space: nowrap;
+        transition: all 0.15s ease;
     }
 
     .status-chip:hover {
+        border-color: #cbd5e1;
         color: #0f172a;
-        background: #f1f5f9;
+        background: #f8fafc;
     }
 
     .status-chip.active {
-        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        background: var(--orders-navy);
+        border-color: var(--orders-navy);
         color: #ffffff;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+        box-shadow: 0 2px 8px rgba(0, 40, 90, 0.2);
     }
 
-    .status-chip span.chip-count {
-        background: rgba(15, 23, 42, 0.08);
-        padding: 2px 7px;
+    .status-chip .chip-count {
+        background: rgba(0, 0, 0, 0.06);
+        color: inherit;
+        padding: 1px 7px;
         border-radius: 999px;
-        font-size: 10.5px;
+        font-size: 11px;
         font-weight: 800;
     }
 
-    .status-chip.active span.chip-count {
-        background: rgba(255, 255, 255, 0.25);
+    .status-chip.active .chip-count {
+        background: rgba(255, 255, 255, 0.22);
         color: #ffffff;
     }
 
-    /* ── High-Density Modern Table ── */
+    /* Table Component */
     .orders-table-wrap {
-        overflow-x: auto;
         position: relative;
-        min-height: 280px;
+        overflow-x: auto;
     }
 
     .orders-table {
         width: 100%;
         border-collapse: collapse;
+        font-size: 12.5px;
     }
 
     .orders-table th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
+        background: #f8fafc;
+        color: #475569;
         font-size: 11px;
         font-weight: 800;
-        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.6px;
-        padding: 14px 16px;
-        border-bottom: 1.5px solid #edf2f7;
-        background: #fafcff;
+        padding: 14px 18px;
+        border-bottom: 1.5px solid #e2e8f0;
         text-align: left;
+        white-space: nowrap;
     }
 
     .orders-table td {
-        padding: 14px 16px;
+        padding: 14px 18px;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 13px;
         vertical-align: middle;
-        background: #ffffff;
-        transition: background 0.15s ease;
     }
 
-    .orders-table tr:hover td {
-        background: #f8fafc;
+    .orders-table tbody tr {
+        transition: background-color 0.15s ease;
     }
 
-    .orders-table tr.is-selected td {
-        background: #eff6ff;
+    .orders-table tbody tr:hover {
+        background-color: #f8faff;
     }
 
-    /* Checkbox Styling */
+    .orders-table tbody tr.is-selected {
+        background-color: #eff6ff;
+    }
+
+    /* Custom Checkbox */
     .custom-check {
         width: 18px;
         height: 18px;
-        border-radius: 5px;
         cursor: pointer;
+        border-radius: 5px;
         accent-color: #2563eb;
     }
 
-    /* Order # Badge */
+    /* Order # Link & Copy */
     .order-number-wrap {
         display: flex;
         flex-direction: column;
@@ -577,25 +602,19 @@
     .order-number-link {
         font-size: 13.5px;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--orders-navy);
         text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.15s ease;
+        letter-spacing: -0.2px;
     }
-
-    .order-number-link:hover {
-        color: #2563eb;
-    }
+    .order-number-link:hover { color: #2563eb; text-decoration: underline; }
 
     .btn-copy-order {
         background: none;
         border: none;
         color: #94a3b8;
-        font-size: 11px;
-        cursor: pointer;
         padding: 0;
+        cursor: pointer;
+        font-size: 12px;
         transition: color 0.15s ease;
     }
     .btn-copy-order:hover { color: #2563eb; }
@@ -605,7 +624,8 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        min-width: 250px;
+        min-width: 260px;
+        max-width: 380px;
     }
 
     .order-prod-thumb-wrap {
@@ -614,19 +634,12 @@
     }
 
     .order-prod-thumb {
-        width: 54px;
-        height: 54px;
-        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
         object-fit: cover;
-        background: #f8fafc;
         border: 1.5px solid #e2e8f0;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .order-prod-thumb:hover {
-        transform: scale(1.12);
-        z-index: 5;
+        background: #ffffff;
     }
 
     .order-prod-name {
@@ -634,20 +647,20 @@
         font-weight: 700;
         color: #0f172a;
         line-height: 1.35;
-        margin-bottom: 4px;
+        text-decoration: none;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 1;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        text-decoration: none;
     }
     .order-prod-name:hover { color: #2563eb; }
 
     .prod-spec-pills {
         display: flex;
-        align-items: center;
         gap: 5px;
+        align-items: center;
         flex-wrap: wrap;
+        margin-top: 3px;
     }
 
     .pill-sku {
@@ -662,9 +675,8 @@
     .pill-size {
         font-size: 10.5px;
         font-weight: 800;
-        color: #1e293b;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
+        color: #0f172a;
+        background: #e2e8f0;
         padding: 1px 6px;
         border-radius: 5px;
     }
@@ -672,35 +684,34 @@
     .pill-print {
         font-size: 10px;
         font-weight: 800;
-        color: #1d4ed8;
+        color: #2563eb;
         background: #eff6ff;
         border: 1px solid #bfdbfe;
-        padding: 1px 6px;
+        padding: 1px 5px;
         border-radius: 5px;
-        letter-spacing: 0.3px;
     }
 
     /* Customer Cell */
     .customer-cell {
         display: flex;
         align-items: center;
-        gap: 12px;
-        min-width: 180px;
+        gap: 10px;
+        min-width: 200px;
     }
 
     .customer-avatar {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         border-radius: 10px;
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        color: #1d4ed8;
+        background: linear-gradient(135deg, #00285a 0%, #2563eb 100%);
+        color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 13.5px;
         font-weight: 800;
         flex-shrink: 0;
-        border: 1px solid #bfdbfe;
+        box-shadow: 0 2px 6px rgba(0, 40, 90, 0.15);
     }
 
     .customer-name {
@@ -731,8 +742,8 @@
 
     /* Amount Cell */
     .amount-cell {
-        color: #0f172a;
-        font-size: 14.5px;
+        color: var(--orders-navy);
+        font-size: 15px;
         font-weight: 800;
         white-space: nowrap;
         letter-spacing: -0.2px;
@@ -824,13 +835,14 @@
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        padding: 4px 10px;
+        padding: 4px 11px;
         border-radius: 8px;
         font-size: 11.5px;
         font-weight: 800;
         cursor: pointer;
         transition: all 0.15s ease;
         border: 1px solid transparent;
+        white-space: nowrap;
     }
 
     .status-pill:hover {
@@ -876,14 +888,14 @@
     }
 
     .action-btn-thermal {
-        background: #0f172a;
-        color: #fbbf24;
-        border-color: #0f172a;
+        background: #fffbeb;
+        color: #b45309;
+        border-color: #fde68a;
     }
     .action-btn-thermal:hover {
-        background: #1e293b;
-        color: #fef08a;
-        border-color: #1e293b;
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fcd34d;
     }
 
     .action-btn-invoice {
@@ -928,18 +940,6 @@
         gap: 12px;
     }
 
-    .per-page-select {
-        height: 34px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 0 10px;
-        font-size: 12px;
-        font-weight: 600;
-        color: #334155;
-        background: #ffffff;
-        outline: none;
-    }
-
     .ajax-pagination-wrap {
         display: inline-flex;
         align-items: center;
@@ -970,10 +970,10 @@
     }
 
     .btn-page-nav.active {
-        background: #2563eb;
+        background: var(--orders-navy);
         color: #ffffff;
-        border-color: #2563eb;
-        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+        border-color: var(--orders-navy);
+        box-shadow: 0 2px 6px rgba(0, 40, 90, 0.25);
     }
 
     .btn-page-nav:disabled {
@@ -986,12 +986,12 @@
         position: fixed;
         bottom: 24px;
         left: 50%;
-        transform: translateX(-50%) translateY(100px);
-        background: #0f172a;
+        transform: translateX(-50%) translateY(120px);
+        background: #00285a;
         color: #ffffff;
         padding: 12px 24px;
         border-radius: 999px;
-        box-shadow: 0 16px 35px rgba(0, 0, 0, 0.28);
+        box-shadow: 0 16px 40px rgba(0, 40, 90, 0.35);
         display: flex;
         align-items: center;
         gap: 16px;
@@ -1004,10 +1004,10 @@
     .bulk-selected-count {
         font-size: 13px;
         font-weight: 800;
-        color: #60a5fa;
+        color: #93c5fd;
     }
     .btn-bulk-act {
-        background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         color: #ffffff;
         border: none;
         border-radius: 999px;
@@ -1037,12 +1037,12 @@
         cursor: pointer;
     }
 
-    /* ── REDESIGNED HIGH-END STUDIO MODAL (840px) ── */
+    /* ── EXECUTIVE REDESIGNED ORDER FULFILLMENT & DISPATCH STUDIO MODAL ── */
     .custom-modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.68);
-        backdrop-filter: blur(6px);
+        background: rgba(0, 20, 50, 0.65);
+        backdrop-filter: blur(8px);
         z-index: 2000;
         display: none;
         align-items: center;
@@ -1058,15 +1058,15 @@
 
     .custom-modal-card {
         background: #ffffff;
-        border-radius: 20px;
+        border-radius: 24px;
         border: 1px solid #edf2f7;
-        box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 30px 70px -15px rgba(0, 40, 90, 0.35);
         width: 100%;
-        max-width: 860px;
+        max-width: 980px;
         overflow: hidden;
         transform: translateY(20px) scale(0.98);
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        max-height: 92vh;
+        max-height: 94vh;
         display: flex;
         flex-direction: column;
     }
@@ -1083,209 +1083,488 @@
         margin: 0;
     }
 
+    /* Modal Top Header */
     .custom-modal-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        padding: 16px 24px;
-        color: #ffffff;
+        background: #ffffff;
+        padding: 18px 28px;
+        color: #0f172a;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-shrink: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1.5px solid #edf2f7;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .custom-modal-title-group {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .custom-modal-icon-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #00285a 0%, #2563eb 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 4px 14px rgba(0, 40, 90, 0.2);
+        flex-shrink: 0;
     }
 
     .custom-modal-title {
-        font-size: 16px;
+        font-size: 17.5px;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--orders-navy);
         margin: 0;
         display: flex;
         align-items: center;
         gap: 10px;
+        letter-spacing: -0.3px;
     }
 
     .modal-order-tag {
-        background: rgba(255, 255, 255, 0.15);
-        color: #60a5fa;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-size: 12px;
+        background: #eff6ff;
+        color: #2563eb;
+        border: 1px solid #bfdbfe;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 13px;
         font-weight: 800;
         letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-copy-tag {
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        color: #2563eb;
+        font-size: 12px;
+        transition: transform 0.15s ease;
+    }
+    .btn-copy-tag:hover { transform: scale(1.15); }
+
+    .modal-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-modal-ext-link {
+        font-size: 12px;
+        font-weight: 700;
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        padding: 6px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+    }
+    .btn-modal-ext-link:hover {
+        background: #eff6ff;
+        border-color: #2563eb;
+        color: #2563eb;
     }
 
     .btn-modal-close {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #ffffff;
-        width: 32px;
-        height: 32px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        width: 34px;
+        height: 34px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 9px;
+        border-radius: 10px;
         transition: all 0.15s ease;
     }
     .btn-modal-close:hover {
-        background: rgba(255, 255, 255, 0.25);
+        background: #e2e8f0;
+        color: #0f172a;
     }
 
+    /* Modal Body */
     .custom-modal-body {
-        padding: 18px 24px;
+        padding: 22px 28px;
         overflow-y: auto;
         flex: 1;
         min-height: 0;
+        background: #fbfcfe;
     }
 
-    .custom-modal-footer {
-        padding: 14px 24px;
-        background: #f8fafc;
-        border-top: 1.5px solid #e2e8f0;
+    /* Stepper Container */
+    .modal-stepper-wrap {
+        background: #ffffff;
+        border: 1.5px solid #edf2f7;
+        border-radius: 18px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.02);
+    }
+
+    .modal-stepper-head {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-        flex-shrink: 0;
-        box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.05);
-        z-index: 10;
+        margin-bottom: 12px;
+    }
+    .modal-stepper-title {
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .modal-stepper-hint {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 600;
     }
 
-    /* Modal Flow Stepper (Horizontal Compact Progress Bar) */
     .modal-flow-stepper {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 7px 12px;
-        margin-bottom: 12px;
-        gap: 4px;
+        gap: 6px;
         overflow-x: auto;
+        padding: 4px 0;
     }
     .modal-flow-node {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #64748b;
-        padding: 4px 8px;
-        border-radius: 7px;
-        transition: all 0.2s ease;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 12px;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         white-space: nowrap;
         background: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1.5px solid #e2e8f0;
+        cursor: pointer;
+        user-select: none;
+    }
+    .modal-flow-node:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+        background: #eff6ff;
+        transform: translateY(-1px);
+    }
+    .modal-flow-node .node-icon-wrap {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        background: #f1f5f9;
+        color: #64748b;
+        transition: all 0.2s ease;
+    }
+    .modal-flow-node .node-text-col {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+    .modal-flow-node .node-title {
+        font-size: 12px;
+        font-weight: 800;
+        color: #334155;
+    }
+    .modal-flow-node .node-sub {
+        font-size: 10px;
+        color: #94a3b8;
+        font-weight: 600;
     }
     .modal-flow-node.active {
         background: #2563eb;
-        color: #ffffff;
         border-color: #2563eb;
-        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+    .modal-flow-node.active .node-icon-wrap {
+        background: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+    }
+    .modal-flow-node.active .node-title,
+    .modal-flow-node.active .node-sub {
+        color: #ffffff;
     }
     .modal-flow-node.completed {
-        background: #dcfce7;
-        color: #15803d;
-        border-color: #86efac;
+        background: #ecfdf5;
+        border-color: #a7f3d0;
     }
+    .modal-flow-node.completed .node-icon-wrap {
+        background: #10b981;
+        color: #ffffff;
+    }
+    .modal-flow-node.completed .node-title {
+        color: #065f46;
+    }
+    .modal-flow-node.completed .node-sub {
+        color: #059669;
+    }
+
     .modal-flow-node-divider {
         flex: 1;
-        height: 2px;
-        background: #cbd5e1;
-        min-width: 6px;
-        transition: background 0.2s ease;
+        height: 2.5px;
+        background: #e2e8f0;
+        min-width: 12px;
+        border-radius: 99px;
+        transition: background 0.25s ease;
     }
     .modal-flow-node-divider.completed {
-        background: #22c55e;
+        background: #10b981;
     }
 
-    /* Modal Educational Banner (Payment Clearance vs Fulfillment) */
-    .modal-guidance-callout {
-        background: #eff6ff;
-        border: 1.5px solid #bfdbfe;
-        border-radius: 12px;
-        padding: 10px 14px;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        font-size: 11.5px;
-        color: #1e3a8a;
-    }
-    .modal-guidance-callout i {
-        font-size: 17px;
-        color: #2563eb;
-        margin-top: 1px;
-        flex-shrink: 0;
-    }
-    .modal-guidance-callout strong {
-        color: #1e40af;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    /* 2-Column Modal Grid */
+    /* 2-Column Grid */
     .modal-studio-grid {
         display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 18px;
+        grid-template-columns: 360px 1fr;
+        gap: 22px;
         align-items: flex-start;
     }
-
-    @media (max-width: 768px) {
+    @media (max-width: 860px) {
         .modal-studio-grid { grid-template-columns: 1fr; }
     }
 
-    .modal-preview-pane {
-        background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 14px;
+    /* Left Studio Pane (Showcase & Details) */
+    .modal-showcase-pane {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
     }
 
-    .large-modal-thumb {
-        width: 100%;
-        height: 115px;
+    .studio-bento-card {
+        background: #ffffff;
+        border: 1.5px solid #edf2f7;
+        border-radius: 18px;
+        padding: 18px 20px;
+        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.02);
+    }
+
+    .studio-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .studio-card-label {
+        font-size: 11px;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* Items List */
+    .studio-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 220px;
+        overflow-y: auto;
+    }
+    .studio-item-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+    .studio-item-thumb {
+        width: 52px;
+        height: 52px;
         border-radius: 10px;
         object-fit: cover;
         background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        flex-shrink: 0;
+    }
+    .studio-item-name {
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Customer & WhatsApp Card */
+    .studio-cust-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .studio-cust-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00285a 0%, #2563eb 100%);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0, 40, 90, 0.15);
+    }
+    .studio-cust-name {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+    .studio-cust-phone {
+        font-size: 12px;
+        color: #64748b;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 2px;
+    }
+    .studio-cust-phone:hover { color: #2563eb; }
+
+    .studio-address-box {
+        background: #f8fafc;
         border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 12px;
+        color: #334155;
+        line-height: 1.45;
+        margin-bottom: 12px;
+    }
+
+    .btn-whatsapp-action {
+        width: 100%;
+        height: 38px;
+        border-radius: 10px;
+        background: #25d366;
+        color: #ffffff;
+        border: none;
+        font-size: 12px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
+        transition: all 0.15s ease;
+    }
+    .btn-whatsapp-action:hover {
+        background: #20ba59;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    /* Financial Ledger Card */
+    .studio-financial-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        font-size: 12px;
+        color: #64748b;
+    }
+    .studio-financial-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 10px;
+        margin-top: 8px;
+        border-top: 1.5px solid #e2e8f0;
+    }
+    .studio-total-price {
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--orders-navy);
+    }
+
+    /* Right Studio Pane (Dispatch Controls) */
+    .modal-controls-pane {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .studio-control-card {
+        background: #ffffff;
+        border: 1.5px solid #edf2f7;
+        border-radius: 18px;
+        padding: 20px 22px;
+        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.02);
+    }
+
+    .studio-section-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--orders-navy);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .studio-section-sub {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: none;
     }
 
     .form-group-modal {
-        margin-bottom: 12px;
+        margin-bottom: 14px;
     }
 
     .form-label-modal {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 11px;
+        font-size: 11.5px;
         font-weight: 800;
         color: #475569;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 5px;
-    }
-
-    .form-label-modal .label-desc {
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: none;
-        color: #94a3b8;
+        margin-bottom: 6px;
     }
 
     .form-control-modal {
         width: 100%;
-        padding: 9px 12px;
+        padding: 10px 14px;
         border: 1.5px solid #e2e8f0;
-        border-radius: 10px;
+        border-radius: 11px;
         font-size: 13px;
         font-family: inherit;
         font-weight: 600;
@@ -1296,34 +1575,197 @@
     }
 
     .form-control-modal:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     }
 
-    .quick-chip-group {
+    /* Dynamic Hint Alert */
+    .studio-rule-box {
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 11.5px;
+        margin-top: 8px;
         display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        margin-top: 6px;
+        align-items: flex-start;
+        gap: 10px;
+        line-height: 1.45;
+    }
+    .studio-rule-cod {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #92400e;
+    }
+    .studio-rule-prepaid {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
     }
 
-    .quick-courier-chip {
-        background: #ffffff;
+    /* Courier Chips Grid */
+    .courier-chips-suite {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+    }
+    .courier-badge-chip {
+        background: #f8fafc;
         border: 1.5px solid #cbd5e1;
         color: #334155;
-        font-size: 10.5px;
+        font-size: 11.5px;
         font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 6px;
+        padding: 5px 12px;
+        border-radius: 8px;
         cursor: pointer;
         transition: all 0.15s ease;
+        user-select: none;
+    }
+    .courier-badge-chip:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+        background: #eff6ff;
+    }
+    .courier-badge-chip.selected {
+        background: var(--orders-navy);
+        color: #ffffff;
+        border-color: var(--orders-navy);
+        box-shadow: 0 2px 6px rgba(0, 40, 90, 0.2);
     }
 
-    .quick-courier-chip:hover {
-        background: #2563eb;
-        color: #ffffff;
-        border-color: #2563eb;
+    .btn-track-external {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #2563eb;
+        border: 1.5px solid #bfdbfe;
+        font-size: 12px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
     }
+    .btn-track-external:hover {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    /* Footer */
+    .custom-modal-footer {
+        padding: 16px 28px;
+        background: #ffffff;
+        border-top: 1.5px solid #edf2f7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        flex-shrink: 0;
+        box-shadow: 0 -4px 16px rgba(0, 40, 90, 0.03);
+    }
+
+    /* Scanner Styles */
+    .scanner-mode-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 18px;
+        background: #f1f5f9;
+        padding: 5px;
+        border-radius: 12px;
+    }
+
+    .btn-scanner-tab {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 12.5px;
+        font-weight: 700;
+        padding: 8px 14px;
+        border-radius: 9px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-scanner-tab.active {
+        background: #ffffff;
+        color: var(--orders-navy);
+        box-shadow: 0 2px 8px rgba(0, 40, 90, 0.08);
+    }
+
+    .scanner-gun-pane {
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+    }
+    .scanner-gun-pane.listening {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+
+    .scanner-gun-input {
+        width: 100%;
+        max-width: 380px;
+        height: 44px;
+        border: 2px solid #3b82f6;
+        border-radius: 12px;
+        padding: 0 16px;
+        font-size: 15px;
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+        background: #ffffff;
+        color: #0f172a;
+    }
+
+    .camera-viewport-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        height: 250px;
+        margin: 0 auto 14px;
+        background: #0f172a;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .camera-laser-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #ef4444;
+        box-shadow: 0 0 8px #ef4444;
+        animation: laserScan 2s infinite ease-in-out;
+        z-index: 5;
+    }
+
+    @keyframes laserScan {
+        0%, 100% { transform: translateY(-70px); }
+        50% { transform: translateY(70px); }
+    }
+
+    .scanned-order-card {
+        background: #ffffff;
+        border: 1.5px solid #bfdbfe;
+        border-radius: 16px;
+        padding: 16px;
+        margin-top: 16px;
+        display: none;
+        text-align: left;
+    }
+    .scanned-order-card.show { display: block; animation: flowSlideDown 0.25s ease; }
 
     /* Loading Overlay */
     .table-loading-overlay {
@@ -1332,7 +1774,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.82);
         backdrop-filter: blur(2px);
         display: none;
         align-items: center;
@@ -1345,13 +1787,13 @@
         position: fixed;
         bottom: 24px;
         right: 24px;
-        background: #0f172a;
+        background: #00285a;
         color: #ffffff;
         padding: 12px 20px;
         border-radius: 12px;
         font-size: 13px;
         font-weight: 700;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        box-shadow: 0 10px 25px rgba(0, 40, 90, 0.25);
         z-index: 3000;
         display: none;
         align-items: center;
@@ -1371,185 +1813,9 @@
     @media (max-width: 1100px) {
         .orders-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-    /* ── Order & Payment Clearance Flow Guide Component ── */
-    .orders-flow-guide {
-        background: linear-gradient(135deg, #0b192e 0%, #0f274a 60%, #1e3a8a 100%);
-        border-radius: 20px;
-        padding: 24px 28px;
-        color: #ffffff;
-        box-shadow: 0 10px 30px rgba(11, 25, 46, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 2px;
-        display: none; /* Collapsible */
-        animation: flowSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .orders-flow-guide.open {
-        display: block;
-    }
-    @keyframes flowSlideDown {
-        from { opacity: 0; transform: translateY(-12px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .flow-guide-glow {
-        position: absolute;
-        top: -80px;
-        right: -80px;
-        width: 260px;
-        height: 260px;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
-    }
-    .flow-guide-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 18px;
-        flex-wrap: wrap;
-    }
-    .flow-guide-title {
-        font-size: 16px;
-        font-weight: 800;
-        color: #ffffff;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin: 0;
-    }
-    .flow-guide-badge {
-        background: rgba(96, 165, 250, 0.2);
-        border: 1px solid rgba(96, 165, 250, 0.4);
-        color: #93c5fd;
-        padding: 3px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.4px;
-        text-transform: uppercase;
-    }
-    .flow-guide-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-    }
-    @media (max-width: 900px) {
-        .flow-guide-grid { grid-template-columns: 1fr; }
-    }
-    .flow-card-box {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        padding: 16px 18px;
-        backdrop-filter: blur(8px);
-    }
-    .flow-card-head {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 12px;
-        font-size: 13.5px;
-        font-weight: 800;
-    }
-    .flow-card-head.flow-head-track { color: #60a5fa; }
-    .flow-card-head.flow-head-pay { color: #34d399; }
-    .flow-stepper-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        overflow-x: auto;
-        padding-bottom: 4px;
-    }
-    .flow-step-node {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 10px;
-        padding: 7px 11px;
-        font-size: 11.5px;
-        font-weight: 700;
-        color: #e2e8f0;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        white-space: nowrap;
-    }
-    .flow-step-node i { font-size: 13px; }
-    .flow-step-arrow {
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 11px;
-        flex-shrink: 0;
-    }
-    .flow-desc-note {
-        font-size: 12px;
-        color: #cbd5e1;
-        margin-top: 10px;
-        line-height: 1.45;
-    }
-    .flow-desc-note strong { color: #ffffff; }
-
-    /* Modal Stepper Component (Order Fulfillment Progress) */
-    .modal-flow-stepper {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 10px 14px;
-        margin-bottom: 16px;
-        overflow-x: auto;
-        gap: 4px;
-    }
-    .modal-flow-node {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11.5px;
-        font-weight: 700;
-        color: #94a3b8;
-        padding: 4px 8px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-    .modal-flow-node.completed {
-        color: #059669;
-        background: #ecfdf5;
-    }
-    .modal-flow-node.active {
-        color: #2563eb;
-        background: #eff6ff;
-        box-shadow: 0 0 0 1px #bfdbfe;
-    }
-    .modal-flow-node-divider {
-        height: 2px;
-        width: 14px;
-        background: #e2e8f0;
-        flex-shrink: 0;
-    }
-    .modal-flow-node-divider.completed {
-        background: #10b981;
-    }
-
-    /* Modal Dual Track Cards */
-    .flow-badge-hint {
-        font-size: 10.5px;
-        padding: 2px 7px;
-        border-radius: 6px;
-        font-weight: 700;
-        margin-left: 6px;
-    }
-    .hint-cod-rule {
-        background: #fffbeb;
-        color: #b45309;
-        border: 1px solid #fde68a;
-    }
-    .hint-prepaid-rule {
-        background: #eff6ff;
-        color: #1d4ed8;
-        border: 1px solid #bfdbfe;
+    @media (max-width: 680px) {
+        .orders-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .order-search { width: 100%; }
     }
 </style>
 
@@ -1567,21 +1833,21 @@
             <div class="orders-subtitle">Track incoming purchases, COD cash remittances, batch label printing, and order dispatch status.</div>
         </div>
         <div class="orders-toolbar-actions">
-            <button type="button" class="btn-orders-action" id="btnToggleFlowGuide" style="background:#f8fafc; color:#0f172a; border-color:#cbd5e1;">
+            <button type="button" class="btn-orders-action" id="btnToggleFlowGuide" title="View order lifecycle and money collection flow">
                 <i class="bi bi-diagram-3-fill text-primary"></i>
-                <span>Order Flow &amp; Clearance Guide</span>
+                <span>Fulfillment &amp; Clearance Guide</span>
             </button>
-            <button type="button" class="btn-orders-action" id="btnOpenScannerModal" style="background:#eff6ff; color:#2563eb; border-color:#bfdbfe;">
+            <button type="button" class="btn-orders-action btn-orders-scanner" id="btnOpenScannerModal" title="Open Barcode & QR Scanner Studio (Press F2)">
                 <i class="bi bi-upc-scan fs-6"></i>
                 <span>Scan Barcode / QR (F2)</span>
             </button>
-            <button type="button" class="btn-orders-action btn-orders-print" id="btnPrintCurrentPageLabels">
+            <button type="button" class="btn-orders-action btn-orders-print" id="btnPrintCurrentPageLabels" title="Generate 4x6 inch thermal shipping labels for current page">
                 <i class="bi bi-printer-fill"></i>
                 <span>Print Page Labels (4x6")</span>
             </button>
-            <button type="button" class="btn-orders-action" id="btnRefreshOrders">
+            <button type="button" class="btn-orders-action" id="btnRefreshOrders" title="Refresh live orders queue">
                 <i class="bi bi-arrow-clockwise"></i>
-                <span>Refresh Queue</span>
+                <span>Refresh</span>
             </button>
         </div>
     </div>
@@ -1651,19 +1917,18 @@
 
     {{-- ── Interactive Order Lifecycle & Payment Clearance Flow Guide (Collapsible) ── --}}
     <div class="orders-flow-guide" id="ordersFlowGuidePane">
-        <div class="flow-guide-glow"></div>
         <div class="flow-guide-top">
             <div>
                 <h3 class="flow-guide-title">
-                    <i class="bi bi-diagram-3-fill text-warning"></i>
-                    <span>Order Lifecycle vs Payment Clearance Workflow</span>
-                    <span class="flow-guide-badge">Operational Guide</span>
+                    <i class="bi bi-diagram-3-fill text-primary"></i>
+                    <span>Order Fulfillment vs Payment Clearance Architecture</span>
+                    <span class="flow-guide-badge">Standard Operating Procedure</span>
                 </h3>
-                <div style="font-size:12.5px; color:#94a3b8; margin-top:3px;">
-                    Understand how physical parcel fulfillment works independently alongside financial money collection.
+                <div style="font-size:12.5px; color:#64748b; margin-top:3px;">
+                    Understand how physical parcel dispatch operates independently alongside financial money collection and remittances.
                 </div>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-light px-3 py-1 fw-bold" onclick="toggleFlowGuidePane()" style="border-radius:8px; border-color:rgba(255,255,255,0.25);">
+            <button type="button" class="btn btn-sm btn-outline-secondary px-3 py-1 fw-bold" onclick="toggleFlowGuidePane()" style="border-radius:8px;">
                 <i class="bi bi-chevron-up me-1"></i> Hide Guide
             </button>
         </div>
@@ -1673,7 +1938,7 @@
             <div class="flow-card-box">
                 <div class="flow-card-head flow-head-track">
                     <i class="bi bi-box-seam-fill fs-5"></i>
-                    <span>TRACK A: Physical Order Fulfillment (Warehouse Flow)</span>
+                    <span>TRACK A: Physical Order Fulfillment (Warehouse Lifecycle)</span>
                 </div>
                 <div class="flow-stepper-row">
                     <div class="flow-step-node" title="Customer placed order">
@@ -1681,15 +1946,15 @@
                     </div>
                     <i class="bi bi-arrow-right flow-step-arrow"></i>
                     <div class="flow-step-node" title="Address & phone confirmed">
-                        <i class="bi bi-shield-check text-info"></i> 2. Confirmed
+                        <i class="bi bi-shield-check text-primary"></i> 2. Confirmed
                     </div>
                     <i class="bi bi-arrow-right flow-step-arrow"></i>
                     <div class="flow-step-node" title="Packed in parcel & label printed">
-                        <i class="bi bi-box-seam text-primary"></i> 3. Processing
+                        <i class="bi bi-box-seam text-info"></i> 3. Packaging
                     </div>
                     <i class="bi bi-arrow-right flow-step-arrow"></i>
                     <div class="flow-step-node" title="Handed over to courier with AWB">
-                        <i class="bi bi-truck text-purple" style="color:#c084fc;"></i> 4. Shipped
+                        <i class="bi bi-truck text-purple" style="color:#7c3aed;"></i> 4. Shipped
                     </div>
                     <i class="bi bi-arrow-right flow-step-arrow"></i>
                     <div class="flow-step-node" title="Delivered successfully to customer">
@@ -1697,7 +1962,7 @@
                     </div>
                 </div>
                 <div class="flow-desc-note">
-                    <strong>Physical Progress:</strong> Track where the parcel is physically present. Changing this sends real-time SMS, WhatsApp, and Email alerts to the customer.
+                    <strong>Physical Fulfillment:</strong> Tracks the exact warehouse and logistics stage of the parcel. Transitioning stages triggers automated SMS, WhatsApp, and Email shipping alerts to the customer.
                 </div>
             </div>
 
@@ -1705,7 +1970,7 @@
             <div class="flow-card-box">
                 <div class="flow-card-head flow-head-pay">
                     <i class="bi bi-cash-coin fs-5"></i>
-                    <span>TRACK B: Financial Payment Clearance (Money Reconciliation)</span>
+                    <span>TRACK B: Financial Payment Clearance (Accounts Reconciliation)</span>
                 </div>
                 <div class="flow-stepper-row">
                     <div class="flow-step-node" title="Cash not yet received">
@@ -1721,7 +1986,7 @@
                     </div>
                 </div>
                 <div class="flow-desc-note">
-                    <strong>Kyu zaroori hai:</strong> Online payments instantly <em>Paid</em> ho jate hain, lekin <strong>COD (Cash on Delivery)</strong> me parcel <em>Delivered</em> hone ke baad courier company 3-7 dino me cash remit karti hai. Isliye <em>Order Status</em> aur <em>Payment Clearance</em> ko alag rakha gaya hai taaki accounts reconcile ho sakein!
+                    <strong>Financial Reconciliation:</strong> Online prepaid transactions (UPI, Cards, NetBanking) clear instantly at checkout. For <strong>Cash on Delivery (COD)</strong>, the logistics courier collects cash at the customer doorstep and remits it to your bank within 3 to 7 business days. Decoupling fulfillment status from payment clearance guarantees accurate accounting audits.
                 </div>
             </div>
         </div>
@@ -1742,7 +2007,7 @@
             </div>
 
             <div class="orders-filter">
-                {{-- Search Box with Clear Button --}}
+                {{-- Search Box with Clear Button & Barcode Trigger --}}
                 <div class="order-search">
                     <i class="bi bi-search search-icon"></i>
                     <input type="text" id="orderSearchInput" placeholder="Order #, barcode, customer, city..." autocomplete="off">
@@ -1761,7 +2026,7 @@
                     <option value="prepaid">💳 Prepaid Online (UPI/Cards)</option>
                 </select>
 
-                {{-- Payment Clearance Filter (Separate Financial Filter) --}}
+                {{-- Payment Clearance Filter --}}
                 <select id="orderPaymentSelect" title="Filter by Payment Clearance Status">
                     <option value="">All Clearance Statuses</option>
                     <option value="pending">⏳ Pending Clearance</option>
@@ -1805,7 +2070,7 @@
                 Confirmed <span class="chip-count" id="chipCountConfirmed">{{ number_format($statusCounts->get('confirmed', 0)) }}</span>
             </button>
             <button type="button" class="status-chip" data-status="processing">
-                Processing <span class="chip-count" id="chipCountProcessing">{{ number_format($statusCounts->get('processing', 0)) }}</span>
+                Packaging <span class="chip-count" id="chipCountProcessing">{{ number_format($statusCounts->get('processing', 0)) }}</span>
             </button>
             <button type="button" class="status-chip" data-status="shipped">
                 Shipped <span class="chip-count" id="chipCountShipped">{{ number_format($statusCounts->get('shipped', 0)) }}</span>
@@ -1881,16 +2146,31 @@
     </div>
 </div>
 
-{{-- ── 1. SINGLE ORDER QUICK FULFILLMENT STUDIO MODAL (850px) ── --}}
+{{-- ── 1. SINGLE ORDER QUICK FULFILLMENT STUDIO MODAL (980px) ── --}}
 <div class="custom-modal-overlay" id="singleStatusModal">
-    <div class="custom-modal-card">
+    <div class="custom-modal-card" style="max-width: 980px;">
         <div class="custom-modal-header">
-            <h5 class="custom-modal-title">
-                <i class="bi bi-box-seam-fill text-warning"></i>
-                <span>Order Fulfillment &amp; Dispatch Studio</span>
-                <span class="modal-order-tag" id="singleModalOrderNumBadge"></span>
-            </h5>
-            <button type="button" class="btn-modal-close" onclick="closeCustomModal('singleStatusModal')" title="Close">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="modal-header-icon" style="width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,#00285a 0%,#2563eb 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; box-shadow: 0 2px 8px rgba(0,40,90,0.15);">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+                <div>
+                    <h5 class="custom-modal-title" style="margin:0; font-size:16px; font-weight:800; color:var(--orders-navy);">
+                        Order Fulfillment &amp; Dispatch Studio
+                    </h5>
+                    <div class="d-flex align-items-center gap-2 mt-0.5" style="font-size:12px; color:#64748b;">
+                        <span>Order Ref:</span>
+                        <span class="modal-order-tag" id="singleModalOrderNumBadge" style="cursor:pointer;" title="Click to copy order number" onclick="copyModalOrderNumber()">
+                            <span id="singleModalOrderNumText">#0000</span>
+                            <i class="bi bi-clipboard ms-1"></i>
+                        </span>
+                        <a href="#" id="singleModalViewDetailLink" target="_blank" class="text-primary text-decoration-none fw-bold" style="font-size:11.5px;">
+                            <i class="bi bi-box-arrow-up-right me-0.5"></i> Open Full View
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn-modal-close" onclick="closeCustomModal('singleStatusModal')" title="Close Studio (ESC)">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
@@ -1899,142 +2179,242 @@
             @csrf
             <input type="hidden" id="singleModalOrderId">
 
-            <div class="custom-modal-body">
+            <div class="custom-modal-body" style="padding: 22px 24px;">
                 
-                {{-- Live Visual Progress Stepper for Current Order --}}
-                <div class="modal-flow-stepper" id="singleModalStepper">
-                    <div class="modal-flow-node" data-step="pending">
-                        <i class="bi bi-bag-check-fill"></i> 1. Pending
-                    </div>
-                    <div class="modal-flow-node-divider"></div>
-                    <div class="modal-flow-node" data-step="confirmed">
-                        <i class="bi bi-shield-check"></i> 2. Confirmed
-                    </div>
-                    <div class="modal-flow-node-divider"></div>
-                    <div class="modal-flow-node" data-step="processing">
-                        <i class="bi bi-box-seam-fill"></i> 3. Packaging
-                    </div>
-                    <div class="modal-flow-node-divider"></div>
-                    <div class="modal-flow-node" data-step="shipped">
-                        <i class="bi bi-truck"></i> 4. Shipped
-                    </div>
-                    <div class="modal-flow-node-divider"></div>
-                    <div class="modal-flow-node" data-step="delivered">
-                        <i class="bi bi-check-circle-fill"></i> 5. Delivered
+                {{-- Live Visual & Interactive Progress Stepper --}}
+                <div class="modal-stepper-wrap">
+                    <div class="modal-flow-stepper" id="singleModalStepper">
+                        <div class="modal-flow-node" data-step="pending" onclick="setModalStatusFromStep('pending')" title="Click to transition to Pending">
+                            <div class="node-icon-wrap"><i class="bi bi-hourglass-split"></i></div>
+                            <div class="node-text-wrap">
+                                <span class="node-title">1. Pending</span>
+                                <span class="node-sub">Awaiting verification</span>
+                            </div>
+                        </div>
+                        <div class="modal-flow-node-divider"></div>
+                        <div class="modal-flow-node" data-step="confirmed" onclick="setModalStatusFromStep('confirmed')" title="Click to transition to Confirmed">
+                            <div class="node-icon-wrap"><i class="bi bi-shield-check"></i></div>
+                            <div class="node-text-wrap">
+                                <span class="node-title">2. Confirmed</span>
+                                <span class="node-sub">Order approved</span>
+                            </div>
+                        </div>
+                        <div class="modal-flow-node-divider"></div>
+                        <div class="modal-flow-node" data-step="processing" onclick="setModalStatusFromStep('processing')" title="Click to transition to Packaging">
+                            <div class="node-icon-wrap"><i class="bi bi-box-seam"></i></div>
+                            <div class="node-text-wrap">
+                                <span class="node-title">3. Packaging</span>
+                                <span class="node-sub">Packing in warehouse</span>
+                            </div>
+                        </div>
+                        <div class="modal-flow-node-divider"></div>
+                        <div class="modal-flow-node" data-step="shipped" onclick="setModalStatusFromStep('shipped')" title="Click to transition to Shipped">
+                            <div class="node-icon-wrap"><i class="bi bi-truck"></i></div>
+                            <div class="node-text-wrap">
+                                <span class="node-title">4. Shipped</span>
+                                <span class="node-sub">In-transit with courier</span>
+                            </div>
+                        </div>
+                        <div class="modal-flow-node-divider"></div>
+                        <div class="modal-flow-node" data-step="delivered" onclick="setModalStatusFromStep('delivered')" title="Click to transition to Delivered">
+                            <div class="node-icon-wrap"><i class="bi bi-check-circle-fill"></i></div>
+                            <div class="node-text-wrap">
+                                <span class="node-title">5. Delivered</span>
+                                <span class="node-sub">Delivered to recipient</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Educational Info Alert explaining Payment Clearance vs Order Status --}}
-                <div class="modal-guidance-callout">
-                    <i class="bi bi-info-circle-fill"></i>
-                    <div>
-                        <strong>Order Status vs Payment Clearance:</strong>
-                        <span>Order status tracks physical fulfillment (Packaging ➔ Shipped ➔ Delivered). Payment Clearance tracks money reconciliation (For COD, mark <em>Paid</em> once cash is received from courier).</span>
-                    </div>
-                </div>
-
+                {{-- Studio Bento Grid --}}
                 <div class="modal-studio-grid">
                     
-                    {{-- Left Column: Live Order Snapshot --}}
-                    <div class="modal-preview-pane">
-                        <div>
-                            <img src="" id="singleModalProdImg" class="large-modal-thumb" alt="Product Preview">
-                            <h4 id="singleModalProdName" style="font-size:14px; font-weight:800; color:#0f172a; margin:12px 0 6px; line-height:1.35;"></h4>
-                            <div class="d-flex align-items-center gap-1 font-xs text-muted flex-wrap" id="singleModalProdMeta"></div>
-                        </div>
-
-                        <div class="pt-2 border-top">
-                            <strong class="d-block font-xs text-uppercase mb-1" style="color:#64748b; letter-spacing:0.5px;">Customer Destination</strong>
-                            <div id="singleModalCustomerName" style="font-size:14px; font-weight:700; color:#0f172a;"></div>
-                            <div id="singleModalCustomerContact" class="text-muted" style="font-size:12px; margin-top:2px;"></div>
-                        </div>
-
-                        <div class="pt-2 border-top d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="font-xs text-muted text-uppercase d-block" style="letter-spacing:0.5px;">Order Total</span>
-                                <strong id="singleModalOrderAmount" style="font-size:17px; color:#059669; font-weight:800;"></strong>
+                    {{-- Left Studio Column: Showcase & Details --}}
+                    <div class="modal-showcase-pane">
+                        
+                        {{-- 1. Ordered Products Card --}}
+                        <div class="studio-bento-card">
+                            <div class="studio-card-head">
+                                <span class="studio-card-label">
+                                    <i class="bi bi-bag-check-fill text-primary"></i> Ordered Articles
+                                </span>
+                                <span class="badge bg-light text-dark border px-2 py-0.5 fw-bold" id="singleModalItemsCountBadge" style="font-size:11px;">0 Items</span>
                             </div>
-                            <div id="singleModalMethodBadge"></div>
+                            <div class="studio-items-list" id="singleModalItemsList">
+                                {{-- Dynamically populated via JS --}}
+                            </div>
                         </div>
+
+                        {{-- 2. Customer Destination Card & WhatsApp Link --}}
+                        <div class="studio-bento-card">
+                            <div class="studio-card-head">
+                                <span class="studio-card-label">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i> Customer Destination
+                                </span>
+                                <span class="badge bg-primary-subtle text-primary border px-2 py-0.5 font-xxs fw-bold">Verified Contact</span>
+                            </div>
+                            
+                            <div class="studio-cust-header">
+                                <div class="studio-cust-avatar" id="singleModalCustAvatar">G</div>
+                                <div>
+                                    <strong class="studio-cust-name d-block" id="singleModalCustomerName">Customer Name</strong>
+                                    <a href="tel:" class="studio-cust-phone" id="singleModalCustomerPhone">
+                                        <i class="bi bi-telephone-fill text-primary"></i> <span id="singleModalCustomerPhoneText">+91 0000000000</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="studio-address-box" id="singleModalCustomerAddress">
+                                Loading shipping destination...
+                            </div>
+
+                            <a href="#" target="_blank" class="btn-whatsapp-action" id="singleModalWhatsAppBtn">
+                                <i class="bi bi-whatsapp fs-6"></i> Chat with Customer on WhatsApp
+                            </a>
+                        </div>
+
+                        {{-- 3. Financial Ledger Snapshot Card --}}
+                        <div class="studio-bento-card">
+                            <div class="studio-card-head">
+                                <span class="studio-card-label">
+                                    <i class="bi bi-receipt text-success"></i> Financial Ledger
+                                </span>
+                                <div id="singleModalMethodBadge"></div>
+                            </div>
+
+                            <div class="studio-financial-row">
+                                <span>Subtotal</span>
+                                <strong id="singleModalSubtotal">₹0</strong>
+                            </div>
+                            <div class="studio-financial-row" id="singleModalDiscountRow" style="display:none;">
+                                <span>Discount / Coupon</span>
+                                <strong class="text-success" id="singleModalDiscount">-₹0</strong>
+                            </div>
+                            <div class="studio-financial-row">
+                                <span>Shipping Charge</span>
+                                <strong id="singleModalShipping">Free</strong>
+                            </div>
+                            <div class="studio-financial-total">
+                                <span style="font-size:12px; font-weight:800; color:#334155; text-transform:uppercase; letter-spacing:0.5px;">Grand Total</span>
+                                <strong class="studio-total-price" id="singleModalOrderAmount">₹0</strong>
+                            </div>
+                        </div>
+
                     </div>
 
-                    {{-- Right Column: Interactive Dispatch Controls --}}
-                    <div>
-                        {{-- 1. Order Fulfillment Lifecycle --}}
-                        <div class="form-group-modal">
-                            <label class="form-label-modal">
-                                <span>1. Order Fulfillment Lifecycle</span>
-                                <span class="label-desc">Physical parcel step</span>
-                            </label>
-                            <select id="singleModalStatus" class="form-control-modal" onchange="syncModalStepper(this.value)">
-                                <option value="pending">🟡 Pending Confirmation</option>
-                                <option value="confirmed">🔵 Confirmed &amp; Verified</option>
-                                <option value="processing">📦 Processing (Packaging)</option>
-                                <option value="shipped">🚚 Shipped / Dispatched (In-Transit)</option>
-                                <option value="delivered">🟢 Delivered to Customer</option>
-                                <option value="cancelled">🔴 Cancelled</option>
-                                <option value="refunded">⚪ Refunded</option>
-                            </select>
-                        </div>
-
-                        {{-- 2. Payment Clearance Status --}}
-                        <div class="form-group-modal">
-                            <label class="form-label-modal">
-                                <span>2. Payment Clearance Status</span>
-                                <span class="label-desc">Money reconciliation</span>
-                            </label>
-                            <select id="singleModalPaymentStatus" class="form-control-modal">
-                                <option value="pending">⏳ Pending Clearance (Awaiting cash/settlement)</option>
-                                <option value="paid">✅ Paid / Cash Collected (Received in account)</option>
-                                <option value="failed">❌ Payment Failed / Refused</option>
-                                <option value="refunded">↩️ Refunded to Customer</option>
-                            </select>
-                            <div id="singleModalPaymentHint" style="font-size:11px; margin-top:5px; color:#64748b;"></div>
-                        </div>
-
-                        {{-- 3. Logistics Partner --}}
-                        <div class="form-group-modal">
-                            <label class="form-label-modal">
-                                <span>3. Logistics Courier Partner</span>
-                                <span class="label-desc">Delivery agency</span>
-                            </label>
-                            <input type="text" id="singleModalCourier" class="form-control-modal" placeholder="e.g. Delhivery, Blue Dart, Shiprocket, DTDC">
-                            <div class="quick-chip-group">
-                                <span class="quick-courier-chip" onclick="setQuickCourier('Delhivery')">Delhivery</span>
-                                <span class="quick-courier-chip" onclick="setQuickCourier('Blue Dart')">Blue Dart</span>
-                                <span class="quick-courier-chip" onclick="setQuickCourier('Shiprocket')">Shiprocket</span>
-                                <span class="quick-courier-chip" onclick="setQuickCourier('DTDC')">DTDC</span>
-                                <span class="quick-courier-chip" onclick="setQuickCourier('India Post')">India Post</span>
-                                <span class="quick-courier-chip" onclick="setQuickCourier('Xpressbees')">Xpressbees</span>
-                                <span class="quick-courier-chip" onclick="setQuickCourier('Shadowfax')">Shadowfax</span>
+                    {{-- Right Studio Column: Dispatch & Logistics Controls --}}
+                    <div class="modal-controls-pane">
+                        
+                        {{-- 1. Fulfillment Stage Card --}}
+                        <div class="studio-control-card">
+                            <div class="studio-section-label">
+                                <span><i class="bi bi-diagram-3-fill text-primary me-1.5"></i> 1. Fulfillment Stage</span>
+                                <span class="studio-section-sub">Warehouse &amp; Logistics Step</span>
+                            </div>
+                            <div class="form-group-modal mb-0">
+                                <label class="form-label-modal">
+                                    <span>Active Order Status</span>
+                                    <span class="text-muted fw-normal" style="font-size:11px;">Triggers shipping notification</span>
+                                </label>
+                                <select id="singleModalStatus" class="form-control-modal" onchange="syncModalStepper(this.value)">
+                                    <option value="pending">🟡 1. Pending Confirmation</option>
+                                    <option value="confirmed">🔵 2. Confirmed &amp; Verified</option>
+                                    <option value="processing">📦 3. Packaging (Label Printed &amp; Packed)</option>
+                                    <option value="shipped">🚚 4. Shipped / In-Transit (Dispatched)</option>
+                                    <option value="delivered">🟢 5. Delivered to Customer</option>
+                                    <option value="cancelled">🔴 Cancelled</option>
+                                    <option value="refunded">⚪ Refunded</option>
+                                </select>
                             </div>
                         </div>
 
-                        {{-- 4. Tracking Number / AWB --}}
-                        <div class="form-group-modal" style="margin-bottom:0;">
-                            <label class="form-label-modal">
-                                <span>4. Airway Bill (AWB) / Tracking #</span>
-                                <span class="label-desc">Customer tracking</span>
-                            </label>
-                            <input type="text" id="singleModalTracking" class="form-control-modal" placeholder="e.g. AWB123456789">
+                        {{-- 2. Payment Clearance Card --}}
+                        <div class="studio-control-card">
+                            <div class="studio-section-label">
+                                <span><i class="bi bi-cash-coin text-success me-1.5"></i> 2. Payment Clearance</span>
+                                <span class="studio-section-sub">Accounts Reconciliation</span>
+                            </div>
+                            <div class="form-group-modal mb-2">
+                                <label class="form-label-modal">
+                                    <span>Settlement Clearance</span>
+                                    <span class="text-muted fw-normal" style="font-size:11px;">Independent of fulfillment</span>
+                                </label>
+                                <select id="singleModalPaymentStatus" class="form-control-modal" onchange="updatePaymentAdvice()">
+                                    <option value="pending">⏳ Pending Clearance (Awaiting settlement / cash)</option>
+                                    <option value="paid">✅ Paid / Cash Collected (Verified in bank)</option>
+                                    <option value="failed">❌ Payment Failed / Refused</option>
+                                    <option value="refunded">↩️ Refunded to Customer</option>
+                                </select>
+                            </div>
+
+                            {{-- Dynamic Advice Callout --}}
+                            <div id="singleModalPaymentAdvice" class="studio-rule-box studio-rule-cod">
+                                <i class="bi bi-info-circle-fill fs-6 flex-shrink-0 mt-0.5"></i>
+                                <div id="singleModalPaymentAdviceText">
+                                    <strong>COD Reconciliation:</strong> Logistics courier will collect cash upon doorstep delivery and remit to your bank in 3-7 days. Mark as <em>Paid</em> once bank remittance arrives.
+                                </div>
+                            </div>
                         </div>
+
+                        {{-- 3. Logistics Courier & Live Tracking Card --}}
+                        <div class="studio-control-card">
+                            <div class="studio-section-label">
+                                <span><i class="bi bi-truck text-purple me-1.5" style="color:#7c3aed;"></i> 3. Courier &amp; Live Tracking</span>
+                                <span class="studio-section-sub">Airway Bill Assignment</span>
+                            </div>
+
+                            <div class="form-group-modal">
+                                <label class="form-label-modal">
+                                    <span>Logistics Courier Partner</span>
+                                    <span class="text-muted fw-normal" style="font-size:11px;">Select chip or type custom</span>
+                                </label>
+                                <input type="text" id="singleModalCourier" class="form-control-modal" placeholder="e.g. Delhivery, Blue Dart, Shiprocket..." oninput="onCourierInputChange()">
+                                
+                                <div class="courier-chips-suite" id="singleModalCourierChips">
+                                    <span class="courier-badge-chip" data-courier="Delhivery" onclick="setQuickCourier('Delhivery')">Delhivery</span>
+                                    <span class="courier-badge-chip" data-courier="Blue Dart" onclick="setQuickCourier('Blue Dart')">Blue Dart</span>
+                                    <span class="courier-badge-chip" data-courier="Shiprocket" onclick="setQuickCourier('Shiprocket')">Shiprocket</span>
+                                    <span class="courier-badge-chip" data-courier="DTDC" onclick="setQuickCourier('DTDC')">DTDC</span>
+                                    <span class="courier-badge-chip" data-courier="India Post" onclick="setQuickCourier('India Post')">India Post</span>
+                                    <span class="courier-badge-chip" data-courier="Xpressbees" onclick="setQuickCourier('Xpressbees')">Xpressbees</span>
+                                    <span class="courier-badge-chip" data-courier="Shadowfax" onclick="setQuickCourier('Shadowfax')">Shadowfax</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group-modal" style="margin-bottom:0;">
+                                <label class="form-label-modal">
+                                    <span>Airway Bill (AWB) / Tracking Number</span>
+                                    <span class="text-muted fw-normal" style="font-size:11px;">Provided by courier</span>
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <input type="text" id="singleModalTracking" class="form-control-modal" placeholder="e.g. 128934509124..." oninput="onTrackingInputChange()">
+                                    <a href="#" target="_blank" id="singleModalTrackBtn" class="btn-track-external" style="display:none;" title="Track package in new window">
+                                        <i class="bi bi-geo-fill"></i> Track
+                                    </a>
+                                </div>
+                                <div id="singleModalTrackHint" style="font-size:11px; color:#64748b; margin-top:6px; display:none;">
+                                    <i class="bi bi-info-circle me-1"></i> Live tracking link ready for <span id="singleModalTrackCourierName" class="fw-bold"></span>.
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
             </div>
 
             <div class="custom-modal-footer">
-                <div class="d-flex align-items-center gap-2">
-                    <a href="" id="singleModalLabelBtn" target="_blank" class="btn btn-sm btn-dark fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; background:#0f172a; color:#ffffff;">
-                        <i class="bi bi-tag-fill text-warning me-1"></i> Parcel Sticker (4x6")
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a href="" id="singleModalLabelBtn" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; color:#334155;">
+                        <i class="bi bi-tag-fill text-warning me-1"></i> 4x6" Thermal Sticker
                     </a>
-                    <a href="" id="singleModalPdfBtn" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none;">
-                        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> Tax Invoice
+                    <a href="" id="singleModalPdfBtn" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; color:#334155;">
+                        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> Tax Invoice PDF
                     </a>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-light btn-sm fw-bold px-3 py-2" style="border-radius: 10px; border: 1.5px solid #e2e8f0; cursor:pointer;" onclick="closeCustomModal('singleStatusModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 py-2" id="btnSingleModalSubmit" style="border-radius: 10px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border:none; color:#ffffff; cursor:pointer;">
+                    <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 py-2" id="btnSingleModalSubmit" style="border-radius: 10px; background: linear-gradient(135deg, #00285a 0%, #2563eb 100%); border:none; color:#ffffff; cursor:pointer;">
                         <i class="bi bi-check-circle-fill me-1"></i> Save Changes
                     </button>
                 </div>
@@ -2048,7 +2428,7 @@
     <div class="custom-modal-card" style="max-width: 750px;">
         <div class="custom-modal-header">
             <h5 class="custom-modal-title">
-                <i class="bi bi-sliders text-warning"></i> Bulk Batch Order Processing
+                <i class="bi bi-sliders text-primary"></i> Bulk Batch Order Processing
             </h5>
             <button type="button" class="btn-modal-close" onclick="closeCustomModal('bulkStatusModal')">
                 <i class="bi bi-x-lg"></i>
@@ -2058,11 +2438,11 @@
             @csrf
             <div class="custom-modal-body">
                 <div style="padding: 16px 20px; margin-bottom: 20px; border-radius: 16px; background:#eff6ff; border:1.5px solid #bfdbfe; display:flex; align-items:center; gap:14px;">
-                    <div style="width:42px; height:42px; border-radius:12px; background:#2563eb; color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
+                    <div style="width:42px; height:42px; border-radius:12px; background:var(--orders-navy); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
                         <i class="bi bi-check2-all"></i>
                     </div>
                     <div>
-                        <strong class="d-block text-primary" id="bulkModalCountText" style="font-size:15px;">Updating 0 Selected Orders</strong>
+                        <strong class="d-block" id="bulkModalCountText" style="font-size:15px; color:var(--orders-navy);">Updating 0 Selected Orders</strong>
                         <span class="text-muted" style="font-size:12px;">This batch action will update fulfillment and payment clearance status simultaneously for all selected records.</span>
                     </div>
                 </div>
@@ -2076,7 +2456,7 @@
                             </label>
                             <select id="bulkModalStatus" class="form-control-modal">
                                 <option value="confirmed">🔵 Confirmed &amp; Verified</option>
-                                <option value="processing">📦 Processing (Packaging)</option>
+                                <option value="processing">📦 Packaging (In Preparation)</option>
                                 <option value="shipped">🚚 Shipped / Dispatched</option>
                                 <option value="delivered">🟢 Delivered to Customer</option>
                                 <option value="cancelled">🔴 Cancelled</option>
@@ -2119,7 +2499,7 @@
             </div>
             <div class="custom-modal-footer">
                 <button type="button" class="btn btn-light btn-sm fw-bold px-4 py-2" style="border-radius: 10px; border: 1.5px solid #e2e8f0; cursor:pointer;" onclick="closeCustomModal('bulkStatusModal')">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 py-2" id="btnBulkModalSubmit" style="border-radius: 10px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border:none; color:#ffffff; cursor:pointer;">
+                <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 py-2" id="btnBulkModalSubmit" style="border-radius: 10px; background: linear-gradient(135deg, #00285a 0%, #2563eb 100%); border:none; color:#ffffff; cursor:pointer;">
                     <i class="bi bi-check-all me-1"></i> Apply to All Selected
                 </button>
             </div>
@@ -2130,9 +2510,9 @@
 {{-- ── 3. LIVE BARCODE & QR DISPATCH SCANNER STUDIO MODAL (640px) ── --}}
 <div class="custom-modal-overlay" id="barcodeScannerModal">
     <div class="custom-modal-card" style="max-width: 640px;">
-        <div class="custom-modal-header" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+        <div class="custom-modal-header">
             <h5 class="custom-modal-title">
-                <i class="bi bi-upc-scan text-warning"></i>
+                <i class="bi bi-upc-scan text-primary"></i>
                 <span>Live Barcode &amp; QR Dispatch Scanner</span>
             </h5>
             <button type="button" class="btn-modal-close" onclick="closeScannerModal()" title="Close (ESC)">
@@ -2187,19 +2567,19 @@
                         <span class="badge bg-success-subtle text-success border px-2 py-1 fw-bold" style="border-radius:6px;">
                             <i class="bi bi-check-circle-fill me-1"></i> PARCEL MATCHED
                         </span>
-                        <strong class="text-navy" id="scanResultOrderNum" style="font-size:14px;"></strong>
+                        <strong class="text-navy" id="scanResultOrderNum" style="font-size:14px; color:var(--orders-navy);"></strong>
                     </div>
                     <div id="scanResultPayBadge"></div>
                 </div>
 
                 <div class="d-flex align-items-center gap-3">
-                    <img src="" id="scanResultProdImg" style="width:50px; height:50px; border-radius:10px; object-fit:cover; border:1px solid #e2e8f0;">
+                    <img src="" id="scanResultProdImg" style="width:50px; height:50px; border-radius:10px; object-fit:cover; border:1.5px solid #e2e8f0;">
                     <div style="flex:1;">
                         <div id="scanResultProdName" style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.3;"></div>
                         <div class="d-flex align-items-center gap-2 font-xs text-muted mt-0.5" id="scanResultProdMeta"></div>
                     </div>
                     <div class="text-end">
-                        <strong id="scanResultAmount" style="font-size:15px; color:#059669; font-weight:800;"></strong>
+                        <strong id="scanResultAmount" style="font-size:15px; color:#00285a; font-weight:800;"></strong>
                         <div class="font-xxs text-muted" id="scanResultItemsCount"></div>
                     </div>
                 </div>
@@ -2217,15 +2597,15 @@
                     <div class="font-xs fw-bold text-muted text-uppercase mb-2" style="letter-spacing:0.5px;">1-Click Quick Dispatch Action:</div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1.5" onclick="quickUpdateScannedStatus('processing')" style="border-radius:8px; background:#0284c7; border:none;">
-                            <i class="bi bi-box-seam me-1"></i> Pack (Processing)
+                            <i class="bi bi-box-seam me-1"></i> Pack
                         </button>
                         <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1.5" onclick="quickUpdateScannedStatus('shipped')" style="border-radius:8px; background:#7c3aed; border:none;">
-                            <i class="bi bi-truck me-1"></i> Ship (Dispatch)
+                            <i class="bi bi-truck me-1"></i> Ship
                         </button>
                         <button type="button" class="btn btn-sm btn-success fw-bold px-3 py-1.5" onclick="quickUpdateScannedStatus('delivered')" style="border-radius:8px;">
                             <i class="bi bi-check2-circle me-1"></i> Delivered
                         </button>
-                        <a href="" id="scanResultLabelBtn" target="_blank" class="btn btn-sm btn-dark fw-bold px-3 py-1.5" style="border-radius:8px;">
+                        <a href="" id="scanResultLabelBtn" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-1.5" style="border-radius:8px;">
                             <i class="bi bi-tag-fill text-warning me-1"></i> 4x6 Label
                         </a>
                         <a href="" id="scanResultDetailsBtn" class="btn btn-sm btn-light border fw-bold px-3 py-1.5" style="border-radius:8px;">
@@ -2311,7 +2691,12 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.setQuickCourier = function(name) {
-        document.getElementById('singleModalCourier').value = name;
+        const input = document.getElementById('singleModalCourier');
+        if (input) {
+            input.value = name;
+            if (typeof syncCourierChips === 'function') syncCourierChips(name);
+            if (typeof updateLiveTrackingButton === 'function') updateLiveTrackingButton();
+        }
     };
 
     window.setBulkQuickCourier = function(name) {
@@ -2348,8 +2733,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Status mapping configuration
     const statusBadges = {
         'pending': { cls: 'status-pending', icon: '<i class="bi bi-hourglass-split"></i>', text: 'Pending' },
-        'confirmed': { cls: 'status-confirmed', icon: '<i class="bi bi-check2"></i>', text: 'Confirmed' },
-        'processing': { cls: 'status-processing', icon: '<i class="bi bi-box-seam"></i>', text: 'Processing' },
+        'confirmed': { cls: 'status-confirmed', icon: '<i class="bi bi-shield-check"></i>', text: 'Confirmed' },
+        'processing': { cls: 'status-processing', icon: '<i class="bi bi-box-seam"></i>', text: 'Packaging' },
         'shipped': { cls: 'status-shipped', icon: '<i class="bi bi-truck"></i>', text: 'Shipped' },
         'delivered': { cls: 'status-delivered', icon: '<i class="bi bi-check-circle-fill"></i>', text: 'Delivered' },
         'cancelled': { cls: 'status-cancelled', icon: '<i class="bi bi-x-circle-fill"></i>', text: 'Cancelled' },
@@ -2415,9 +2800,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td colspan="8">
                         <div class="empty-state text-center py-5">
                             <i class="bi bi-bag-x text-muted" style="font-size:3rem;"></i>
-                            <div class="fw-bold text-navy mt-2" style="font-size:15px;">No matching orders found</div>
+                            <div class="fw-bold mt-2" style="font-size:15px; color:var(--orders-navy);">No matching orders found</div>
                             <div class="text-muted font-xs mt-1">Try resetting search keyword, payment filter, or status tabs.</div>
-                            <button type="button" class="btn btn-sm btn-primary mt-3 fw-bold px-3 py-1.5" onclick="document.getElementById('btnResetOrders').click()" style="border-radius:8px;">
+                            <button type="button" class="btn btn-sm btn-primary mt-3 fw-bold px-3 py-1.5" onclick="document.getElementById('btnResetOrders').click()" style="border-radius:8px; background:var(--orders-navy); border-color:var(--orders-navy);">
                                 Reset All Filters
                             </button>
                         </div>
@@ -2773,23 +3158,235 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
+    // 1-Click Interactive Step Setter
+    window.setModalStatusFromStep = function(stepName) {
+        const select = document.getElementById('singleModalStatus');
+        if (select) {
+            select.value = stepName;
+            syncModalStepper(stepName);
+            if (stepName === 'shipped') {
+                const courierEl = document.getElementById('singleModalCourier');
+                if (courierEl && !courierEl.value) {
+                    courierEl.focus();
+                }
+            }
+        }
+    };
+
+    // Copy Modal Order Number
+    window.copyModalOrderNumber = function() {
+        const textEl = document.getElementById('singleModalOrderNumText');
+        if (textEl) {
+            const rawNum = textEl.textContent.replace('#', '').trim();
+            copyToClipboard(rawNum, 'Order Number');
+        }
+    };
+
+    // Courier Chips & Live Tracking Engine
+    window.syncCourierChips = function(courierName) {
+        const chips = document.querySelectorAll('#singleModalCourierChips .courier-badge-chip');
+        const target = (courierName || '').trim().toLowerCase();
+        chips.forEach(chip => {
+            const val = (chip.getAttribute('data-courier') || '').trim().toLowerCase();
+            chip.classList.toggle('selected', Boolean(target && val === target));
+        });
+    };
+
+    window.onCourierInputChange = function() {
+        const courier = (document.getElementById('singleModalCourier').value || '').trim();
+        syncCourierChips(courier);
+        updateLiveTrackingButton();
+    };
+
+    window.onTrackingInputChange = function() {
+        updateLiveTrackingButton();
+    };
+
+    window.updateLiveTrackingButton = function() {
+        const courier = (document.getElementById('singleModalCourier').value || '').trim();
+        const awb = (document.getElementById('singleModalTracking').value || '').trim();
+        const btnTrack = document.getElementById('singleModalTrackBtn');
+        const hintTrack = document.getElementById('singleModalTrackHint');
+        const courierNameSpan = document.getElementById('singleModalTrackCourierName');
+
+        if (!awb) {
+            if (btnTrack) btnTrack.style.display = 'none';
+            if (hintTrack) hintTrack.style.display = 'none';
+            return;
+        }
+
+        let trackingUrl = '';
+        const courierLower = courier.toLowerCase();
+
+        if (courierLower.includes('delhivery')) {
+            trackingUrl = `https://www.delhivery.com/track/package/${encodeURIComponent(awb)}`;
+        } else if (courierLower.includes('blue dart') || courierLower.includes('bluedart')) {
+            trackingUrl = `https://www.bluedart.com/tracking`;
+        } else if (courierLower.includes('shiprocket')) {
+            trackingUrl = `https://shiprocket.co/tracking/${encodeURIComponent(awb)}`;
+        } else if (courierLower.includes('dtdc')) {
+            trackingUrl = `https://www.dtdc.in/tracking/shipment-tracking.asp`;
+        } else if (courierLower.includes('india post') || courierLower.includes('speed post')) {
+            trackingUrl = `https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx`;
+        } else if (courierLower.includes('xpressbees')) {
+            trackingUrl = `https://www.xpressbees.com/shipment/tracking`;
+        } else if (courierLower.includes('shadowfax')) {
+            trackingUrl = `https://tracker.shadowfax.in/`;
+        } else {
+            trackingUrl = `https://www.google.com/search?q=${encodeURIComponent((courier ? courier + ' ' : '') + 'tracking ' + awb)}`;
+        }
+
+        if (btnTrack) {
+            btnTrack.href = trackingUrl;
+            btnTrack.style.display = 'inline-flex';
+        }
+        if (hintTrack && courierNameSpan) {
+            courierNameSpan.textContent = courier || 'Courier Partner';
+            hintTrack.style.display = 'block';
+        }
+    };
+
+    // Dynamic Payment Advice Box
+    let currentModalOrder = null;
+    window.updatePaymentAdvice = function() {
+        if (!currentModalOrder) return;
+        const payStatus = document.getElementById('singleModalPaymentStatus').value;
+        const adviceBox = document.getElementById('singleModalPaymentAdvice');
+        const adviceText = document.getElementById('singleModalPaymentAdviceText');
+        if (!adviceBox || !adviceText) return;
+
+        if (currentModalOrder.is_cod) {
+            if (payStatus === 'paid') {
+                adviceBox.className = 'studio-rule-box studio-rule-prepaid';
+                adviceText.innerHTML = `<strong>COD Cash Reconciled:</strong> Marked as <em>Paid</em>. Verify that door-step cash collected by the courier partner matches your bank remittance.`;
+            } else {
+                adviceBox.className = 'studio-rule-box studio-rule-cod';
+                adviceText.innerHTML = `<strong>COD Settlement Rule:</strong> Logistics courier will collect cash upon doorstep delivery and remit to your bank in 3-7 business days. Keep as <em>Pending Clearance</em> until cash arrives in your bank.`;
+            }
+        } else {
+            if (payStatus === 'paid') {
+                adviceBox.className = 'studio-rule-box studio-rule-prepaid';
+                adviceText.innerHTML = `<strong>Prepaid Verified:</strong> Customer completed payment (${escapeHtml(currentModalOrder.payment_method)}) during checkout. Funds are cleared.`;
+            } else {
+                adviceBox.className = 'studio-rule-box studio-rule-cod';
+                adviceText.innerHTML = `<strong>Prepaid Note:</strong> Order is marked as <em>${escapeHtml(payStatus)}</em>. Verify online gateway transaction ID before re-dispatching.`;
+            }
+        }
+    };
+
     // ── Open Single Order Quick Status Modal ──
     window.openSingleStatusModal = function(orderId) {
         const order = loadedOrdersMap[orderId];
         if (!order) return;
+        currentModalOrder = order;
 
         document.getElementById('singleModalOrderId').value = order.id;
-        document.getElementById('singleModalOrderNumBadge').textContent = `#${order.order_number}`;
-        document.getElementById('singleModalProdImg').src = order.item_image;
-        document.getElementById('singleModalProdName').textContent = order.item_name;
+        document.getElementById('singleModalOrderNumText').textContent = `#${order.order_number}`;
         
-        let metaHtml = `<span class="pill-sku">${order.item_sku}</span>`;
-        if (order.item_size) metaHtml += `<span class="pill-size">Size: ${order.item_size}</span>`;
-        metaHtml += `<span class="badge bg-success-subtle text-success border px-2 py-0.5">${order.items_count} item(s)</span>`;
-        document.getElementById('singleModalProdMeta').innerHTML = metaHtml;
+        const detailLink = document.getElementById('singleModalViewDetailLink');
+        if (detailLink) detailLink.href = order.show_url;
 
+        // Render Ordered Articles List
+        const itemsListEl = document.getElementById('singleModalItemsList');
+        const itemsCountBadge = document.getElementById('singleModalItemsCountBadge');
+        if (itemsCountBadge) {
+            itemsCountBadge.textContent = `${order.items_count} Article${order.items_count === 1 ? '' : 's'}`;
+        }
+
+        if (itemsListEl) {
+            if (order.items_list && order.items_list.length > 0) {
+                let itemsHtml = '';
+                order.items_list.forEach(item => {
+                    const printSideHtml = item.design_side ? `<span class="pill-print" style="font-size:10px;"><i class="bi bi-aspect-ratio me-1"></i>${escapeHtml(item.design_side.toUpperCase())}</span>` : '';
+                    const sizeHtml = item.size ? `<span class="pill-size" style="font-size:10px;">Size: ${escapeHtml(item.size)}</span>` : '';
+                    const colorHtml = item.color ? `<span class="badge bg-light text-secondary border px-1.5 py-0.5" style="font-size:10px;">${escapeHtml(item.color)}</span>` : '';
+                    
+                    itemsHtml += `
+                        <div class="studio-item-row">
+                            <img src="${item.image}" class="studio-item-thumb" alt="${escapeHtml(item.name)}" onerror="this.src='{{ asset('assets/images/placeholder.png') }}'">
+                            <div style="flex:1; min-width:0;">
+                                <div class="studio-item-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+                                <div class="prod-spec-pills mt-1" style="gap:4px;">
+                                    <span class="pill-sku" style="font-size:10px;">${escapeHtml(item.sku)}</span>
+                                    ${sizeHtml}
+                                    ${colorHtml}
+                                    ${printSideHtml}
+                                </div>
+                            </div>
+                            <div style="text-align:right; flex-shrink:0;">
+                                <div style="font-size:13px; font-weight:800; color:#0f172a;">${item.price}</div>
+                                <div class="text-muted font-xs">Qty: <strong>${item.quantity}</strong></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                itemsListEl.innerHTML = itemsHtml;
+            } else {
+                itemsListEl.innerHTML = `
+                    <div class="studio-item-row">
+                        <img src="${order.item_image}" class="studio-item-thumb" alt="${escapeHtml(order.item_name)}" onerror="this.src='{{ asset('assets/images/placeholder.png') }}'">
+                        <div style="flex:1; min-width:0;">
+                            <div class="studio-item-name">${escapeHtml(order.item_name)}</div>
+                            <div class="prod-spec-pills mt-1">
+                                <span class="pill-sku">${escapeHtml(order.item_sku)}</span>
+                                ${order.item_size ? `<span class="pill-size">Size: ${escapeHtml(order.item_size)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="text-align:right; flex-shrink:0;">
+                            <div style="font-size:13px; font-weight:800; color:#0f172a;">${order.formatted_amount}</div>
+                            <div class="text-muted font-xs">Qty: <strong>${order.items_count}</strong></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Customer & Destination Card
+        const initial = (order.shipping_name || 'G').charAt(0).toUpperCase();
+        document.getElementById('singleModalCustAvatar').textContent = initial;
         document.getElementById('singleModalCustomerName').textContent = order.shipping_name;
-        document.getElementById('singleModalCustomerContact').innerHTML = `<i class="bi bi-telephone"></i> ${order.shipping_phone} &bull; <i class="bi bi-geo-alt"></i> ${order.shipping_city}, ${order.shipping_state}`;
+        
+        const custPhoneText = document.getElementById('singleModalCustomerPhoneText');
+        const custPhoneLink = document.getElementById('singleModalCustomerPhone');
+        if (custPhoneText) custPhoneText.textContent = order.shipping_phone || 'Not provided';
+        if (custPhoneLink) custPhoneLink.href = order.shipping_phone ? `tel:${order.shipping_phone}` : '#';
+
+        const addressParts = [
+            order.shipping_address,
+            order.shipping_city,
+            order.shipping_state,
+            order.shipping_pincode ? `PIN: ${order.shipping_pincode}` : ''
+        ].filter(Boolean);
+        const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : 'Destination address details not provided.';
+        document.getElementById('singleModalCustomerAddress').textContent = fullAddress;
+
+        // WhatsApp Direct Link
+        const cleanPhone = (order.shipping_phone || '').replace(/[^0-9]/g, '');
+        const waBtn = document.getElementById('singleModalWhatsAppBtn');
+        if (waBtn) {
+            if (cleanPhone.length >= 10) {
+                const formattedWaPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+                const waMsg = encodeURIComponent(`Hello ${order.shipping_name}, regarding your order #${order.order_number} from The Trend...`);
+                waBtn.href = `https://wa.me/${formattedWaPhone}?text=${waMsg}`;
+                waBtn.style.display = 'inline-flex';
+            } else {
+                waBtn.style.display = 'none';
+            }
+        }
+
+        // Financial Ledger Snapshot
+        document.getElementById('singleModalSubtotal').textContent = order.subtotal || order.formatted_amount;
+        
+        const discRow = document.getElementById('singleModalDiscountRow');
+        const discVal = document.getElementById('singleModalDiscount');
+        if (order.discount_amount) {
+            if (discVal) discVal.textContent = `-${order.discount_amount}`;
+            if (discRow) discRow.style.display = 'flex';
+        } else {
+            if (discRow) discRow.style.display = 'none';
+        }
+
+        document.getElementById('singleModalShipping').textContent = order.shipping_charge || 'Free';
         document.getElementById('singleModalOrderAmount').textContent = order.formatted_amount;
 
         const methodBadgeHtml = order.is_cod 
@@ -2797,23 +3394,19 @@ document.addEventListener('DOMContentLoaded', function() {
             : `<span class="badge-payment-method badge-method-prepaid"><i class="bi bi-credit-card-2-front-fill"></i> PREPAID</span>`;
         document.getElementById('singleModalMethodBadge').innerHTML = methodBadgeHtml;
 
+        // Controls
         document.getElementById('singleModalStatus').value = order.status;
         document.getElementById('singleModalPaymentStatus').value = order.payment_status;
         document.getElementById('singleModalCourier').value = order.courier_name || '';
         document.getElementById('singleModalTracking').value = order.tracking_number || '';
 
-        // Dynamic financial clearance hint based on COD vs Prepaid
-        const paymentHintEl = document.getElementById('singleModalPaymentHint');
-        if (paymentHintEl) {
-            if (order.is_cod) {
-                paymentHintEl.innerHTML = `<span class="badge-clearance clearance-pending" style="font-size:10px;"><i class="bi bi-info-circle-fill"></i> COD Rule:</span> Mark <strong>Paid</strong> only after courier remittances/cash is verified in bank account.`;
-            } else {
-                paymentHintEl.innerHTML = `<span class="badge-clearance clearance-paid" style="font-size:10px;"><i class="bi bi-check-circle-fill"></i> Prepaid Rule:</span> Customer paid online during checkout. Already cleared.`;
-            }
-        }
-
+        // Trigger updates
+        syncCourierChips(order.courier_name || '');
+        updatePaymentAdvice();
+        updateLiveTrackingButton();
         syncModalStepper(order.status);
 
+        // Print Buttons
         document.getElementById('singleModalLabelBtn').href = `/admin/orders/${order.id}/shipping-label`;
         document.getElementById('singleModalPdfBtn').href = `/admin/orders/${order.id}/invoice`;
 
@@ -2826,7 +3419,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const orderId = document.getElementById('singleModalOrderId').value;
         const btnSubmit = document.getElementById('btnSingleModalSubmit');
         btnSubmit.disabled = true;
-        btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Saving...`;
+        btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Saving Changes...`;
 
         const payload = {
             _token: '{{ csrf_token() }}',
@@ -2950,16 +3543,7 @@ document.addEventListener('DOMContentLoaded', function() {
         flowGuidePane.classList.toggle('open');
         const isOpen = flowGuidePane.classList.contains('open');
         if (btnToggleFlowGuide) {
-            btnToggleFlowGuide.classList.toggle('active', isOpen);
-            if (isOpen) {
-                btnToggleFlowGuide.style.background = '#eff6ff';
-                btnToggleFlowGuide.style.borderColor = '#2563eb';
-                btnToggleFlowGuide.style.color = '#2563eb';
-            } else {
-                btnToggleFlowGuide.style.background = '#f8fafc';
-                btnToggleFlowGuide.style.borderColor = '#cbd5e1';
-                btnToggleFlowGuide.style.color = '#0f172a';
-            }
+            btnToggleFlowGuide.classList.toggle('active-guide', isOpen);
         }
     };
     if (btnToggleFlowGuide) {

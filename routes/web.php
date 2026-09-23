@@ -22,7 +22,7 @@ Route::get('/images/{filename}', function (string $filename) {
   </defs>
   <rect width="1200" height="700" fill="url(#bg)"/>
   <rect x="48" y="48" width="1104" height="604" rx="18" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.85"/>
-  <text x="600" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#222222">VAYU</text>
+  <text x="600" y="326" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#222222">THE TREND THEORY</text>
   <text x="600" y="388" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#555555">{$label}</text>
 </svg>
 SVG;
@@ -113,6 +113,7 @@ Route::middleware('auth')->group(function () {
     Route::match(['delete', 'post'], '/cart/remove/{key}', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove.item');
     Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('checkout.index');
     Route::post('/checkout/place', [App\Http\Controllers\CartController::class, 'placeOrder'])->name('checkout.place');
+    Route::get('/order/success', [App\Http\Controllers\CartController::class, 'latestSuccess'])->name('order.success.latest');
     Route::get('/order/success/{order}', [App\Http\Controllers\CartController::class, 'success'])->name('order.success');
 
     // Razorpay payment
@@ -151,9 +152,16 @@ Route::middleware('auth')->group(function () {
 });
 
 // ═══════════════════════════════════════════════════
+// ADMIN AUTHENTICATION
+// ═══════════════════════════════════════════════════
+Route::get('/admin/login', [App\Http\Controllers\Admin\AdminAuthController::class, 'loginForm'])->name('admin.login');
+Route::post('/admin/login', [App\Http\Controllers\Admin\AdminAuthController::class, 'login'])->name('admin.login.post');
+Route::post('/admin/logout', [App\Http\Controllers\Admin\AdminAuthController::class, 'logout'])->name('admin.logout');
+
+// ═══════════════════════════════════════════════════
 // ADMIN PANEL — All staff roles
 // ═══════════════════════════════════════════════════
-Route::middleware(['auth', 'admin'])
+Route::middleware(['admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -171,6 +179,7 @@ Route::middleware(['auth', 'admin'])
 
         // ── Visitor Tracking & Traffic Analytics (super_admin, admin)
         Route::middleware('role:super_admin,admin')->group(function () {
+            Route::get('investor-dashboard', [App\Http\Controllers\Admin\InvestorDashboardController::class, 'index'])->name('investor.dashboard');
             Route::get('sales-analytics', [App\Http\Controllers\Admin\SalesAnalyticsController::class, 'index'])->name('sales.analytics');
             Route::get('analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
             Route::get('analytics/activities', [App\Http\Controllers\Admin\AnalyticsController::class, 'activities'])->name('analytics.activities');
@@ -409,7 +418,7 @@ Route::middleware(['auth', 'admin'])
             Route::get('gallery/{id}', [App\Http\Controllers\Admin\MediaController::class, 'getGalleryMediaItem'])->name('media.gallery-item');
 
             // Update gallery media
-            Route::put('gallery/{id}', [App\Http\Controllers\Admin\MediaController::class, 'updateGallery'])->name('media.update-gallery');
+            Route::match(['put', 'post'], 'gallery/{id}', [App\Http\Controllers\Admin\MediaController::class, 'updateGallery'])->name('media.update-gallery');
 
             // Delete gallery media
             Route::delete('gallery/{id}', [App\Http\Controllers\Admin\MediaController::class, 'destroyGallery'])->name('media.destroy-gallery');

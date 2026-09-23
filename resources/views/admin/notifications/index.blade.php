@@ -59,6 +59,16 @@
                     <strong class="kpi-number text-purple">{{ number_format($pushSubscribersCount ?? 0) }}</strong>
                 </div>
             </div>
+
+            <div class="kpi-mini-card">
+                <div class="kpi-icon-square" style="background:#fffbeb;">
+                    <i class="bi bi-fire" style="color:#f59e0b;font-size:18px;"></i>
+                </div>
+                <div class="kpi-meta">
+                    <span class="kpi-caption">Firebase FCM Devices</span>
+                    <strong class="kpi-number" style="color:#d97706;">{{ number_format($fcmSubscribersCount ?? 0) }} Active</strong>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -239,8 +249,8 @@
                         </label>
                         <label class="channel-check-pill">
                             <input type="checkbox" name="channels[]" value="web_push" checked>
-                            <i class="bi bi-broadcast text-purple"></i>
-                            <span>Web Browser Push Notification</span>
+                            <i class="bi bi-fire text-amber" style="color:#f59e0b!important;"></i>
+                            <span>Firebase Cloud Messaging / Push</span>
                         </label>
                         <label class="channel-check-pill">
                             <input type="checkbox" name="channels[]" value="email" checked>
@@ -250,10 +260,14 @@
                     </div>
                 </div>
 
-                <div class="form-submit-row">
+                <div class="form-submit-row" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
                     <button type="submit" class="btn-primary-gradient">
                         <i class="bi bi-send-fill"></i>
                         <span>Send Broadcast Now</span>
+                    </button>
+                    <button type="button" class="btn-test-push" id="btnTestPush" onclick="triggerTestPushNotification()" style="padding:12px 18px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:#334155;">
+                        <i class="bi bi-fire text-amber" style="color:#f59e0b;"></i>
+                        <span>Test Firebase Push</span>
                     </button>
                 </div>
             </form>
@@ -271,7 +285,7 @@
                     <div class="phone-notch"></div>
                     <div class="phone-screen">
                         <div class="mockup-site-header">
-                            <span class="mock-brand-title">Vayu</span>
+                            <span class="mock-brand-title">THE TREND THEORY</span>
                             <div class="mock-bell-icon">
                                 <i class="bi bi-bell-fill"></i>
                                 <span class="mock-badge">1</span>
@@ -656,6 +670,46 @@ function updateLivePreview() {
     } else {
         imgWrap.style.display = 'none';
     }
+}
+
+function triggerTestPushNotification() {
+    var btn = document.getElementById('btnTestPush');
+    var title = document.getElementById('inpTitle').value || '🔥 Flash Drop Alert — The Trend Theory';
+    var msg = document.getElementById('inpMessage').value || 'New luxury streetwear collection is live. Tap to explore!';
+    var url = document.getElementById('inpUrl').value || '{{ url('/shop') }}';
+    var img = document.getElementById('inpImage').value;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+    }
+
+    fetch('/api/push/test', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            title: title,
+            body: msg,
+            url: url,
+            image: img
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        alert(data.message || 'Push notification test sent successfully!');
+    })
+    .catch(function(err) {
+        alert('Failed to trigger test push notification: ' + err.message);
+    })
+    .finally(function() {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-fire text-amber" style="color:#f59e0b;"></i> <span>Test Firebase Push</span>';
+        }
+    });
 }
 </script>
 

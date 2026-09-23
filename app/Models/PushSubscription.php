@@ -15,6 +15,8 @@ class PushSubscription extends Model
         'endpoint_hash',
         'public_key',
         'auth_token',
+        'fcm_token',
+        'device_type',
         'content_encoding',
         'user_agent',
         'ip_address',
@@ -37,4 +39,13 @@ class PushSubscription extends Model
     {
         return $query->where('is_active', true);
     }
+
+    /**
+     * Scope subscriptions with valid FCM Token
+     */
+    public function scopeWithFcmToken($query)
+    {
+        return $query->whereNotNull('fcm_token')->where('fcm_token', '!=', '');
+    }
+
 }

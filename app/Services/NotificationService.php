@@ -53,8 +53,8 @@ class NotificationService
             $count++;
         }
 
-        // Trigger Web Push Notification to active browser subscribers
-        if (in_array('web_push', $channels)) {
+        // Trigger Web Push & Firebase Cloud Messaging to active subscribers
+        if (in_array('web_push', $channels) || in_array('firebase_push', $channels)) {
             try {
                 app(\App\Services\WebPushService::class)->sendPush(
                     title: $title,
@@ -66,6 +66,19 @@ class NotificationService
                 );
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('Web Push dispatch error: ' . $e->getMessage());
+            }
+
+            try {
+                app(\App\Services\FirebaseNotificationService::class)->broadcast(
+                    title: $title,
+                    body: $message,
+                    actionUrl: $actionUrl ?: url('/shop'),
+                    imageUrl: $imageUrl,
+                    targetAudience: $targetAudience,
+                    specificUserId: $specificUserId
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Firebase FCM broadcast error: ' . $e->getMessage());
             }
         }
 
@@ -309,7 +322,7 @@ class NotificationService
             if ($alreadyNotified) continue;
 
             $title = "✨ Discover Trending Streetwear Drops";
-            $message = "Hi " . $user->name . ", welcome to Vayu! Check out our best-selling heavyweight oversized t-shirts, co-ords, and latest streetwear collections crafted for you.";
+            $message = "Hi " . $user->name . ", welcome to THE TREND THEORY! Check out our best-selling heavyweight oversized t-shirts, co-ords, and latest streetwear collections crafted for you.";
             $actionUrl = url('/shop');
             $actionLabel = "Explore Collection";
 
@@ -367,7 +380,7 @@ class NotificationService
             'confirmed'  => "Your order #{$order->order_number} has been verified and confirmed! Our dispatch team is preparing your package.",
             'processing' => "Your order #{$order->order_number} is currently being packed and quality-checked for fast dispatch.",
             'shipped'    => "Great news! Your order #{$order->order_number} has been shipped{$trackingInfo} and is in-transit to your delivery destination.",
-            'delivered'  => "Your order #{$order->order_number} has been delivered successfully. Thank you for shopping with Vayu!",
+            'delivered'  => "Your order #{$order->order_number} has been delivered successfully. Thank you for shopping with THE TREND THEORY!",
             'cancelled'  => "Your order #{$order->order_number} has been cancelled. Please contact customer support if you need any assistance.",
             'refunded'   => "Your order #{$order->order_number} has been marked as refunded. The amount will reflect in your source account.",
             'returned'   => "Return request for order #{$order->order_number} has been processed.",
@@ -452,7 +465,7 @@ class NotificationService
         try {
             $content = $message . ($actionUrl ? "\n\nVisit: " . $actionUrl : "");
             Mail::raw($content, function ($m) use ($email, $title) {
-                $m->to($email)->subject($title . ' — ' . config('app.name', 'Vayu'));
+                $m->to($email)->subject($title . ' — ' . config('app.name', 'THE TREND THEORY'));
             });
         } catch (\Throwable $e) {
             report($e);

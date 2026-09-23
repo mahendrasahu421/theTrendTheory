@@ -61,7 +61,7 @@ class CartController extends Controller
             $recentFallback = Product::with(['images', 'media', 'variants', 'productImages', 'category'])
                 ->where('is_active', true)
                 ->whereNotIn('id', $excludeRecentIds)
-                ->orderByDesc('id')
+                ->inRandomOrder()
                 ->limit(10 - $recentlyViewedProducts->count())
                 ->get();
             $recentlyViewedProducts = $recentlyViewedProducts->merge($recentFallback)->values();
@@ -221,9 +221,11 @@ class CartController extends Controller
             ];
         }
 
-        session()->put('cart', $cart);
+        if (!$request->boolean('buy_now')) {
+            session()->put('cart', $cart);
+        }
 
-        $cartCount = collect($cart)->sum('quantity');
+        $cartCount = collect(session()->get('cart', []))->sum('quantity');
 
         // Log user activity
         \App\Helpers\ActivityLogger::log('cart_added', "Added to Bag: {$product->name}" . ($size ? " (Size: {$size})" : ''), [
@@ -238,9 +240,20 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $product->name . ' added to cart!',
+            'message' => $request->boolean('buy_now') ? 'Proceeding to checkout...' : ($product->name . ' added to cart!'),
             'cart_count' => $cartCount,
-            'cart' => $this->cartSummary($request->boolean('buy_now') ? [$key => $cart[$key]] : $cart),
+            'cart' => $this->cartSummary($request->boolean('buy_now') ? [$key => ($cart[$key] ?? [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'price' => $cartPrice,
+                'original_price' => $cartOriginalPrice,
+                'image' => $chosenImage,
+                'size' => $size,
+                'color' => $color,
+                'design_side' => $designSide,
+                'quantity' => $qty,
+            ])] : $cart),
         ]);
     }
 
@@ -469,16 +482,64 @@ class CartController extends Controller
     }
 
     // ── GET /checkout ──────────────────────────────────────
-    public function checkout()
+    public function checkout(Request $request)
     {
-        $cart = session()->get('cart', []);
-        if (!empty($cart)) {
-            $cart = $this->normalizeCartPricing($cart);
-            session()->put('cart', $cart);
-        }
+        $isBuyNow = $request->boolean('buy_now') && $request->filled('product_id');
+        $buyNowItem = null;
 
-        if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        if ($isBuyNow) {
+            $product = \App\Models\Product::where('is_active', true)->find($request->product_id);
+            if (!$product || $product->stock <= 0) {
+                return redirect()->back()->with('error', 'Selected product is out of stock or unavailable.');
+            }
+
+            $size = $request->input('size', '');
+            $color = $request->input('color', '');
+            $qty = $this->clampQuantity($request->input('qty', 1));
+            $designSide = $this->resolveDesignSide($request, $product);
+
+            if (!$designSide) {
+                return redirect()->back()->with('error', 'Please select Front Side or Back Side print.');
+            }
+
+            $chosenImage = $product->image_url ?? asset('images/placeholder-product.jpg');
+            if ($designSide === 'back' && !empty($product->back_image)) {
+                $chosenImage = $product->back_image;
+            } elseif (($designSide === 'front' || $designSide === 'both') && !empty($product->front_image)) {
+                $chosenImage = $product->front_image;
+            }
+
+            $pricing = $this->cartPricingForSelection($product, $size, $color);
+            $cartPrice = $pricing['price'];
+            $cartOriginalPrice = $pricing['original_price'];
+
+            $key = implode('_', array_filter([$product->id, $size, $color, $designSide], fn ($value) => $value !== null && $value !== ''));
+
+            $buyNowItem = [
+                'id'             => $product->id,
+                'name'           => $product->name,
+                'slug'           => $product->slug,
+                'price'          => $cartPrice,
+                'original_price' => $cartOriginalPrice,
+                'image'          => $chosenImage,
+                'size'           => $size,
+                'color'          => $color,
+                'design_side'    => $designSide,
+                'quantity'       => $qty,
+            ];
+
+            // Temporary cart for checkout display only — regular session('cart') is untouched
+            $cart = [$key => $buyNowItem];
+        } else {
+            $cart = session()->get('cart', []);
+            if (!empty($cart)) {
+                $cart = $this->normalizeCartPricing($cart);
+                session()->put('cart', $cart);
+            }
+
+            if (empty($cart)) {
+                return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+            }
         }
 
         $user = auth()->user();
@@ -492,14 +553,15 @@ class CartController extends Controller
         $itemCount = collect($cart)->sum(fn ($item) => (int) ($item['quantity'] ?? 1));
 
         // Log user activity
-        \App\Helpers\ActivityLogger::log('checkout_started', "Initiated Checkout (" . $itemCount . " items, ₹" . number_format($total) . ")", [
+        \App\Helpers\ActivityLogger::log('checkout_started', "Initiated Checkout (" . $itemCount . " items, ₹" . number_format($total) . ")" . ($isBuyNow ? " [BUY NOW]" : ""), [
             'item_count' => $itemCount,
             'subtotal'   => $subtotal,
             'total'      => $total,
             'items'      => array_values($cart),
+            'is_buy_now' => $isBuyNow,
         ]);
 
-        return view('froentend.cart.checkout', compact('cart', 'user', 'addresses', 'subtotal', 'shipping', 'couponDiscount', 'total'));
+        return view('froentend.cart.checkout', compact('cart', 'user', 'addresses', 'subtotal', 'shipping', 'couponDiscount', 'total', 'isBuyNow', 'buyNowItem'));
     }
 
     // ── POST /checkout/place ───────────────────────────────
@@ -517,6 +579,8 @@ class CartController extends Controller
             'product_id' => 'nullable|integer',
             'qty'        => 'nullable|integer|min:1',
             'size'       => 'nullable|string',
+            'color'      => 'nullable|string',
+            'design_side'=> 'nullable|string',
             'buy_now'    => 'nullable|boolean',
         ]);
 
@@ -532,9 +596,15 @@ class CartController extends Controller
                 return back()->with('error', 'Selected product is out of stock.');
             }
             $qty = $this->clampQuantity($request->input('qty', 1));
-            $subtotal = (float) $product->price * $qty;
+            $size = $request->input('size', '');
+            $color = $request->input('color', '');
+            $pricing = $this->cartPricingForSelection($product, $size, $color);
+            $cartPrice = $pricing['price'];
+            $cartOriginalPrice = $pricing['original_price'];
+
+            $subtotal = (float) $cartPrice * $qty;
             $shipping = $subtotal >= 999 ? 0 : 50;
-            $couponDiscount = 0;
+            $couponDiscount = (float) session()->get('coupon_discount', 0);
             $total = max(1, $subtotal + $shipping - $couponDiscount);
             $designSide = $this->resolveDesignSide($request, $product);
             if (!$designSide) {
@@ -551,14 +621,15 @@ class CartController extends Controller
                 $chosenImage = $product->front_image;
             }
             $itemsList = [[
-                'id'          => $product->id,
-                'name'        => $product->name,
-                'price'       => (float) $product->price,
-                'quantity'    => $qty,
-                'size'        => $request->input('size', ''),
-                'color'       => $request->input('color', ''),
-                'design_side' => $designSide,
-                'image'       => $chosenImage,
+                'id'             => $product->id,
+                'name'           => $product->name,
+                'price'          => (float) $cartPrice,
+                'original_price' => (float) $cartOriginalPrice,
+                'quantity'       => $qty,
+                'size'           => $size,
+                'color'          => $color,
+                'design_side'    => $designSide,
+                'image'          => $chosenImage,
             ]];
         } else {
             if (empty($cart)) {
@@ -659,6 +730,29 @@ class CartController extends Controller
         }
 
         return redirect()->route('order.success', $order->order_number);
+    }
+
+    // ── GET /order/success (Direct URL / latest order redirect) ────
+    public function latestSuccess()
+    {
+        $lastOrderNumber = session('last_order_number');
+        if ($lastOrderNumber) {
+            return redirect()->route('order.success', $lastOrderNumber);
+        }
+
+        if (auth()->check()) {
+            $order = \App\Models\Order::where('user_id', auth()->id())->latest()->first();
+            if ($order) {
+                return redirect()->route('order.success', $order->order_number);
+            }
+        }
+
+        $latestOrder = \App\Models\Order::latest()->first();
+        if ($latestOrder) {
+            return redirect()->route('order.success', $latestOrder->order_number);
+        }
+
+        return redirect()->route('shop.index')->with('info', 'No recent orders found.');
     }
 
     // ── GET /order/success/{order} ─────────────────────────

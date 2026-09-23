@@ -380,8 +380,8 @@
                 <input type="search" id="customersSearch" placeholder="Search name, email, phone..." autocomplete="off">
             </div>
             <select id="customersStatus" class="customers-select">
+                <option value="1" selected>Active</option>
                 <option value="">All Status</option>
-                <option value="1">Active</option>
                 <option value="0">Blocked</option>
             </select>
             <select id="customersPerPage" class="customers-select">
@@ -437,7 +437,7 @@
             page: 1,
             perPage: 15,
             search: '',
-            status: ''
+            status: '1'
         };
         var timer = null;
 
@@ -643,9 +643,9 @@
 
         document.getElementById('customersReset').addEventListener('click', function() {
             document.getElementById('customersSearch').value = '';
-            document.getElementById('customersStatus').value = '';
+            document.getElementById('customersStatus').value = '1';
             document.getElementById('customersPerPage').value = '15';
-            state = { page: 1, perPage: 15, search: '', status: '' };
+            state = { page: 1, perPage: 15, search: '', status: '1' };
             loadCustomers();
         });
 

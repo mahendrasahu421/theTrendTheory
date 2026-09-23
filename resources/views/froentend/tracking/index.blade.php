@@ -2,8 +2,8 @@
 @extends('froentend.layouts.app')
 
 @push('seo')
-    <title>{{ isset($order) ? "Track Order #{$order->order_number}" : 'My Orders & Live Tracking' }} | Vayu</title>
-    <meta name="description" content="View all your orders, live shipment tracking, courier dispatch status, and itemized invoice summary with Vayu.">
+    <title>{{ isset($order) ? "Track Order #{$order->order_number}" : 'My Orders & Live Tracking' }} | THE TREND THEORY</title>
+    <meta name="description" content="View all your orders, live shipment tracking, courier dispatch status, and itemized invoice summary with THE TREND THEORY.">
 @endpush
 
 @push('styles')
@@ -1099,7 +1099,12 @@
                 <span>View All My Orders</span>
             </a>
 
-            <div style="font-size: 13px; color: var(--track-text-muted);">
+            <button type="button" class="btn-mobile-open-summary" onclick="tttOpenSummaryModal()">
+                <i class="bi bi-receipt-cutoff"></i>
+                <span>Bill &amp; Items ({{ $totalQty }})</span>
+            </button>
+
+            <div class="active-tracking-topbar-info" style="font-size: 13px; color: var(--track-text-muted);">
                 Viewing Live Tracking for <strong>#{{ $order->order_number }}</strong>
             </div>
         </div>
@@ -1187,6 +1192,11 @@
                         <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
                         <span>Download Invoice</span>
                     </a>
+
+                    <button type="button" class="btn-track-cta btn-mobile-summary-cta" onclick="tttOpenSummaryModal()">
+                        <i class="bi bi-receipt-cutoff text-primary"></i>
+                        <span>View Items &amp; Bill</span>
+                    </button>
 
                     @if($order->shipping_phone)
                         <a href="https://wa.me/91{{ preg_replace('/[^0-9]/', '', $order->shipping_phone) }}?text=Hello%20The%20Trend%20Theory%20team,%20I%20need%20an%20update%20on%20my%20Order%20{{ $order->order_number }}" target="_blank" rel="noopener" class="btn-track-cta btn-wa-support">
@@ -1570,7 +1580,7 @@
             <div class="guest-login-callout" style="background:#ffffff; border: 1.5px solid var(--track-border);">
                 <i class="bi bi-bag-x text-muted" style="font-size: 42px; display: block; margin-bottom: 10px;"></i>
                 <h3>No Orders Found Yet</h3>
-                <p>You haven't placed any orders with Vayu yet. Discover our latest oversized drops and streetwear collections!</p>
+                <p>You haven't placed any orders with THE TREND THEORY yet. Discover our latest oversized drops and streetwear collections!</p>
                 <a href="{{ route('shop.index') }}" class="btn-guest-login">
                     <i class="bi bi-bag-fill"></i> Start Shopping
                 </a>
@@ -1592,11 +1602,187 @@
 
 </div>
 
-@auth
-{{-- ── Cancel Order Modal (tracking page — premium UI) ── --}}
-<div id="tttCancelModal" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:16px;">
+@if(isset($order) && isset($timeline))
+{{-- ── Mobile Order Summary & Items Popup Modal ── --}}
+<div id="tttMobileSummaryModal" class="tttm-modal-wrapper" style="display:none;">
+    <div class="tttm-backdrop" onclick="tttCloseSummaryModal()"></div>
+    <div class="tttm-modal-box">
+        <div class="tttm-drag-handle" onclick="tttCloseSummaryModal()"><span class="tttm-drag-bar"></span></div>
+
+        {{-- Header --}}
+        <div class="tttm-head">
+            <div class="tttm-head-left">
+                <div class="tttm-head-tag"><i class="bi bi-receipt"></i> ORDER SUMMARY &amp; ITEMS</div>
+                <h3 class="tttm-head-title">#{{ $order->order_number }}</h3>
+            </div>
+            <div class="tttm-head-right">
+                <span class="track-status-badge-pill {{ $order->status }}" style="font-size: 11px; padding: 4px 10px;">
+                    <i class="bi {{ $order->status === 'delivered' ? 'bi-check-circle-fill' : ($order->status === 'shipped' ? 'bi-truck' : 'bi-shield-check') }}"></i>
+                    {{ $timeline['status_label'] }}
+                </span>
+                <button type="button" class="tttm-btn-close" onclick="tttCloseSummaryModal()" aria-label="Close summary modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        {{-- Scrollable Content Body --}}
+        <div class="tttm-scroll-body">
+            
+            {{-- 1. Items Section --}}
+            <div class="tttm-section-block">
+                <div class="tttm-sec-label">
+                    <span><i class="bi bi-bag-check-fill text-primary"></i> ITEMS ({{ $totalQty }})</span>
+                    <span class="badge bg-light text-dark border">₹{{ number_format($subtotalAmount) }}</span>
+                </div>
+                <div class="tttm-items-list">
+                    @foreach($order->items as $item)
+                        @php
+                            $mItemImg = $item->product_image ?: ($item->product->main_image ?? asset('images/placeholder-product.jpg'));
+                            $mItemPrice = (float) $item->unit_price;
+                            $mItemSubtotal = (float) ($item->subtotal ?: ($mItemPrice * $item->quantity));
+                            $mOrigPrice = ($item->product && $item->product->original_price && $item->product->original_price > $mItemPrice) 
+                                ? (float) $item->product->original_price 
+                                : ($mItemPrice * 1.35);
+                        @endphp
+                        <div class="tttm-item-row">
+                            <img src="{{ $mItemImg }}" alt="{{ $item->product_name }}" class="tttm-item-thumb" onerror="this.src='{{ asset('images/placeholder-product.jpg') }}'">
+                            <div class="tttm-item-info">
+                                <a href="{{ $item->product ? route('product.show', $item->product->slug) : '#' }}" class="tttm-item-name">
+                                    {{ $item->product_name }}
+                                </a>
+                                <div class="tttm-item-pills">
+                                    @if($item->size)
+                                        <span class="item-meta-badge"><i class="bi bi-rulers"></i> {{ $item->size }}</span>
+                                    @endif
+                                    <span class="item-meta-badge">Qty: {{ $item->quantity }}</span>
+                                </div>
+                            </div>
+                            <div class="tttm-item-pricing">
+                                <div class="tttm-item-price-val">₹{{ number_format($mItemSubtotal) }}</div>
+                                @if($mOrigPrice > $mItemPrice)
+                                    <div class="tttm-item-mrp-strike">₹{{ number_format($mOrigPrice * $item->quantity) }}</div>
+                                @endif
+                                @if($item->quantity > 1)
+                                    <div style="font-size: 10px; color: #94a3b8; text-align: right;">₹{{ number_format($mItemPrice) }}/pc</div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- 2. Bill Calculation --}}
+            <div class="tttm-section-block">
+                <div class="tttm-sec-label">
+                    <span><i class="bi bi-receipt-cutoff text-primary"></i> PRICE BREAKDOWN</span>
+                    <span style="font-size: 11px; color: #059669; font-weight: 700;"><i class="bi bi-patch-check-fill"></i> TAX INVOICE</span>
+                </div>
+                <div class="tttm-bill-calc">
+                    <div class="tttm-calc-row">
+                        <span>Total MRP (Original Price)</span>
+                        <b>₹{{ number_format($totalMRP) }}</b>
+                    </div>
+                    @if($mrpDiscount > 0)
+                        <div class="tttm-calc-row savings">
+                            <span><i class="bi bi-percent"></i> Bag MRP Discount</span>
+                            <b>-₹{{ number_format($mrpDiscount) }}</b>
+                        </div>
+                    @endif
+                    <div class="tttm-calc-row">
+                        <span>Bag Subtotal ({{ $totalQty }} items)</span>
+                        <b>₹{{ number_format($subtotalAmount) }}</b>
+                    </div>
+                    @if($discountAmount > 0)
+                        <div class="tttm-calc-row" style="color:#166534;background:#f0fdf4;padding:6px 10px;border-radius:8px;border:1px dashed #86efac;">
+                            <span><i class="bi bi-tag-fill"></i> Coupon Discount {{ $order->coupon_code ? "({$order->coupon_code})" : '' }}</span>
+                            <b>-₹{{ number_format($discountAmount) }}</b>
+                        </div>
+                    @endif
+                    <div class="tttm-calc-row {{ $shippingCharge == 0 ? 'savings' : '' }}">
+                        <span><i class="bi bi-truck"></i> Shipping / Delivery Charge</span>
+                        <b>{{ $shippingCharge == 0 ? 'FREE' : '₹' . number_format($shippingCharge) }}</b>
+                    </div>
+                    <div class="tttm-calc-row" style="font-size: 11.5px; color: #64748b;">
+                        <span>Estimated Taxes (5% GST Included)</span>
+                        <span>₹{{ number_format(round($gstAmount)) }}</span>
+                    </div>
+                    <div class="tttm-calc-total">
+                        <div>
+                            <div class="tttm-calc-total-label">Final Amount Paid</div>
+                            <div style="font-size: 10.5px; color: #64748b; font-weight: 500;">(All taxes &amp; shipping included)</div>
+                        </div>
+                        <span class="tttm-calc-total-val">₹{{ number_format($totalAmount) }}</span>
+                    </div>
+                </div>
+
+                @if($totalSavings > 0)
+                    <div class="savings-callout-banner" style="margin-top: 14px; padding: 10px 14px; font-size: 12px;">
+                        <i class="bi bi-gift-fill" style="font-size: 16px;"></i>
+                        <div>You saved <strong>₹{{ number_format($totalSavings) }}</strong> on this order!</div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- 3. Shipping & Payment info --}}
+            <div class="tttm-section-block">
+                <div class="tttm-sec-label">
+                    <span><i class="bi bi-geo-alt-fill text-danger"></i> SHIPPING DESTINATION</span>
+                </div>
+                <div class="tttm-meta-card">
+                    <div class="tttm-addr-line">
+                        <strong>{{ $order->shipping_name }}</strong>
+                        @if($order->shipping_phone)
+                            <span style="color:#64748b;"> &bull; {{ $order->shipping_phone }}</span>
+                        @endif
+                    </div>
+                    <div class="tttm-addr-text">
+                        {{ $order->shipping_address }}<br>
+                        <strong>{{ $order->shipping_city }}</strong>, {{ $order->shipping_state }} - {{ $order->shipping_pincode }}
+                    </div>
+                    <div class="tttm-pay-row">
+                        <div>
+                            <span style="color:#64748b;font-size:11px;display:block;">Payment Method</span>
+                            <strong style="text-transform:uppercase;font-size:12.5px;">{{ $order->payment_method ?: 'Online Payment' }}</strong>
+                        </div>
+                        <span class="pay-badge-status {{ strtolower($order->payment_status) }}">
+                            <i class="bi {{ strtolower($order->payment_status) === 'paid' ? 'bi-check-circle-fill' : 'bi-clock-fill' }}"></i>
+                            {{ strtoupper($order->payment_status ?: 'PENDING') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- Footer Actions Bar (Pinned at bottom) --}}
+        <div class="tttm-actions-bar">
+            <a href="{{ route('invoice.download', $order->order_number) }}" target="_blank" class="tttm-btn-inv">
+                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                <span>Download Invoice</span>
+            </a>
+
+            @if(in_array(strtolower($order->status), ['pending', 'confirmed']))
+                <button type="button" class="tttm-btn-cancel" onclick="tttCloseSummaryModal(); tttOpenCancelModal('{{ $order->id }}', '{{ $order->order_number }}');">
+                    <i class="bi bi-x-circle-fill"></i>
+                    <span>Cancel Order</span>
+                </button>
+            @endif
+
+            <button type="button" class="tttm-btn-close-text" onclick="tttCloseSummaryModal()">
+                <span>Close</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+@endif
+
+{{-- ── Cancel Order Modal (Responsive Mobile Bottom-Sheet & Desktop Dialog) ── --}}
+<div id="tttCancelModal" class="tttc-modal-wrapper" style="display:none;">
     <div class="tttc-backdrop" onclick="tttCloseCancelModal()"></div>
     <div class="tttc-modal-box">
+        <div class="tttc-drag-handle" onclick="tttCloseCancelModal()"><span class="tttc-drag-bar"></span></div>
 
         {{-- Header --}}
         <div class="tttc-head">
@@ -1605,98 +1791,98 @@
             </div>
             <div class="tttc-head-content">
                 <div class="tttc-tag">Cancellation Request</div>
-                <h3 class="tttc-main-title">Cancel Order?</h3>
+                <h3 class="tttc-main-title">Cancel this order?</h3>
                 <span class="tttc-order-pill" id="tttCancelOrderLabel">Order #---</span>
             </div>
-            <button type="button" class="tttc-btn-close" onclick="tttCloseCancelModal()" aria-label="Close modal">
+            <button type="button" class="tttc-btn-close" onclick="tttCloseCancelModal()" aria-label="Close cancel modal">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
 
-        {{-- Notice Banner --}}
-        <div class="tttc-notice-card">
-            <div class="tttc-notice-item">
-                <div class="tttc-notice-icon"><i class="bi bi-arrow-counterclockwise"></i></div>
+        {{-- Scrollable Body --}}
+        <div class="tttc-scrollable-body">
+            {{-- Modern Compact Notice Card --}}
+            <div class="tttc-notice-card">
+                <div class="tttc-notice-icon"><i class="bi bi-info-circle-fill"></i></div>
                 <div class="tttc-notice-text">
-                    <strong>Action is Irreversible</strong>
-                    <span>Once cancelled, items return to inventory &amp; order cannot be restored.</span>
+                    Cancellation cannot be undone. Prepaid amount will be refunded to your original payment method in <strong>5–7 business days</strong>.
                 </div>
             </div>
-            <div class="tttc-notice-divider"></div>
-            <div class="tttc-notice-item">
-                <div class="tttc-notice-icon"><i class="bi bi-wallet2"></i></div>
-                <div class="tttc-notice-text">
-                    <strong>Refund Timeline</strong>
-                    <span>Prepaid amounts refunded to original source in <strong>5–7 business days</strong>.</span>
+
+            {{-- Reason Section --}}
+            <div class="tttc-body">
+                <div class="tttc-field-header">
+                    <label class="tttc-label">Please tell us why you are cancelling</label>
+                    <span class="tttc-helper">Select one option</span>
+                </div>
+
+                <div class="tttc-reasons-list" id="tttCancelChips">
+                    <button type="button" class="tttc-reason-card" onclick="tttSelectReason(this, 'Changed my mind')">
+                        <div class="tttc-card-left">
+                            <span class="tttc-emoji-badge">💭</span>
+                            <span class="tttc-reason-title">Changed my mind</span>
+                        </div>
+                        <span class="tttc-radio-indicator"><i class="bi bi-check2"></i></span>
+                    </button>
+
+                    <button type="button" class="tttc-reason-card" onclick="tttSelectReason(this, 'Found better price elsewhere')">
+                        <div class="tttc-card-left">
+                            <span class="tttc-emoji-badge">🏷️</span>
+                            <span class="tttc-reason-title">Found better price elsewhere</span>
+                        </div>
+                        <span class="tttc-radio-indicator"><i class="bi bi-check2"></i></span>
+                    </button>
+
+                    <button type="button" class="tttc-reason-card" onclick="tttSelectReason(this, 'Ordered by mistake')">
+                        <div class="tttc-card-left">
+                            <span class="tttc-emoji-badge">⚡</span>
+                            <span class="tttc-reason-title">Ordered by mistake</span>
+                        </div>
+                        <span class="tttc-radio-indicator"><i class="bi bi-check2"></i></span>
+                    </button>
+
+                    <button type="button" class="tttc-reason-card" onclick="tttSelectReason(this, 'Delivery time is too long')">
+                        <div class="tttc-card-left">
+                            <span class="tttc-emoji-badge">⏱️</span>
+                            <span class="tttc-reason-title">Delivery time is too long</span>
+                        </div>
+                        <span class="tttc-radio-indicator"><i class="bi bi-check2"></i></span>
+                    </button>
+
+                    <button type="button" class="tttc-reason-card" onclick="tttSelectReason(this, 'Wrong item ordered')">
+                        <div class="tttc-card-left">
+                            <span class="tttc-emoji-badge">📦</span>
+                            <span class="tttc-reason-title">Wrong item or size selected</span>
+                        </div>
+                        <span class="tttc-radio-indicator"><i class="bi bi-check2"></i></span>
+                    </button>
+
+                    <button type="button" class="tttc-reason-card" onclick="tttSelectReason(this, 'Other')">
+                        <div class="tttc-card-left">
+                            <span class="tttc-emoji-badge">✍️</span>
+                            <span class="tttc-reason-title">Other reason</span>
+                        </div>
+                        <span class="tttc-radio-indicator"><i class="bi bi-check2"></i></span>
+                    </button>
+                </div>
+
+                <div id="tttOtherInputWrap" style="display:none;margin-top:12px;">
+                    <textarea id="tttCancelReasonInput"
+                        placeholder="Please specify your reason in detail..."
+                        maxlength="250"
+                        rows="3"
+                        class="tttc-textarea"></textarea>
                 </div>
             </div>
         </div>
 
-        {{-- Reason Section --}}
-        <div class="tttc-body">
-            <div class="tttc-field-header">
-                <label class="tttc-label">Please tell us why you are cancelling <span class="tttc-req">*</span></label>
-                <span class="tttc-helper">Select one option</span>
-            </div>
-
-            <div class="tttc-reasons-grid" id="tttCancelChips">
-                <button type="button" class="tttc-reason-opt" onclick="tttSelectReason(this, 'Changed my mind')">
-                    <span class="tttc-opt-emoji">💭</span>
-                    <span class="tttc-opt-label">Changed my mind</span>
-                    <i class="bi bi-check-circle-fill tttc-opt-check"></i>
-                </button>
-
-                <button type="button" class="tttc-reason-opt" onclick="tttSelectReason(this, 'Found better price elsewhere')">
-                    <span class="tttc-opt-emoji">🏷️</span>
-                    <span class="tttc-opt-label">Found better price</span>
-                    <i class="bi bi-check-circle-fill tttc-opt-check"></i>
-                </button>
-
-                <button type="button" class="tttc-reason-opt" onclick="tttSelectReason(this, 'Ordered by mistake')">
-                    <span class="tttc-opt-emoji">⚡</span>
-                    <span class="tttc-opt-label">Ordered by mistake</span>
-                    <i class="bi bi-check-circle-fill tttc-opt-check"></i>
-                </button>
-
-                <button type="button" class="tttc-reason-opt" onclick="tttSelectReason(this, 'Delivery time is too long')">
-                    <span class="tttc-opt-emoji">⏱️</span>
-                    <span class="tttc-opt-label">Delivery too long</span>
-                    <i class="bi bi-check-circle-fill tttc-opt-check"></i>
-                </button>
-
-                <button type="button" class="tttc-reason-opt" onclick="tttSelectReason(this, 'Wrong item ordered')">
-                    <span class="tttc-opt-emoji">📦</span>
-                    <span class="tttc-opt-label">Wrong item / size</span>
-                    <i class="bi bi-check-circle-fill tttc-opt-check"></i>
-                </button>
-
-                <button type="button" class="tttc-reason-opt" onclick="tttSelectReason(this, 'Other')">
-                    <span class="tttc-opt-emoji">✍️</span>
-                    <span class="tttc-opt-label">Other reason</span>
-                    <i class="bi bi-check-circle-fill tttc-opt-check"></i>
-                </button>
-            </div>
-
-            <div id="tttOtherInputWrap" style="display:none;margin-top:12px;">
-                <textarea id="tttCancelReasonInput"
-                    placeholder="Please specify your reason in detail..."
-                    maxlength="250"
-                    rows="2"
-                    class="tttc-textarea"></textarea>
-            </div>
-        </div>
-
-        {{-- Actions --}}
+        {{-- Actions Bar (Side-by-side buttons) --}}
         <div class="tttc-actions-bar">
             <button type="button" class="tttc-btn-keep" onclick="tttCloseCancelModal()">
-                <i class="bi bi-arrow-left"></i>
-                <span>Keep My Order</span>
+                Keep My Order
             </button>
             <button type="button" class="tttc-btn-confirm" id="tttCancelConfirmBtn" onclick="tttSubmitCancel()">
-                <span id="tttCancelBtnText">
-                    <i class="bi bi-x-circle-fill"></i>
-                    <span>Confirm Cancel</span>
-                </span>
+                <span id="tttCancelBtnText">Confirm Cancel</span>
             </button>
         </div>
 
@@ -1704,101 +1890,1015 @@
 </div>
 
 <style>
-.tttc-backdrop { position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:tttcFadeIn .25s ease-out both; }
-@keyframes tttcFadeIn { from{opacity:0;} to{opacity:1;} }
-.tttc-modal-box { position:relative;width:100%;max-width:480px;background:#ffffff;border-radius:24px;box-shadow:0 25px 60px -12px rgba(15,23,42,0.35),0 0 0 1px rgba(226,232,240,0.8);overflow:hidden;animation:tttcPopIn .3s cubic-bezier(0.16,1,0.3,1) both;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif; }
-@keyframes tttcPopIn { from{opacity:0;transform:scale(0.94) translateY(14px);} to{opacity:1;transform:scale(1) translateY(0);} }
-.tttc-head { display:flex;align-items:flex-start;gap:14px;padding:24px 24px 18px;border-bottom:1px solid #f1f5f9; }
-.tttc-icon-ring { width:48px;height:48px;min-width:48px;border-radius:16px;background:linear-gradient(135deg,#fff1f2,#ffe4e6);border:1px solid #fecdd3;display:flex;align-items:center;justify-content:center;font-size:22px;color:#e11d48;box-shadow:0 4px 14px rgba(225,29,72,0.12); }
-.tttc-head-content { flex:1;min-width:0; }
-.tttc-tag { font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:#e11d48;margin-bottom:2px; }
-.tttc-main-title { font-size:19px;font-weight:800;color:#0f172a;margin:0 0 6px;letter-spacing:-0.4px;line-height:1.2; }
-.tttc-order-pill { display:inline-block;padding:3px 10px;background:#f1f5f9;color:#475569;border-radius:6px;font-size:11.5px;font-weight:700;letter-spacing:0.2px; }
-.tttc-btn-close { width:32px;height:32px;border-radius:10px;border:1px solid #e2e8f0;background:#ffffff;color:#64748b;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s ease;flex-shrink:0; }
-.tttc-notice-card { margin:18px 24px 0;background:#fff8f6;border:1px solid #ffedd5;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px; }
-.tttc-notice-item { display:flex;align-items:flex-start;gap:10px; }
-.tttc-notice-icon { width:26px;height:26px;min-width:26px;border-radius:8px;background:#ffedd5;color:#c2410c;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:1px; }
-.tttc-notice-text { font-size:12px;color:#7c2d12;line-height:1.45; }
-.tttc-notice-text strong { display:block;color:#9a3412;font-size:12px;font-weight:700;margin-bottom:1px; }
-.tttc-notice-divider { height:1px;background:#fed7aa;opacity:0.6; }
-.tttc-body { padding:18px 24px 0; }
-.tttc-field-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
-.tttc-label { font-size:12px;font-weight:800;color:#334155;text-transform:uppercase;letter-spacing:0.5px;margin:0; }
-.tttc-req { color:#e11d48; }
-.tttc-helper { font-size:11px;color:#94a3b8;font-weight:600; }
-.tttc-reasons-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:8px; }
-.tttc-reason-opt { position:relative;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;color:#334155;cursor:pointer;transition:all .18s cubic-bezier(0.4,0,0.2,1);font-family:inherit;text-align:left;outline:none; }
-.tttc-opt-emoji { font-size:15px;line-height:1;flex-shrink:0; }
-.tttc-opt-label { font-size:12px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.tttc-opt-check { font-size:14px;color:#00285a;display:none;flex-shrink:0; }
-.tttc-reason-opt.active { background:#f0f4ff;border-color:#00285a;color:#00285a;box-shadow:0 0 0 1px #00285a; }
-.tttc-reason-opt.active .tttc-opt-check { display:inline-block; }
-.tttc-textarea { width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:12px;font-size:12.5px;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;transition:border-color .15s ease,box-shadow .15s ease;resize:vertical; }
-.tttc-textarea:focus { border-color:#00285a;box-shadow:0 0 0 3px rgba(0,40,90,0.08); }
-.tttc-actions-bar { display:flex;align-items:center;gap:10px;padding:20px 24px 24px; }
-.tttc-btn-keep { flex:1;height:44px;border:1.5px solid #e2e8f0;border-radius:12px;background:#ffffff;color:#475569;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s ease; }
-.tttc-btn-confirm { flex:1.25;height:44px;border:none;border-radius:12px;background:linear-gradient(135deg,#e11d48 0%,#be123c 100%);color:#ffffff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 16px rgba(225,29,72,0.35);transition:all .2s cubic-bezier(0.4,0,0.2,1); }
-.tttc-btn-confirm:disabled { opacity:0.65;cursor:not-allowed;transform:none;box-shadow:none; }
-@media(max-width:480px) { .tttc-reasons-grid{grid-template-columns:1fr;} .tttc-actions-bar{flex-direction:column-reverse;} .tttc-btn-keep,.tttc-btn-confirm{width:100%;} }
+/* ═══════════════════════════════════════════════════════════
+   PREMIUM MODAL TYPOGRAPHY & RESPONSIVE BOTTOM-SHEET STYLES
+   ═══════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.tttc-modal-wrapper,
+.tttm-modal-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.tttc-modal-box,
+.tttm-modal-box,
+.tttc-modal-box *,
+.tttm-modal-box * {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    box-sizing: border-box;
+}
+
+/* Backdrops */
+.tttc-backdrop,
+.tttm-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: tttcFadeIn .22s ease-out both;
+}
+
+@keyframes tttcFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Drag handles for mobile touch affordance */
+.tttc-drag-handle,
+.tttm-drag-handle {
+    display: none;
+    width: 100%;
+    padding: 10px 0 4px;
+    text-align: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.tttc-drag-bar,
+.tttm-drag-bar {
+    display: inline-block;
+    width: 38px;
+    height: 4px;
+    border-radius: 999px;
+    background: #cbd5e1;
+    transition: background 0.2s ease;
+}
+
+/* Modal Boxes (Desktop default: floating centered card) */
+.tttc-modal-box,
+.tttm-modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(226, 232, 240, 0.8);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: tttcPopIn .26s cubic-bezier(0.16, 1, 0.3, 1) both;
+    z-index: 2;
+}
+
+.tttm-modal-box {
+    max-width: 540px;
+}
+
+@keyframes tttcPopIn {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Modal Headers */
+.tttc-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.tttc-icon-ring {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 12px;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    color: #e11d48;
+}
+
+.tttc-head-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.tttc-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #e11d48;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.tttc-main-title {
+    font-size: 17.5px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 3px;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.tttc-order-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    font-family: ui-monospace, SFMono-Regular, monospace !important;
+}
+
+.tttc-btn-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .15s ease;
+    flex-shrink: 0;
+}
+
+.tttc-btn-close:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Scrollable Inner Bodies */
+.tttc-scrollable-body,
+.tttm-scroll-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Notice Card in Cancel Modal */
+.tttc-notice-card {
+    margin: 14px 22px 0;
+    background: #fff8f6;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    padding: 11px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.tttc-notice-icon {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 6px;
+    background: #ffedd5;
+    color: #ea580c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    margin-top: 1px;
+}
+
+.tttc-notice-text {
+    font-size: 12px;
+    color: #7c2d12;
+    line-height: 1.45;
+    font-weight: 500;
+}
+
+.tttc-notice-text strong {
+    font-weight: 700;
+    color: #9a3412;
+}
+
+/* Cancel Reason Selection */
+.tttc-body {
+    padding: 14px 22px 0;
+}
+
+.tttc-field-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.tttc-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.tttc-helper {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Sleek Reason Cards List */
+.tttc-reasons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tttc-reason-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 14px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .16s ease;
+    text-align: left;
+    outline: none;
+    width: 100%;
+}
+
+.tttc-reason-card:hover {
+    border-color: #cbd5e1;
+    background: #fafafa;
+}
+
+.tttc-card-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.tttc-emoji-badge {
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tttc-reason-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tttc-radio-indicator {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 13px;
+    transition: all .16s ease;
+}
+
+.tttc-reason-card.active {
+    background: #f8faff;
+    border-color: #00285a;
+    box-shadow: 0 0 0 1px #00285a;
+}
+
+.tttc-reason-card.active .tttc-reason-title {
+    color: #00285a;
+    font-weight: 700;
+}
+
+.tttc-reason-card.active .tttc-radio-indicator {
+    border-color: #00285a;
+    background: #00285a;
+    color: #ffffff;
+}
+
+.tttc-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color .15s ease, box-shadow .15s ease;
+    resize: vertical;
+}
+
+.tttc-textarea:focus {
+    border-color: #00285a;
+    box-shadow: 0 0 0 3px rgba(0, 40, 90, 0.08);
+}
+
+/* Actions Footer Pinned Bar (Always Side-by-Side) */
+.tttc-actions-bar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    padding: 14px 22px 18px !important;
+    border-top: 1px solid #f1f5f9 !important;
+    background: #ffffff !important;
+    flex-shrink: 0 !important;
+}
+
+.tttc-btn-keep {
+    height: 46px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    background: #f8fafc !important;
+    color: #334155 !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all .16s ease !important;
+    width: 100% !important;
+}
+
+.tttc-btn-keep:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+.tttc-btn-keep:active {
+    transform: scale(0.985);
+}
+
+.tttc-btn-confirm {
+    height: 46px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 14px rgba(225, 29, 72, 0.28) !important;
+    transition: all .16s ease !important;
+    width: 100% !important;
+}
+
+.tttc-btn-confirm:hover {
+    box-shadow: 0 6px 18px rgba(225, 29, 72, 0.38) !important;
+}
+
+.tttc-btn-confirm:active {
+    transform: scale(0.985);
+}
+
+.tttc-btn-confirm:disabled {
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SUMMARY MODAL STYLES (ORDER DETAILS & BILL)
+   ═══════════════════════════════════════════════════════════ */
+.tttm-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+
+.tttm-head-left {
+    min-width: 0;
+    flex: 1;
+}
+
+.tttm-head-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--track-primary);
+    margin-bottom: 2px;
+}
+
+.tttm-head-title {
+    font-size: 17.5px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.tttm-head-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.tttm-btn-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+
+.tttm-btn-close:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.tttm-scroll-body {
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.tttm-section-block {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 14px;
+}
+
+.tttm-sec-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #334155;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tttm-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tttm-item-row {
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 8px 10px;
+}
+
+.tttm-item-thumb {
+    width: 50px;
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.tttm-item-info {
+    min-width: 0;
+}
+
+.tttm-item-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.35;
+    text-decoration: none;
+}
+
+.tttm-item-pills {
+    display: flex;
+    gap: 6px;
+    margin-top: 3px;
+    font-size: 10.5px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.tttm-item-pricing {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.tttm-item-price-val {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--track-primary);
+}
+
+.tttm-item-mrp-strike {
+    font-size: 11px;
+    color: #94a3b8;
+    text-decoration: line-through;
+}
+
+.tttm-bill-calc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tttm-calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    color: #475569;
+}
+
+.tttm-calc-row b {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.tttm-calc-row.savings b,
+.tttm-calc-row.savings span {
+    color: #059669;
+    font-weight: 700;
+}
+
+.tttm-calc-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1.5px dashed #cbd5e1;
+    padding-top: 10px;
+    margin-top: 4px;
+}
+
+.tttm-calc-total-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+}
+
+.tttm-calc-total-val {
+    font-size: 19px;
+    font-weight: 900;
+    color: var(--track-primary);
+}
+
+.tttm-meta-card {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.45;
+}
+
+.tttm-addr-line strong {
+    color: #0f172a;
+}
+
+.tttm-pay-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.tttm-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px 18px;
+    border-top: 1px solid #f1f5f9;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.tttm-btn-inv {
+    flex: 1;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: #0f172a;
+    color: #ffffff !important;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background .15s ease;
+}
+
+.tttm-btn-inv:hover {
+    background: #1e293b;
+}
+
+.tttm-btn-cancel {
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid #fecdd3;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #e11d48;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all .15s ease;
+    white-space: nowrap;
+}
+
+.tttm-btn-cancel:hover {
+    background: #e11d48;
+    color: #ffffff;
+}
+
+.tttm-btn-close-text {
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+
+.tttm-btn-close-text:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTONS ON TRACKING PAGE FOR OPENING SUMMARY MODAL
+   ═══════════════════════════════════════════════════════════ */
+.btn-mobile-open-summary {
+    display: none;
+    align-items: center;
+    gap: 7px;
+    background: linear-gradient(135deg, #00285a 0%, #0f4c81 100%);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 15px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 40, 90, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-mobile-open-summary:active {
+    transform: scale(0.97);
+}
+
+.btn-mobile-summary-cta {
+    display: none;
+    background: #ffffff;
+    color: var(--track-primary);
+    border: 1.5px solid #cbd5e1;
+}
+
+.btn-mobile-summary-cta:hover {
+    background: #f8fafc;
+    border-color: var(--track-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE MODAL POPUP RULES (MOBILE BOTTOM-SHEETS)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+    .btn-mobile-open-summary {
+        display: inline-flex !important;
+    }
+    .btn-mobile-summary-cta {
+        display: inline-flex !important;
+    }
+    .active-tracking-topbar {
+        gap: 10px;
+    }
+    .active-tracking-topbar-info {
+        width: 100%;
+        order: 3;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Transform modal wrappers into bottom sheet alignment */
+    .tttc-modal-wrapper,
+    .tttm-modal-wrapper {
+        align-items: flex-end !important;
+        justify-content: center !important;
+        padding: 0 !important;
+    }
+
+    /* Transform modal boxes into modern mobile bottom sheets */
+    .tttc-modal-box,
+    .tttm-modal-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 86dvh !important;
+        max-height: 86vh !important;
+        border-radius: 22px 22px 0 0 !important;
+        animation: tttcSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+        margin: 0 !important;
+        box-shadow: 0 -10px 35px rgba(15, 23, 42, 0.22) !important;
+    }
+
+    .tttc-drag-handle,
+    .tttm-drag-handle {
+        display: block !important;
+    }
+
+    .tttc-head {
+        padding: 10px 18px 12px !important;
+    }
+
+    .tttm-head {
+        padding: 12px 18px 12px !important;
+    }
+
+    .tttc-notice-card {
+        margin: 10px 18px 0 !important;
+        padding: 9px 12px !important;
+    }
+
+    .tttc-body {
+        padding: 12px 18px 0 !important;
+    }
+
+    .tttm-scroll-body {
+        padding: 12px 16px !important;
+    }
+
+    .tttc-reason-card {
+        padding: 10px 12px !important;
+    }
+
+    .tttc-reason-title {
+        font-size: 12.5px !important;
+    }
+
+    /* Side-by-side action buttons on mobile */
+    .tttc-actions-bar {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 12px)) !important;
+        box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.05) !important;
+        background: #ffffff !important;
+    }
+
+    .tttc-btn-keep,
+    .tttc-btn-confirm {
+        height: 46px !important;
+        font-size: 13px !important;
+        width: 100% !important;
+    }
+
+    .tttm-actions-bar {
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 12px)) !important;
+        box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.05) !important;
+        background: #ffffff !important;
+    }
+
+    .tttm-btn-inv,
+    .tttm-btn-cancel,
+    .tttm-btn-close-text {
+        height: 44px !important;
+    }
+}
+
+@keyframes tttcSlideUp {
+    from { transform: translateY(100%); opacity: 0.5; }
+    to { transform: translateY(0); opacity: 1; }
+}
 </style>
 
 <script>
+// ── Summary Modal Functions ──
+function tttOpenSummaryModal() {
+    var m = document.getElementById('tttMobileSummaryModal');
+    if (m) {
+        m.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function tttCloseSummaryModal() {
+    var m = document.getElementById('tttMobileSummaryModal');
+    if (m) {
+        m.style.display = 'none';
+        var cancelModal = document.getElementById('tttCancelModal');
+        if (!cancelModal || cancelModal.style.display !== 'flex') {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// ── Cancel Modal Functions ──
 var tttCancelOrderId = null, tttCancelOrderNum = null, tttSelectedReason = '';
+
 function tttOpenCancelModal(id, num) {
     tttCancelOrderId = id;
     tttCancelOrderNum = num;
     tttSelectedReason = '';
-    document.getElementById('tttCancelOrderLabel').textContent = 'Order #' + num;
+    var lbl = document.getElementById('tttCancelOrderLabel');
+    if (lbl) lbl.textContent = 'Order #' + num;
     var inp = document.getElementById('tttCancelReasonInput');
-    inp.value = '';
-    document.getElementById('tttOtherInputWrap').style.display = 'none';
-    document.querySelectorAll('.tttc-reason-opt').forEach(function(c){c.classList.remove('active');});
-    document.getElementById('tttCancelModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    if (inp) inp.value = '';
+    var wrap = document.getElementById('tttOtherInputWrap');
+    if (wrap) wrap.style.display = 'none';
+    document.querySelectorAll('.tttc-reason-card, .tttc-reason-opt').forEach(function(c){ c.classList.remove('active'); });
+    var m = document.getElementById('tttCancelModal');
+    if (m) {
+        m.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 }
+
 function tttCloseCancelModal() {
-    document.getElementById('tttCancelModal').style.display = 'none';
-    document.body.style.overflow = '';
+    var m = document.getElementById('tttCancelModal');
+    if (m) m.style.display = 'none';
+    var summaryModal = document.getElementById('tttMobileSummaryModal');
+    if (!summaryModal || summaryModal.style.display !== 'flex') {
+        document.body.style.overflow = '';
+    }
 }
+
 function tttSelectReason(el, reason) {
-    document.querySelectorAll('.tttc-reason-opt').forEach(function(c){c.classList.remove('active');});
+    document.querySelectorAll('.tttc-reason-card, .tttc-reason-opt').forEach(function(c){ c.classList.remove('active'); });
     el.classList.add('active');
     tttSelectedReason = reason;
     var wrap = document.getElementById('tttOtherInputWrap');
     var inp = document.getElementById('tttCancelReasonInput');
     if (reason === 'Other') {
-        wrap.style.display = 'block';
-        inp.focus();
+        if (wrap) wrap.style.display = 'block';
+        if (inp) {
+            inp.focus();
+            setTimeout(function(){
+                try { inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+            }, 150);
+        }
         tttSelectedReason = '';
     } else {
-        wrap.style.display = 'none';
-        inp.value = '';
+        if (wrap) wrap.style.display = 'none';
+        if (inp) inp.value = '';
     }
 }
+
 function tttSubmitCancel() {
     var inp = document.getElementById('tttCancelReasonInput');
-    var reason = tttSelectedReason || inp.value.trim();
-    if (!reason) { alert('Please select or type a reason for cancellation.'); return; }
+    var reason = tttSelectedReason || (inp ? inp.value.trim() : '');
+    if (!reason) {
+        alert('Please select or write a reason for cancellation.');
+        return;
+    }
     var btn = document.getElementById('tttCancelConfirmBtn');
-    btn.disabled = true;
-    document.getElementById('tttCancelBtnText').innerHTML = '<span class="spinner-border spinner-border-sm" style="width:14px;height:14px;border-width:2px;margin-right:6px"></span> Cancelling...';
+    if (btn) btn.disabled = true;
+    var textEl = document.getElementById('tttCancelBtnText');
+    if (textEl) {
+        textEl.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:13px;height:13px;border-width:2px;margin-right:6px"></span> Cancelling...';
+    }
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var csrf = csrfMeta ? csrfMeta.getAttribute('content') : '';
+
     fetch('/orders/' + tttCancelOrderId + '/cancel', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').getAttribute('content'),'Accept':'application/json'},
-        body:JSON.stringify({cancel_reason:reason})
-    }).then(function(r){return r.json();}).then(function(d){
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrf,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ cancel_reason: reason })
+    }).then(function(r){ return r.json(); }).then(function(d){
         tttCloseCancelModal();
         if (d.success) {
             var t = document.createElement('div');
-            t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:30px;font-size:13px;font-weight:700;z-index:999999;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px';
-            t.innerHTML='<i class="bi bi-check-circle-fill" style="color:#22c55e;font-size:16px"></i> Order #' + tttCancelOrderNum + ' cancelled!';
+            t.style.cssText = 'position:fixed;bottom:max(24px, env(safe-area-inset-bottom, 24px));left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 24px;border-radius:30px;font-size:13px;font-weight:700;z-index:999999;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;align-items:center;gap:8px;width:max-content;max-width:90vw;';
+            t.innerHTML = '<i class="bi bi-check-circle-fill" style="color:#22c55e;font-size:16px"></i> Order #' + tttCancelOrderNum + ' cancelled!';
             document.body.appendChild(t);
-            setTimeout(function(){ if(d.redirect) window.location.href=d.redirect; else window.location.reload(); }, 1800);
-        } else { alert(d.message || 'Could not cancel. Please try again.'); btn.disabled=false; document.getElementById('tttCancelBtnText').innerHTML='<i class="bi bi-x-circle-fill"></i> Confirm Cancel'; }
-    }).catch(function(){ tttCloseCancelModal(); alert('Connection error. Try again.'); btn.disabled=false; document.getElementById('tttCancelBtnText').innerHTML='<i class="bi bi-x-circle-fill"></i> Confirm Cancel'; });
+            setTimeout(function(){
+                if (d.redirect) window.location.href = d.redirect;
+                else window.location.reload();
+            }, 1800);
+        } else {
+            alert(d.message || 'Could not cancel. Please try again.');
+            if (btn) btn.disabled = false;
+            if (textEl) textEl.textContent = 'Confirm Cancel';
+        }
+    }).catch(function(){
+        tttCloseCancelModal();
+        alert('Connection error. Please try again.');
+        if (btn) btn.disabled = false;
+        if (textEl) textEl.textContent = 'Confirm Cancel';
+    });
 }
-document.addEventListener('keydown', function(e){ if(e.key==='Escape') tttCloseCancelModal(); });
+
+// ── Keyboard & Swipe Handlers ──
+document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+        tttCloseCancelModal();
+        tttCloseSummaryModal();
+    }
+});
+
+// Mobile touch swipe-down dismiss on drag handles
+(function setupSwipeDismiss() {
+    function bindSwipe(handleId, closeFn) {
+        var el = document.querySelector(handleId);
+        if (!el) return;
+        var startY = 0;
+        el.addEventListener('touchstart', function(e){
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        el.addEventListener('touchend', function(e){
+            var endY = e.changedTouches[0].clientY;
+            if (endY - startY > 40) {
+                closeFn();
+            }
+        }, { passive: true });
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+        bindSwipe('.tttc-drag-handle', tttCloseCancelModal);
+        bindSwipe('.tttm-drag-handle', tttCloseSummaryModal);
+    });
+})();
 </script>
-@endauth
 
 @endsection

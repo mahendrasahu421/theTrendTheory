@@ -2,15 +2,15 @@
 @extends('froentend.layouts.app')
 
 @section('custom_seo')
-    <title>Login | Vayu — Luxury Streetwear</title>
-    <meta name="description" content="Login to your Vayu account to access orders, wishlist, and exclusive member drops.">
+    <title>Login | THE TREND THEORY — Luxury Streetwear</title>
+    <meta name="description" content="Login to your THE TREND THEORY account to access orders, wishlist, and exclusive member drops.">
     <meta name="robots" content="noindex, nofollow">
 @endsection
 
 @section('main')
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Vayu — SPACIOUS LUXURY AUTH UI
+   THE TREND THEORY — SPACIOUS LUXURY AUTH UI
    ═══════════════════════════════════════════════════════════════════ */
 :root {
     --auth-navy: #00285a;
@@ -431,19 +431,19 @@
         {{-- ── LEFT: SPACIOUS EDITORIAL PHOTO CARD (NO CONTENT CLUTTER) ── --}}
         <div class="auth-visual-card">
             <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&auto=format&fit=crop&q=85" 
-                 alt="Vayu Luxury Streetwear" 
+                 alt="THE TREND THEORY Luxury Streetwear" 
                  class="auth-visual-img">
             
             <div class="auth-visual-tag">
                 <span class="tag-dot"></span>
-                Vayu &bull; LUXURY STREETWEAR
+                THE TREND THEORY &bull; LUXURY STREETWEAR
             </div>
         </div>
 
         {{-- ── RIGHT: SPACIOUS AUTHENTICATION CARD PANEL ── --}}
         <div class="auth-card-panel">
             <div class="auth-card-header">
-                <div class="auth-brand-mini">Vayu</div>
+                <div class="auth-brand-mini">THE TREND THEORY</div>
                 <h1 class="auth-card-title">Welcome Back</h1>
                 <p class="auth-card-sub">Sign in to your account to continue shopping</p>
             </div>
@@ -561,7 +561,7 @@
 
             {{-- Divider --}}
             <div class="auth-divider-box">
-                <span>NEW TO Vayu?</span>
+                <span>NEW TO THE TREND THEORY?</span>
             </div>
 
             {{-- Switch to Register --}}

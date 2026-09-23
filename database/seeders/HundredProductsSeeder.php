@@ -218,7 +218,7 @@ class HundredProductsSeeder extends Seeder
             ["Cozy Sherpa Fleece Zip-Up Streetwear Jacket", $catWomen->id, 1799, 3499, "Plush Heavyweight Sherpa", "Oversized Cozy Fit", "Off White"],
             ["High-Waisted Baggy Cargo Sweatpants", $catWomen->id, 1099, 2199, "340 GSM Terry Cotton", "Baggy Cuffed Fit", "Sage Green"],
             ["Minimalist Raw Edge French Terry Shorts", $catWomen->id, 699, 1399, "320 GSM French Terry", "Relaxed Street Shorts", "Charcoal"],
-            ["Vayu Signature Heritage Street Hoodie", $catWomen->id, 1399, 2899, "400 GSM Super Combed Cotton", "Signature Boxy Fit", "Black"]
+            ["THE TREND THEORY Signature Heritage Street Hoodie", $catWomen->id, 1399, 2899, "400 GSM Super Combed Cotton", "Signature Boxy Fit", "Black"]
         ];
 
         $totalInserted = 0;
@@ -269,9 +269,9 @@ class HundredProductsSeeder extends Seeder
                 'fit'               => $fit,
                 'care_instructions' => 'Machine wash cold with similar colours. Do not iron directly on print. Tumble dry low.',
                 'short_description' => "Engineered for pure street aesthetics. Made from premium {$fabric} with a tailored {$fit}.",
-                'description'       => "Elevate your streetwear wardrobe with the {$name}. Designed by Vayu, this piece merges heavyweight premium comfort with sharp contemporary silhouettes. Featuring {$fabric}, {$fit}, reinforced seams, and luxury garment-washed finish.",
-                'meta_title'        => "{$name} | Vayu",
-                'meta_description'  => "Buy {$name} online at Vayu. Premium streetwear, fast shipping across India.",
+                'description'       => "Elevate your streetwear wardrobe with the {$name}. Designed by THE TREND THEORY, this piece merges heavyweight premium comfort with sharp contemporary silhouettes. Featuring {$fabric}, {$fit}, reinforced seams, and luxury garment-washed finish.",
+                'meta_title'        => "{$name} | THE TREND THEORY",
+                'meta_description'  => "Buy {$name} online at THE TREND THEORY. Premium streetwear, fast shipping across India.",
                 'is_active'         => true,
                 'is_featured'       => ($index % 5 === 0),
                 'is_new'            => ($index % 3 === 0),

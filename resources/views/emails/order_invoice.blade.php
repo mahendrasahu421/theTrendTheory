@@ -164,7 +164,7 @@
             
             {{-- Header --}}
             <div class="header">
-                <h1>VAYU</h1>
+                <h1>THE TREND THEORY</h1>
                 <p>OFFICIAL ORDER TAX INVOICE &amp; CONFIRMATION</p>
             </div>
 
@@ -174,7 +174,7 @@
                     Hello {{ $order->shipping_name ?: 'Valued Customer' }},
                 </p>
                 <p style="font-size: 13px; line-height: 1.6; color: #475569; margin-bottom: 20px;">
-                    Thank you for your order with <strong>VAYU</strong>! Your order has been placed successfully and is being prepared for dispatch. Below is your official invoice and receipt summary.
+                    Thank you for your order with <strong>THE TREND THEORY</strong>! Your order has been placed successfully and is being prepared for dispatch. Below is your official invoice and receipt summary.
                 </p>
 
                 {{-- Order Meta Info Box --}}
@@ -278,7 +278,7 @@
             {{-- Footer --}}
             <div class="footer">
                 <p style="margin: 0 0 6px;">Questions about your order? Reply directly to this email or contact support.</p>
-                <p style="margin: 0; color: #94a3b8;">&copy; {{ date('Y') }} VAYU. All rights reserved.</p>
+                <p style="margin: 0; color: #94a3b8;">&copy; {{ date('Y') }} THE TREND THEORY. All rights reserved.</p>
             </div>
 
         </div>

@@ -419,7 +419,8 @@ class MediaController extends Controller
             'button_link' => 'nullable|string|max:1000',
             'product_ids' => 'nullable|array',
             'product_ids.*' => 'integer|exists:products,id',
-            'sort_order' => 'nullable|integer'
+            'sort_order' => 'nullable|integer',
+            'file' => 'nullable|file|max:51200', // Max 50MB
         ]);
 
         $media = Media::findOrFail($id);
@@ -429,12 +430,67 @@ class MediaController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid media type'], 400);
         }
 
-        $media->update([
+        $updateData = [
             'alt_text' => $request->title,
             'subtitle' => $request->subtitle,
             'button_link' => $this->normalizeGalleryLink($request->button_link, $request->title),
-            'sort_order' => $request->sort_order ?? $media->sort_order
-        ]);
+            'sort_order' => $request->sort_order ?? $media->sort_order,
+        ];
+
+        // Handle replacement image or video file upload
+        if ($request->hasFile('file')) {
+            try {
+                $file = $request->file('file');
+                $mime = $file->getMimeType();
+                $folder = str_starts_with($mime, 'video/') ? 'gallery/videos' : 'gallery/images';
+
+                $upload = $this->cloudinary->upload($file, $folder);
+
+                if (!isset($upload['url'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to upload replacement file'
+                    ], 500);
+                }
+
+                // Delete previous file from Cloudinary if existed
+                if ($media->file_id) {
+                    try {
+                        $this->cloudinary->delete($media->file_id);
+                    } catch (\Exception $delEx) {
+                        \Log::warning('Old gallery media cleanup warning: ' . $delEx->getMessage());
+                    }
+                }
+
+                $width = null;
+                $height = null;
+                if (str_starts_with($mime, 'image/')) {
+                    $imageInfo = @getimagesize($file->getRealPath());
+                    if ($imageInfo) {
+                        $width = $imageInfo[0];
+                        $height = $imageInfo[1];
+                    }
+                }
+
+                $updateData['file_name'] = $file->getClientOriginalName();
+                $updateData['file_id'] = $upload['public_id'] ?? $upload['fileId'] ?? null;
+                $updateData['url'] = $upload['url'];
+                $updateData['thumb_url'] = $upload['thumbnailUrl'] ?? $upload['url'];
+                $updateData['width'] = $width;
+                $updateData['height'] = $height;
+                $updateData['size'] = $file->getSize();
+                $updateData['mime_type'] = $mime;
+
+            } catch (\Exception $e) {
+                \Log::error('Gallery file update failed: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File upload error: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        $media->update($updateData);
         $this->syncGalleryProducts($media, $request->input('product_ids', []));
 
         return response()->json([
@@ -446,6 +502,9 @@ class MediaController extends Controller
                 'subtitle' => $media->subtitle,
                 'button_link' => $media->button_link,
                 'product_ids' => $media->products()->pluck('products.id')->values(),
+                'url' => $media->url,
+                'thumb_url' => $media->thumb_url,
+                'type' => str_starts_with($media->mime_type, 'video/') ? 'video' : 'image',
                 'sort_order' => $media->sort_order
             ]
         ]);
