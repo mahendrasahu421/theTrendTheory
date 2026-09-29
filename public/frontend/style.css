@@ -164,10 +164,9 @@ h1, h2, .brand-text, .section-title, .heading-cinzel, .sec-title, .brand-center 
     transform: translate(-50%, -50%);
     object-fit: cover;
     object-position: center;
-    transition: transform 8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .hero-media-slide.active .hero-image-zoom {
-    transform: translate(-50%, -50%) scale(1.04);
+    transform: translate(-50%, -50%);
 }
 .video-overlay {
     position: absolute;
@@ -361,69 +360,101 @@ h1, h2, .brand-text, .section-title, .heading-cinzel, .sec-title, .brand-center 
 .top-hero-arrow-left { left: 32px; }
 .top-hero-arrow-right { right: 32px; }
 
-/* Bottom Nav Bar */
-.hero-bottom-bar {
+/* Bottom Carousel Navigation Indicators */
+:root {
+    --hero-slide-duration: 5000ms;
+}
+.hero-indicators-container {
     position: absolute;
-    bottom: 34px;
-    left: 40px;
-    z-index: 10;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
     display: flex;
     align-items: center;
-    gap: 20px;
-}
-.hero-counter {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 700;
-}
-.hero-counter-current {
-    color: #ffffff;
-    font-size: 16px;
-}
-.hero-counter-sep {
-    color: rgba(255, 255, 255, 0.4);
-}
-.hero-counter-total {
-    color: rgba(255, 255, 255, 0.55);
-}
-.hero-progress-segments {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.hero-progress-seg {
-    width: 44px;
-    height: 3px;
+    gap: 12px;
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.hero-bullet-btn {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    background: transparent;
     border: none;
     padding: 0;
     cursor: pointer;
-    position: relative;
-    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+.hero-bullet-btn:hover {
+    transform: scale(1.15);
+}
+.hero-bullet-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.45);
     transition: all 0.3s ease;
+    z-index: 2;
+    pointer-events: none;
 }
-.hero-progress-seg .hero-progress-fill {
+.hero-bullet-btn:hover .hero-bullet-dot {
+    background-color: rgba(255, 255, 255, 0.85);
+}
+.hero-bullet-btn.active .hero-bullet-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.95);
+}
+.hero-bullet-svg {
     position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0;
-    background: #ffffff;
-    border-radius: 999px;
-}
-.hero-progress-seg.active .hero-progress-fill {
+    inset: 0;
     width: 100%;
-    animation: heroProgressFill 8s linear forwards;
+    height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
-@keyframes heroProgressFill {
-    from { width: 0%; }
-    to { width: 100%; }
+.hero-bullet-btn.active .hero-bullet-svg {
+    opacity: 1;
+}
+.hero-bullet-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 1.8;
+}
+.hero-bullet-circle {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 69.12;
+    stroke-dashoffset: 69.12;
+}
+.hero-bullet-btn.active.animating .hero-bullet-circle {
+    animation: heroCircleProgress var(--hero-slide-duration, 5000ms) linear forwards;
+}
+.video-hero:hover .hero-bullet-btn.active.animating .hero-bullet-circle {
+    animation-play-state: paused;
+}
+@keyframes heroCircleProgress {
+    from {
+        stroke-dashoffset: 69.12;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
 }
 
 /* Scroll Hint */

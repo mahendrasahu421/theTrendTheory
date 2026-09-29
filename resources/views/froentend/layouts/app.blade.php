@@ -865,6 +865,236 @@
         </aside>
     </div>
 
+    {{-- ==========================================================================
+       BONKERS CORNER STYLE - ADDRESS MANAGEMENT BOTTOM SHEETS
+       ========================================================================== --}}
+
+    {{-- BOTTOM SHEET 1: SELECT DELIVERY ADDRESS --}}
+    <div class="bonkers-sheet-wrap" id="bonkersAddressSelectSheet" aria-hidden="true">
+        <div class="bonkers-sheet-backdrop" onclick="closeAddressSelectionSheet()"></div>
+        <div class="bonkers-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="bonkersSelectSheetHeading">
+            <div class="bonkers-drag-handle-wrap" onclick="closeAddressSelectionSheet()">
+                <div class="bonkers-drag-handle"></div>
+            </div>
+
+            <div class="bonkers-sheet-head">
+                <div class="bonkers-sheet-head-left">
+                    <div class="bonkers-sheet-head-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="bonkers-sheet-title" id="bonkersSelectSheetHeading">Select Delivery Address</h3>
+                        <p class="bonkers-sheet-sub">Saved addresses for fast &amp; secure delivery</p>
+                    </div>
+                </div>
+                <button type="button" class="bonkers-sheet-close" onclick="closeAddressSelectionSheet()" aria-label="Close address selection">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="bonkers-sheet-body">
+                <div id="bonkersAddressListContainer" class="bonkers-address-cards-stack">
+                    {{-- Dynamically populated with address cards --}}
+                </div>
+            </div>
+
+            <div class="bonkers-sheet-footer">
+                <button type="button" class="bonkers-btn-add-new" onclick="openAddAddressSheet()">
+                    <i class="bi bi-plus-lg"></i> Add New Address
+                </button>
+                <button type="button" class="bonkers-btn-continue" id="bonkersBtnConfirmAddress" onclick="confirmSelectedAddressFromSheet()">
+                    <span>Deliver to this Address</span>
+                    <i class="bi bi-check2-circle"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- BOTTOM SHEET 2: ADD / EDIT DELIVERY ADDRESS (PINCODE FIRST MULTI-STEP) --}}
+    <div class="bonkers-sheet-wrap" id="bonkersAddressFormSheet" aria-hidden="true">
+        <div class="bonkers-sheet-backdrop" onclick="closeAddressFormSheet()"></div>
+        <div class="bonkers-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="bonkersFormSheetTitle">
+            <div class="bonkers-drag-handle-wrap" onclick="closeAddressFormSheet()">
+                <div class="bonkers-drag-handle"></div>
+            </div>
+
+            <div class="bonkers-sheet-head">
+                <div class="bonkers-sheet-head-left">
+                    <button type="button" class="bonkers-sheet-back-btn" onclick="backToAddressSelectionSheet()" aria-label="Back to saved addresses">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h3 class="bonkers-sheet-title" id="bonkersFormSheetTitle">Add Delivery Address</h3>
+                        <p class="bonkers-sheet-sub" id="bonkersFormSheetSub">Step 1: Enter your delivery pincode</p>
+                    </div>
+                </div>
+                <button type="button" class="bonkers-sheet-close" onclick="closeAllAddressSheets()" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="bonkers-sheet-body">
+                <form id="bonkersAddressForm" onsubmit="event.preventDefault(); submitAddressFormSheet();" novalidate>
+                    <input type="hidden" id="bonkersEditAddressId" value="">
+
+                    {{-- STEP 1: PINCODE FIRST --}}
+                    <div class="bonkers-step-card" id="bonkersStep1Card">
+                        <div class="bonkers-field-group">
+                            <label class="bonkers-label" for="bonkersPincodeInput">
+                                <span>Delivery Pincode</span> <span class="req-star">*</span>
+                            </label>
+                            <div class="bonkers-pincode-input-row">
+                                <div class="bonkers-input-wrapper">
+                                    <i class="bi bi-pin-map-fill bonkers-input-icon"></i>
+                                    <input type="tel" id="bonkersPincodeInput" class="bonkers-input" maxlength="6" inputmode="numeric" placeholder="Enter 6-digit Pincode" autocomplete="postal-code" oninput="handlePincodeInput(this.value)">
+                                    <span class="bonkers-pincode-spinner" id="bonkersPincodeSpinner" style="display:none;"><i class="bi bi-arrow-repeat spin-anim"></i></span>
+                                </div>
+                                <button type="button" class="bonkers-btn-pin-check" id="bonkersBtnCheckPin" onclick="verifyPincodeStep()">
+                                    <span>Continue</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="bonkers-field-feedback" id="bonkersPincodeFeedback"></div>
+                        </div>
+                    </div>
+
+                    {{-- STEP 2: AUTO FETCH LOCATION (ACCORDION) --}}
+                    <div class="bonkers-accordion-section" id="bonkersLocationAccordion">
+                        <div class="bonkers-location-pill-card">
+                            <div class="bonkers-loc-header">
+                                <span class="bonkers-loc-badge"><i class="bi bi-check-circle-fill"></i> Location Verified</span>
+                                <button type="button" class="bonkers-btn-change-pin" onclick="resetPincodeStep()">Change Pincode</button>
+                            </div>
+                            <div class="bonkers-grid-2col">
+                                <div class="bonkers-field-group">
+                                    <label class="bonkers-label" for="bonkersCityInput">City (Auto-filled)</label>
+                                    <div class="bonkers-input-wrapper readonly-wrap">
+                                        <i class="bi bi-building bonkers-input-icon"></i>
+                                        <input type="text" id="bonkersCityInput" class="bonkers-input readonly-input" readonly placeholder="City">
+                                        <i class="bi bi-lock-fill bonkers-lock-icon"></i>
+                                    </div>
+                                    <div class="bonkers-field-feedback" id="bonkersCityFeedback"></div>
+                                </div>
+                                <div class="bonkers-field-group">
+                                    <label class="bonkers-label" for="bonkersStateInput">State (Auto-filled)</label>
+                                    <div class="bonkers-input-wrapper readonly-wrap">
+                                        <i class="bi bi-map bonkers-input-icon"></i>
+                                        <input type="text" id="bonkersStateInput" class="bonkers-input readonly-input" readonly placeholder="State">
+                                        <i class="bi bi-lock-fill bonkers-lock-icon"></i>
+                                    </div>
+                                    <div class="bonkers-field-feedback" id="bonkersStateFeedback"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- STEP 3: ADDRESS DETAILS (ACCORDION) --}}
+                    <div class="bonkers-accordion-section" id="bonkersDetailsAccordion">
+                        <div class="bonkers-details-card">
+                            {{-- Full Name --}}
+                            <div class="bonkers-field-group">
+                                <label class="bonkers-label" for="bonkersFullNameInput">
+                                    <span>Full Name</span> <span class="req-star">*</span>
+                                </label>
+                                <div class="bonkers-input-wrapper">
+                                    <i class="bi bi-person-fill bonkers-input-icon"></i>
+                                    <input type="text" id="bonkersFullNameInput" class="bonkers-input" placeholder="e.g. Richa Mishra" autocomplete="name" oninput="clearFieldFeedback('bonkersFullNameInput', 'bonkersNameFeedback')">
+                                </div>
+                                <div class="bonkers-field-feedback" id="bonkersNameFeedback"></div>
+                            </div>
+
+                            {{-- Mobile Number --}}
+                            <div class="bonkers-field-group">
+                                <label class="bonkers-label" for="bonkersMobileInput">
+                                    <span>Mobile Number</span> <span class="req-star">*</span>
+                                </label>
+                                <div class="bonkers-input-wrapper bonkers-phone-wrapper">
+                                    <span class="bonkers-phone-prefix">+91</span>
+                                    <input type="tel" id="bonkersMobileInput" class="bonkers-input bonkers-phone-input" maxlength="10" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel" oninput="clearFieldFeedback('bonkersMobileInput', 'bonkersPhoneFeedback')">
+                                </div>
+                                <div class="bonkers-field-feedback" id="bonkersPhoneFeedback"></div>
+                            </div>
+
+                            {{-- House / Flat / Building No --}}
+                            <div class="bonkers-field-group">
+                                <label class="bonkers-label" for="bonkersHouseFlatInput">
+                                    <span>Flat / House No. / Building / Apartment</span> <span class="req-star">*</span>
+                                </label>
+                                <div class="bonkers-input-wrapper">
+                                    <i class="bi bi-house-door-fill bonkers-input-icon"></i>
+                                    <input type="text" id="bonkersHouseFlatInput" class="bonkers-input" placeholder="e.g. Flat 302, Palm Heights" autocomplete="address-line1" oninput="clearFieldFeedback('bonkersHouseFlatInput', 'bonkersFlatFeedback')">
+                                </div>
+                                <div class="bonkers-field-feedback" id="bonkersFlatFeedback"></div>
+                            </div>
+
+                            {{-- Area / Street --}}
+                            <div class="bonkers-field-group">
+                                <label class="bonkers-label" for="bonkersStreetAreaInput">
+                                    <span>Area / Street / Sector / Village</span> <span class="req-star">*</span>
+                                </label>
+                                <div class="bonkers-input-wrapper">
+                                    <i class="bi bi-signpost-2-fill bonkers-input-icon"></i>
+                                    <input type="text" id="bonkersStreetAreaInput" class="bonkers-input" placeholder="e.g. Damodar Nagar, Barra" autocomplete="address-line2" oninput="clearFieldFeedback('bonkersStreetAreaInput', 'bonkersAreaFeedback')">
+                                </div>
+                                <div class="bonkers-field-feedback" id="bonkersAreaFeedback"></div>
+                            </div>
+
+                            {{-- Landmark (Optional) --}}
+                            <div class="bonkers-field-group">
+                                <label class="bonkers-label" for="bonkersLandmarkInput">
+                                    <span>Landmark</span> <span class="opt-tag">(Optional)</span>
+                                </label>
+                                <div class="bonkers-input-wrapper">
+                                    <i class="bi bi-geo-fill bonkers-input-icon"></i>
+                                    <input type="text" id="bonkersLandmarkInput" class="bonkers-input" placeholder="e.g. Near City Mall / Opp. SBI Bank">
+                                </div>
+                            </div>
+
+                            {{-- Address Line 2 (Optional) --}}
+                            <div class="bonkers-field-group">
+                                <label class="bonkers-label" for="bonkersAddress2Input">
+                                    <span>Address Line 2</span> <span class="opt-tag">(Optional)</span>
+                                </label>
+                                <div class="bonkers-input-wrapper">
+                                    <i class="bi bi-compass-fill bonkers-input-icon"></i>
+                                    <input type="text" id="bonkersAddress2Input" class="bonkers-input" placeholder="Additional colony or floor details">
+                                </div>
+                            </div>
+
+                            {{-- Save Address As --}}
+                            <div class="bonkers-field-group">
+                                <label class="bonkers-label">
+                                    <span>Save Address As</span>
+                                </label>
+                                <div class="bonkers-type-selector">
+                                    <button type="button" class="bonkers-type-chip is-active" data-type="Home" onclick="selectAddressTypeChip('Home')">
+                                        <i class="bi bi-house-door-fill"></i> Home
+                                    </button>
+                                    <button type="button" class="bonkers-type-chip" data-type="Work" onclick="selectAddressTypeChip('Work')">
+                                        <i class="bi bi-briefcase-fill"></i> Work
+                                    </button>
+                                    <button type="button" class="bonkers-type-chip" data-type="Other" onclick="selectAddressTypeChip('Other')">
+                                        <i class="bi bi-geo-alt-fill"></i> Other
+                                    </button>
+                                </div>
+                                <input type="hidden" id="bonkersAddressTypeVal" value="Home">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="bonkersFormGeneralMsg" class="bonkers-general-msg"></div>
+                </form>
+            </div>
+
+            <div class="bonkers-sheet-footer">
+                <button type="button" class="bonkers-btn-continue" id="btnSaveAddressSheet" onclick="submitAddressFormSheet()">
+                    <span id="btnSaveAddressSheetText">Save Address &amp; Continue</span>
+                    <i class="bi bi-check2-circle" id="btnSaveAddressSheetIcon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     {{-- PRODUCT QUICK VIEW / ADD TO CART MODAL --}}
     <div class="slider-overlay" onclick="closeSlider()"></div>
     <div class="universal-slider" id="universalSlider" role="dialog" aria-modal="true" aria-label="Quick Shop" aria-hidden="true">
@@ -1288,7 +1518,23 @@
 
         function gcoUserAddresses() {
             var user = window.TTT_USER || {};
-            return Array.isArray(user.addresses) ? user.addresses : [];
+            var list = Array.isArray(user.addresses) ? user.addresses : [];
+            if (!list.length && (user.address || user.pincode)) {
+                return [
+                    {
+                        id: Number(user.address_id || 1),
+                        type: user.address_type || 'Home',
+                        name: user.name || 'Customer',
+                        phone: user.phone || '',
+                        address: user.address || '',
+                        city: user.city || '',
+                        state: user.state || '',
+                        pincode: user.pincode || '',
+                        is_default: true
+                    }
+                ];
+            }
+            return list;
         }
 
         function gcoFindAddress(addressId) {
@@ -1329,6 +1575,7 @@
         function gcoApplyUserPayload(userPayload) {
             window.TTT_USER = Object.assign({}, window.TTT_USER || {}, userPayload || {});
             if (!Array.isArray(window.TTT_USER.addresses)) window.TTT_USER.addresses = [];
+            bonkersSelectedAddressId = Number(window.TTT_USER.address_id || 0);
             gcoSyncMainAddress();
         }
 
@@ -1362,138 +1609,563 @@
             if (main) main.classList.add('active');
         };
 
-        var gcoTempSelectedAddressId = null;
+        var bonkersSelectedAddressId = null;
+        var bonkersActiveAddressType = 'Home';
+        var bonkersPincodeVerified = false;
 
-        window.gcoShowAddressSelect = function() {
-            var user = window.TTT_USER || {};
-            var listEl = document.getElementById('gcoAddressList');
-            var addresses = gcoUserAddresses();
-            var selectedId = Number(user.address_id || 0);
-
-            if (gcoTempSelectedAddressId === null) {
-                var def = addresses.find(function(a) { return selectedId ? Number(a.id || 0) === selectedId : !!a.is_default; }) || addresses[0];
-                gcoTempSelectedAddressId = def ? Number(def.id || 0) : 0;
-            }
-
-            if (listEl) {
-                if (!addresses.length && user.address) {
-                    addresses = [Object.assign({ id: 0, type: user.address_type || 'Home', is_default: true }, user)];
-                }
-
-                if (!addresses.length) {
-                    listEl.innerHTML = '<div class="gco-address-empty" style="text-align:center; padding:30px 15px; color:#64748b;">' +
-                        '<i class="bi bi-geo-alt" style="font-size:36px; color:#cbd5e1; display:block; margin-bottom:8px;"></i>' +
-                        '<b style="font-size:14px; color:#0f172a; display:block;">No saved address yet</b>' +
-                        '<span style="font-size:12px;">Add a new address or use current location below.</span>' +
-                    '</div>';
-                } else {
-                    listEl.innerHTML = addresses.map(function(address) {
-                        var addrId = Number(address.id || 0);
-                        var isSelected = (gcoTempSelectedAddressId === addrId);
-                        var tagClass = address.type === 'Work' ? 'gco-tag-work' : (address.type === 'Current Location' ? 'gco-tag-home' : 'gco-tag-home');
-                        return '<div class="gco-address-select-card ' + (isSelected ? 'is-selected' : '') + '" onclick="gcoPickAddress(' + addrId + ')" role="button" tabindex="0">' +
-                            '<div class="gco-address-radio-wrap">' +
-                                '<input type="radio" name="gco_addr_choice" value="' + addrId + '" ' + (isSelected ? 'checked' : '') + ' onclick="event.stopPropagation(); gcoPickAddress(' + addrId + ')">' +
-                            '</div>' +
-                            '<div class="gco-address-card-content">' +
-                                '<div class="gco-card-user-row">' +
-                                    '<div class="gco-user-name-tag">' +
-                                        '<span>' + gcoEscape(address.name || user.name || 'Customer') + '</span>' +
-                                        '<span class="' + tagClass + '">' + gcoEscape(address.type || 'Home') + '</span>' +
-                                        (address.is_default ? '<span class="gco-default-badge">Default</span>' : '') +
-                                    '</div>' +
-                                    '<button type="button" class="gco-edit-icon-btn" onclick="event.stopPropagation(); gcoEditSpecificAddress(' + addrId + ')" title="Edit Address">' +
-                                        '<i class="bi bi-pencil-square"></i> Edit' +
-                                    '</button>' +
-                                '</div>' +
-                                '<div class="gco-select-card-address">' + gcoEscape(gcoAddressFull(address)) + '</div>' +
-                                '<div class="gco-select-card-contact"><i class="bi bi-telephone-fill"></i> ' + gcoEscape([address.phone || user.phone, user.email].filter(Boolean).join(' | ')) + '</div>' +
-                            '</div>' +
-                        '</div>';
-                    }).join('');
-                }
-            }
-
-            document.querySelectorAll('.gco-view').forEach(function(v) { v.classList.remove('active'); });
-            var selView = document.getElementById('gcoViewAddressSelect');
-            if (selView) selView.classList.add('active');
+        // ─── BONKERS BOTTOM SHEET 1: ADDRESS SELECTION ───
+        window.openAddressSelectionSheet = function() {
+            var sheet = document.getElementById('bonkersAddressSelectSheet');
+            if (!sheet) return;
+            renderBonkersAddressList();
+            sheet.style.display = 'flex';
+            void sheet.offsetWidth;
+            sheet.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
         };
 
-        window.gcoPickAddress = function(addressId) {
-            gcoTempSelectedAddressId = Number(addressId || 0);
-            var cards = document.querySelectorAll('.gco-address-select-card');
-            cards.forEach(function(card) {
-                var radio = card.querySelector('input[type="radio"]');
-                if (radio) {
-                    var val = Number(radio.value || 0);
-                    var checked = (val === gcoTempSelectedAddressId);
-                    radio.checked = checked;
-                    card.classList.toggle('is-selected', checked);
+        window.closeAddressSelectionSheet = function() {
+            var sheet = document.getElementById('bonkersAddressSelectSheet');
+            if (!sheet) return;
+            sheet.classList.remove('is-open');
+            setTimeout(function() {
+                if (!sheet.classList.contains('is-open')) {
+                    sheet.style.display = '';
+                }
+                var anyOpen = document.querySelectorAll('.bonkers-sheet-wrap.is-open').length > 0;
+                if (!anyOpen) document.body.style.overflow = '';
+            }, 320);
+        };
+
+        window.gcoShowAddressSelect = function() {
+            openAddressSelectionSheet();
+        };
+
+        window.renderBonkersAddressList = function() {
+            var container = document.getElementById('bonkersAddressListContainer');
+            if (!container) return;
+            var user = window.TTT_USER || {};
+            var addresses = gcoUserAddresses();
+            var currentDefaultId = Number(user.address_id || 0);
+
+            if (bonkersSelectedAddressId === null) {
+                var def = addresses.find(function(a) { 
+                    return currentDefaultId ? Number(a.id || 0) === currentDefaultId : !!a.is_default; 
+                }) || addresses[0];
+                bonkersSelectedAddressId = def ? Number(def.id || 0) : (currentDefaultId || 0);
+            }
+
+            if (!addresses.length) {
+                container.innerHTML = '<div class="bonkers-empty-addresses">' +
+                    '<div class="bonkers-empty-icon"><i class="bi bi-geo-alt"></i></div>' +
+                    '<h4 class="bonkers-empty-title">No Saved Addresses</h4>' +
+                    '<p class="bonkers-empty-text">Add your delivery address to proceed with your order smoothly.</p>' +
+                    '<button type="button" class="bonkers-btn-add-new" onclick="openAddAddressSheet()"><i class="bi bi-plus-lg"></i> Add New Address</button>' +
+                '</div>';
+                return;
+            }
+
+            container.innerHTML = addresses.map(function(address) {
+                var addrId = Number(address.id || 0);
+                var isSelected = (Number(bonkersSelectedAddressId) === addrId);
+                var typeStr = (address.type || 'Home').toLowerCase();
+                var tagClass = typeStr === 'work' ? 'bonkers-tag-work' : (typeStr === 'other' ? 'bonkers-tag-other' : 'bonkers-tag-home');
+                var fullAddr = gcoAddressFull(address);
+                var phone = address.phone || user.phone || '';
+                if (phone && !phone.startsWith('+91')) {
+                    phone = '+91 ' + phone;
+                }
+
+                return '<div class="bonkers-address-card ' + (isSelected ? 'is-selected' : '') + '" onclick="selectBonkersAddressCard(' + addrId + ')" role="button" tabindex="0">' +
+                    '<div class="bonkers-radio-col">' +
+                        '<div class="bonkers-radio-circle">' +
+                            '<div class="bonkers-radio-dot"></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="bonkers-address-card-info">' +
+                        '<div class="bonkers-card-top-row">' +
+                            '<div class="bonkers-name-type-wrap">' +
+                                '<span class="bonkers-recipient-name">' + gcoEscape(address.name || user.name || 'Recipient') + '</span>' +
+                                '<span class="bonkers-tag-pill ' + tagClass + '">' + gcoEscape(address.type || 'Home') + '</span>' +
+                                (address.is_default ? '<span class="bonkers-tag-pill bonkers-tag-default">DEFAULT</span>' : '') +
+                            '</div>' +
+                            '<button type="button" class="bonkers-card-edit-btn" onclick="event.stopPropagation(); openEditAddressSheet(' + addrId + ')" title="Edit this address">' +
+                                '<i class="bi bi-pencil-square"></i> Edit' +
+                            '</button>' +
+                        '</div>' +
+                        '<p class="bonkers-address-line">' + gcoEscape(fullAddr) + '</p>' +
+                        '<div class="bonkers-contact-line">' +
+                            '<i class="bi bi-telephone-fill"></i> ' + gcoEscape(phone) +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        };
+
+        window.selectBonkersAddressCard = function(addrId) {
+            bonkersSelectedAddressId = Number(addrId || 0);
+            renderBonkersAddressList();
+        };
+
+        window.confirmSelectedAddressFromSheet = function() {
+            if (bonkersSelectedAddressId !== null && bonkersSelectedAddressId > 0) {
+                gcoSelectSavedAddress(bonkersSelectedAddressId);
+            } else {
+                gcoSelectAndDeliver();
+            }
+            closeAddressSelectionSheet();
+        };
+
+        // ─── BONKERS BOTTOM SHEET 2: ADD / EDIT ADDRESS FORM ───
+        window.openAddAddressSheet = function() {
+            var formSheet = document.getElementById('bonkersAddressFormSheet');
+            if (!formSheet) return;
+            resetAddressFormUI(true);
+            formSheet.style.display = 'flex';
+            void formSheet.offsetWidth;
+            formSheet.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.openEditAddressSheet = function(addressId) {
+            var formSheet = document.getElementById('bonkersAddressFormSheet');
+            if (!formSheet) return;
+            var addr = gcoFindAddress(addressId);
+            if (!addr) {
+                var user = window.TTT_USER || {};
+                if (Number(user.address_id || 0) === Number(addressId || 0) || !addressId) {
+                    addr = Object.assign({ id: user.address_id || 0 }, user);
+                }
+            }
+            resetAddressFormUI(false, addr);
+            formSheet.style.display = 'flex';
+            void formSheet.offsetWidth;
+            formSheet.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeAddressFormSheet = function() {
+            var formSheet = document.getElementById('bonkersAddressFormSheet');
+            if (!formSheet) return;
+            formSheet.classList.remove('is-open');
+            setTimeout(function() {
+                if (!formSheet.classList.contains('is-open')) {
+                    formSheet.style.display = '';
+                }
+                var anyOpen = document.querySelectorAll('.bonkers-sheet-wrap.is-open').length > 0;
+                if (!anyOpen) document.body.style.overflow = '';
+            }, 320);
+        };
+
+        window.backToAddressSelectionSheet = function() {
+            closeAddressFormSheet();
+            var selSheet = document.getElementById('bonkersAddressSelectSheet');
+            if (selSheet) {
+                selSheet.style.display = 'flex';
+                void selSheet.offsetWidth;
+                selSheet.classList.add('is-open');
+            }
+        };
+
+        window.closeAllAddressSheets = function() {
+            closeAddressFormSheet();
+            closeAddressSelectionSheet();
+        };
+
+        window.gcoShowAddressEdit = function(isNew, existingAddress) {
+            if (isNew) {
+                openAddAddressSheet();
+            } else {
+                openEditAddressSheet(existingAddress ? existingAddress.id : null);
+            }
+        };
+
+        function resetAddressFormUI(isNew, existingAddress) {
+            var formTitle = document.getElementById('bonkersFormSheetTitle');
+            var formSub = document.getElementById('bonkersFormSheetSub');
+            var editIdInput = document.getElementById('bonkersEditAddressId');
+            var pinInput = document.getElementById('bonkersPincodeInput');
+            var cityInput = document.getElementById('bonkersCityInput');
+            var stateInput = document.getElementById('bonkersStateInput');
+            var nameInput = document.getElementById('bonkersFullNameInput');
+            var phoneInput = document.getElementById('bonkersMobileInput');
+            var flatInput = document.getElementById('bonkersHouseFlatInput');
+            var areaInput = document.getElementById('bonkersStreetAreaInput');
+            var landmarkInput = document.getElementById('bonkersLandmarkInput');
+            var addr2Input = document.getElementById('bonkersAddress2Input');
+            var generalMsg = document.getElementById('bonkersFormGeneralMsg');
+            var saveBtnText = document.getElementById('btnSaveAddressSheetText');
+
+            var locAccordion = document.getElementById('bonkersLocationAccordion');
+            var detAccordion = document.getElementById('bonkersDetailsAccordion');
+
+            clearAllFieldFeedbacks();
+            if (generalMsg) { generalMsg.textContent = ''; generalMsg.className = 'bonkers-general-msg'; }
+
+            var user = window.TTT_USER || {};
+
+            if (isNew) {
+                if (formTitle) formTitle.textContent = 'Add Delivery Address';
+                if (formSub) formSub.textContent = 'Step 1: Enter your delivery pincode';
+                if (editIdInput) editIdInput.value = '';
+                if (pinInput) { pinInput.value = ''; pinInput.readOnly = false; }
+                if (cityInput) cityInput.value = '';
+                if (stateInput) stateInput.value = '';
+                if (nameInput) nameInput.value = user.name || '';
+                if (phoneInput) {
+                    var rawPhone = (user.phone || '').replace(/^\+91\s*/, '').replace(/\D/g, '');
+                    phoneInput.value = rawPhone.slice(-10);
+                }
+                if (flatInput) flatInput.value = '';
+                if (areaInput) areaInput.value = '';
+                if (landmarkInput) landmarkInput.value = '';
+                if (addr2Input) addr2Input.value = '';
+
+                selectAddressTypeChip('Home');
+                bonkersPincodeVerified = false;
+
+                if (locAccordion) locAccordion.classList.remove('is-expanded');
+                if (detAccordion) detAccordion.classList.remove('is-expanded');
+                if (saveBtnText) saveBtnText.textContent = 'Save Address & Continue';
+
+                setTimeout(function() { if (pinInput) pinInput.focus(); }, 150);
+            } else {
+                var source = existingAddress || {};
+                if (formTitle) formTitle.textContent = 'Edit Delivery Address';
+                if (formSub) formSub.textContent = 'Update your delivery details';
+                if (editIdInput) editIdInput.value = source.id || '';
+                if (pinInput) { pinInput.value = source.pincode || ''; pinInput.readOnly = false; }
+                if (cityInput) cityInput.value = (source.city || '').toUpperCase();
+                if (stateInput) stateInput.value = (source.state || '').toUpperCase();
+                if (nameInput) nameInput.value = source.name || user.name || '';
+                if (phoneInput) {
+                    var rawPhone = (source.phone || user.phone || '').replace(/^\+91\s*/, '').replace(/\D/g, '');
+                    phoneInput.value = rawPhone.slice(-10);
+                }
+
+                var fullAddrStr = source.address || source.address_line || '';
+                var parts = fullAddrStr.split(',');
+                if (parts.length > 1) {
+                    if (flatInput) flatInput.value = parts[0].trim();
+                    if (areaInput) areaInput.value = parts.slice(1).join(',').trim();
+                } else {
+                    if (flatInput) flatInput.value = fullAddrStr;
+                    if (areaInput) areaInput.value = fullAddrStr;
+                }
+
+                if (landmarkInput) landmarkInput.value = source.landmark || '';
+                if (addr2Input) addr2Input.value = source.address_line_2 || '';
+
+                selectAddressTypeChip(source.type || 'Home');
+                bonkersPincodeVerified = true;
+
+                if (locAccordion) locAccordion.classList.add('is-expanded');
+                if (detAccordion) detAccordion.classList.add('is-expanded');
+                if (saveBtnText) saveBtnText.textContent = 'Update Address';
+            }
+        }
+
+        window.handlePincodeInput = function(val) {
+            clearFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback');
+            var cleaned = String(val || '').replace(/\D/g, '');
+            var pinEl = document.getElementById('bonkersPincodeInput');
+            if (pinEl && pinEl.value !== cleaned) pinEl.value = cleaned;
+
+            if (cleaned.length === 6) {
+                verifyPincodeStep();
+            }
+        };
+
+        window.verifyPincodeStep = function() {
+            var pinEl = document.getElementById('bonkersPincodeInput');
+            var pin = (pinEl ? pinEl.value : '').trim().replace(/\D/g, '');
+            var feedbackEl = document.getElementById('bonkersPincodeFeedback');
+            var spinner = document.getElementById('bonkersPincodeSpinner');
+            var locAccordion = document.getElementById('bonkersLocationAccordion');
+            var detAccordion = document.getElementById('bonkersDetailsAccordion');
+            var formSub = document.getElementById('bonkersFormSheetSub');
+
+            if (pin.length !== 6) {
+                setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Please enter a valid 6-digit Pincode', true);
+                return;
+            }
+
+            if (spinner) spinner.style.display = 'inline-block';
+            if (feedbackEl) { feedbackEl.textContent = 'Verifying pincode...'; feedbackEl.className = 'bonkers-field-feedback'; }
+
+            fetch('https://api.postalpincode.in/pincode/' + pin)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (spinner) spinner.style.display = 'none';
+
+                    if (Array.isArray(data) && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+                        var po = data[0].PostOffice[0];
+                        var city = (po.District || (po.Block || po.Circle || '')).toUpperCase();
+                        var state = (po.State || '').toUpperCase();
+
+                        if (document.getElementById('bonkersCityInput')) document.getElementById('bonkersCityInput').value = city;
+                        if (document.getElementById('bonkersStateInput')) document.getElementById('bonkersStateInput').value = state;
+
+                        setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Pincode serviceable (' + city + ', ' + state + ')', false);
+                        if (pinEl) pinEl.classList.add('is-valid');
+
+                        bonkersPincodeVerified = true;
+                        if (formSub) formSub.textContent = 'Step 2: Enter remaining delivery details';
+
+                        if (locAccordion) locAccordion.classList.add('is-expanded');
+                        if (detAccordion) detAccordion.classList.add('is-expanded');
+
+                        setTimeout(function() {
+                            var nameEl = document.getElementById('bonkersFullNameInput');
+                            if (nameEl && !nameEl.value) nameEl.focus();
+                        }, 300);
+                    } else {
+                        fetch('/api/pincode/check?pincode=' + pin)
+                            .then(function(r) { return r.json(); })
+                            .then(function(localRes) {
+                                if (localRes && (localRes.city || localRes.state || localRes.success)) {
+                                    var city = (localRes.city || 'DELHI').toUpperCase();
+                                    var state = (localRes.state || 'DELHI').toUpperCase();
+                                    if (document.getElementById('bonkersCityInput')) document.getElementById('bonkersCityInput').value = city;
+                                    if (document.getElementById('bonkersStateInput')) document.getElementById('bonkersStateInput').value = state;
+
+                                    setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Pincode serviceable (' + city + ')', false);
+                                    if (pinEl) pinEl.classList.add('is-valid');
+                                    bonkersPincodeVerified = true;
+                                    if (locAccordion) locAccordion.classList.add('is-expanded');
+                                    if (detAccordion) detAccordion.classList.add('is-expanded');
+                                } else {
+                                    setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Pincode not found. Please verify.', true);
+                                }
+                            })
+                            .catch(function() {
+                                setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Unable to verify pincode. Please try again.', true);
+                            });
+                    }
+                })
+                .catch(function() {
+                    if (spinner) spinner.style.display = 'none';
+                    setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Error verifying pincode. Please check your internet.', true);
+                });
+        };
+
+        window.resetPincodeStep = function() {
+            var pinEl = document.getElementById('bonkersPincodeInput');
+            if (pinEl) {
+                pinEl.readOnly = false;
+                pinEl.focus();
+                pinEl.select();
+            }
+        };
+
+        window.selectAddressTypeChip = function(type) {
+            bonkersActiveAddressType = type || 'Home';
+            var hiddenVal = document.getElementById('bonkersAddressTypeVal');
+            if (hiddenVal) hiddenVal.value = bonkersActiveAddressType;
+
+            var chips = document.querySelectorAll('.bonkers-type-chip');
+            chips.forEach(function(chip) {
+                var chipType = chip.getAttribute('data-type');
+                chip.classList.toggle('is-active', chipType === bonkersActiveAddressType);
+            });
+        };
+
+        function setFieldFeedback(inputId, feedbackId, msg, isError) {
+            var input = document.getElementById(inputId);
+            var feedback = document.getElementById(feedbackId);
+            if (input) {
+                input.classList.remove('is-invalid', 'is-valid');
+                input.classList.add(isError ? 'is-invalid' : 'is-valid');
+            }
+            if (feedback) {
+                feedback.innerHTML = (isError ? '<i class="bi bi-exclamation-circle-fill"></i> ' : '<i class="bi bi-check-circle-fill"></i> ') + gcoEscape(msg);
+                feedback.className = 'bonkers-field-feedback ' + (isError ? 'is-error' : 'is-success');
+            }
+        }
+
+        window.clearFieldFeedback = function(inputId, feedbackId) {
+            var input = document.getElementById(inputId);
+            var feedback = document.getElementById(feedbackId);
+            if (input) input.classList.remove('is-invalid');
+            if (feedback) { feedback.textContent = ''; feedback.className = 'bonkers-field-feedback'; }
+        };
+
+        function clearAllFieldFeedbacks() {
+            ['bonkersPincodeInput', 'bonkersFullNameInput', 'bonkersMobileInput', 'bonkersHouseFlatInput', 'bonkersStreetAreaInput'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.classList.remove('is-invalid', 'is-valid');
+            });
+            ['bonkersPincodeFeedback', 'bonkersNameFeedback', 'bonkersPhoneFeedback', 'bonkersFlatFeedback', 'bonkersAreaFeedback'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) { el.textContent = ''; el.className = 'bonkers-field-feedback'; }
+            });
+        }
+
+        window.submitAddressFormSheet = function() {
+            var editId = (document.getElementById('bonkersEditAddressId') || {}).value;
+            var pin = ((document.getElementById('bonkersPincodeInput') || {}).value || '').trim();
+            var city = ((document.getElementById('bonkersCityInput') || {}).value || '').trim();
+            var state = ((document.getElementById('bonkersStateInput') || {}).value || '').trim();
+            var name = ((document.getElementById('bonkersFullNameInput') || {}).value || '').trim();
+            var mobile = ((document.getElementById('bonkersMobileInput') || {}).value || '').trim().replace(/\D/g, '');
+            var flat = ((document.getElementById('bonkersHouseFlatInput') || {}).value || '').trim();
+            var area = ((document.getElementById('bonkersStreetAreaInput') || {}).value || '').trim();
+            var landmark = ((document.getElementById('bonkersLandmarkInput') || {}).value || '').trim();
+            var addr2 = ((document.getElementById('bonkersAddress2Input') || {}).value || '').trim();
+            var type = (document.getElementById('bonkersAddressTypeVal') || {}).value || bonkersActiveAddressType || 'Home';
+            var generalMsg = document.getElementById('bonkersFormGeneralMsg');
+            var btn = document.getElementById('btnSaveAddressSheet');
+            var btnText = document.getElementById('btnSaveAddressSheetText');
+
+            clearAllFieldFeedbacks();
+            if (generalMsg) { generalMsg.textContent = ''; generalMsg.className = 'bonkers-general-msg'; }
+
+            var hasError = false;
+            var firstErrorInput = null;
+
+            if (!pin || pin.length !== 6) {
+                setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Valid 6-digit Pincode is required.', true);
+                hasError = true;
+                firstErrorInput = firstErrorInput || document.getElementById('bonkersPincodeInput');
+            }
+
+            if (!city || !state) {
+                var locAccordion = document.getElementById('bonkersLocationAccordion');
+                if (locAccordion) locAccordion.classList.add('is-expanded');
+                setFieldFeedback('bonkersPincodeInput', 'bonkersPincodeFeedback', 'Please verify your pincode to fetch City & State.', true);
+                hasError = true;
+                firstErrorInput = firstErrorInput || document.getElementById('bonkersPincodeInput');
+            }
+
+            if (!name || name.length < 2) {
+                setFieldFeedback('bonkersFullNameInput', 'bonkersNameFeedback', 'Please enter your Full Name (at least 2 characters).', true);
+                hasError = true;
+                firstErrorInput = firstErrorInput || document.getElementById('bonkersFullNameInput');
+            }
+
+            if (!mobile || mobile.length !== 10) {
+                setFieldFeedback('bonkersMobileInput', 'bonkersPhoneFeedback', 'Please enter a valid 10-digit mobile number.', true);
+                hasError = true;
+                firstErrorInput = firstErrorInput || document.getElementById('bonkersMobileInput');
+            }
+
+            if (!flat) {
+                setFieldFeedback('bonkersHouseFlatInput', 'bonkersFlatFeedback', 'Flat / House No. / Building is required.', true);
+                hasError = true;
+                firstErrorInput = firstErrorInput || document.getElementById('bonkersHouseFlatInput');
+            }
+
+            if (!area) {
+                setFieldFeedback('bonkersStreetAreaInput', 'bonkersAreaFeedback', 'Area / Street / Sector is required.', true);
+                hasError = true;
+                firstErrorInput = firstErrorInput || document.getElementById('bonkersStreetAreaInput');
+            }
+
+            if (hasError) {
+                if (firstErrorInput) {
+                    firstErrorInput.focus();
+                    firstErrorInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            var fullStreetParts = [flat, area];
+            if (landmark) fullStreetParts.push('Landmark: ' + landmark);
+            if (addr2) fullStreetParts.push(addr2);
+            var combinedAddress = fullStreetParts.join(', ');
+
+            var user = window.TTT_USER || {};
+            var payload = {
+                address_id: editId ? Number(editId) : null,
+                type: type,
+                name: name,
+                email: user.email || '',
+                phone: mobile,
+                address: combinedAddress,
+                city: city,
+                state: state,
+                pincode: pin,
+                is_default: true
+            };
+
+            if (btn) btn.disabled = true;
+            if (btnText) btnText.textContent = editId ? 'Updating...' : 'Saving Address...';
+
+            fetch('/api/checkout/address/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': window.tttCsrfToken ? window.tttCsrfToken() : '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.textContent = editId ? 'Update Address' : 'Save Address & Continue';
+
+                if (!res.success) {
+                    throw new Error(res.message || 'Failed to save address.');
+                }
+
+                var updatedUser = res.user || Object.assign({}, user, payload);
+                var savedAddress = res.address || payload;
+                var newAddressId = Number(savedAddress.id || updatedUser.address_id || (editId ? Number(editId) : 1));
+
+                var addresses = (updatedUser.addresses && updatedUser.addresses.length) ? updatedUser.addresses : gcoUserAddresses();
+                var existingIdx = addresses.findIndex(function(a) { return Number(a.id || 0) === newAddressId; });
+                var addressItem = Object.assign({}, savedAddress, { id: newAddressId, is_default: true });
+
+                if (existingIdx >= 0) {
+                    addresses[existingIdx] = addressItem;
+                } else {
+                    addresses.forEach(function(a) { a.is_default = false; });
+                    addresses.unshift(addressItem);
+                }
+
+                updatedUser.addresses = addresses;
+                updatedUser.address_id = newAddressId;
+                bonkersSelectedAddressId = newAddressId;
+
+                gcoApplyUserPayload(updatedUser);
+
+                if (generalMsg) {
+                    generalMsg.textContent = res.message || 'Address saved successfully!';
+                    generalMsg.className = 'bonkers-general-msg' + ' text-success';
+                }
+
+                setTimeout(function() {
+                    closeAddressFormSheet();
+                    closeAddressSelectionSheet();
+                    if (typeof window.tttNotify === 'function') {
+                        window.tttNotify('Delivery address selected: ' + (savedAddress.city || ''), 'success');
+                    }
+                }, 350);
+            })
+            .catch(function(err) {
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.textContent = editId ? 'Update Address' : 'Save Address & Continue';
+                if (generalMsg) {
+                    generalMsg.textContent = err.message || 'An error occurred. Please try again.';
+                    generalMsg.className = 'bonkers-general-msg' + ' text-danger';
                 }
             });
         };
 
-        window.gcoConfirmSelectedAddress = function() {
-            if (gcoTempSelectedAddressId !== null) {
-                if (gcoTempSelectedAddressId > 0) {
-                    gcoSelectSavedAddress(gcoTempSelectedAddressId);
-                } else {
-                    gcoSelectAndDeliver();
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                var formSheet = document.getElementById('bonkersAddressFormSheet');
+                if (formSheet && formSheet.classList.contains('is-open')) {
+                    closeAddressFormSheet();
+                    return;
                 }
-            } else {
-                gcoShowMain();
+                var selSheet = document.getElementById('bonkersAddressSelectSheet');
+                if (selSheet && selSheet.classList.contains('is-open')) {
+                    closeAddressSelectionSheet();
+                }
             }
-        };
-
-        window.gcoEditSpecificAddress = function(addressId) {
-            var addr = gcoFindAddress(addressId);
-            gcoShowAddressEdit(false, addr);
-        };
-
-        window.gcoShowAddressEdit = function(isNew, existingAddress) {
-            var titleEl = document.getElementById('gcoEditViewTitle');
-            if (titleEl) titleEl.textContent = isNew ? 'Add Address' : 'Edit Address';
-
-            var user = window.TTT_USER || {};
-            var selectedAddress = existingAddress || gcoFindAddress(user.address_id) || gcoDefaultAddress();
-            var source = selectedAddress ? Object.assign({}, user, gcoAddressToUser(selectedAddress)) : user;
-            gcoCurrentLocationCoords = null;
-            gcoHideLocationMap();
-            if (isNew) {
-                if (document.getElementById('gcoInPin')) document.getElementById('gcoInPin').value = '';
-                if (document.getElementById('gcoInCity')) document.getElementById('gcoInCity').value = '';
-                if (document.getElementById('gcoInState')) document.getElementById('gcoInState').value = '';
-                if (document.getElementById('gcoInFlat')) document.getElementById('gcoInFlat').value = '';
-                if (document.getElementById('gcoInArea')) document.getElementById('gcoInArea').value = '';
-                gcoSetAddressType('Home');
-            } else {
-                if (document.getElementById('gcoInPin')) document.getElementById('gcoInPin').value = source.pincode || '';
-                if (document.getElementById('gcoInCity')) document.getElementById('gcoInCity').value = (source.city || '').toUpperCase();
-                if (document.getElementById('gcoInState')) document.getElementById('gcoInState').value = (source.state || '').toUpperCase();
-                if (document.getElementById('gcoInArea')) document.getElementById('gcoInArea').value = source.address || '';
-                if (document.getElementById('gcoInFlat')) document.getElementById('gcoInFlat').value = '';
-                gcoSetAddressType(source.address_type || 'Home');
-            }
-
-            if (document.getElementById('gcoInName')) document.getElementById('gcoInName').value = user.name || '';
-            if (document.getElementById('gcoInEmail')) document.getElementById('gcoInEmail').value = user.email || '';
-            if (document.getElementById('gcoInPhone')) document.getElementById('gcoInPhone').value = source.phone || user.phone || '';
-
-            var msg = document.getElementById('gcoFormMsg');
-            if (msg) msg.textContent = '';
-
-            document.querySelectorAll('.gco-view').forEach(function(v) { v.classList.remove('active'); });
-            var editView = document.getElementById('gcoViewAddressEdit');
-            if (editView) editView.classList.add('active');
-        };
-
-        window.gcoSetAddressType = function(type) {
-            gcoActiveAddressType = type;
-            var homePill = document.getElementById('gcoTypeHome');
-            var workPill = document.getElementById('gcoTypeWork');
-            if (homePill) homePill.classList.toggle('active', type === 'Home');
-            if (workPill) workPill.classList.toggle('active', type === 'Work');
-        };
+        });
 
         function gcoHideLocationMap() {
             var wrap = document.getElementById('gcoLocationMap');

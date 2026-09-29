@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'payment/phonepe/*',
             'payment/phonepe/callback',
             'payment/razorpay/*',
+            'api/checkout/address/save',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

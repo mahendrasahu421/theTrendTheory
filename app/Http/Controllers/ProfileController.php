@@ -55,10 +55,11 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        $validated = $request->validate([
+        $rules = [
+            'address_id' => ['nullable', 'integer'],
             'type' => ['nullable', 'string', 'max:30'],
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['nullable', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'email' => ['nullable', 'email'],
             'phone' => ['required', 'string', 'max:20'],
             'city' => ['required', 'string', 'max:100'],
             'state' => ['required', 'string', 'max:100'],
@@ -67,45 +68,113 @@ class ProfileController extends Controller
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
             'location_source' => ['nullable', 'string', 'max:30'],
-        ]);
-
-        $user->addresses()->update(['is_default' => false]);
-
-        $address = $user->addresses()->create([
-            'type' => $validated['type'] ?? 'Home',
-            'name' => $validated['name'],
-            'phone' => $validated['phone'],
-            'address_line' => $validated['address'],
-            'city' => $validated['city'],
-            'state' => $validated['state'],
-            'pincode' => $validated['pincode'],
-            'latitude' => $validated['latitude'] ?? null,
-            'longitude' => $validated['longitude'] ?? null,
-            'location_source' => $validated['location_source'] ?? null,
-            'is_default' => true,
-        ]);
-
-        $userUpdate = [
-            'name' => $validated['name'],
-            'phone' => $validated['phone'],
-            'city' => $validated['city'],
-            'state' => $validated['state'],
-            'address' => $validated['address'],
-            'pincode' => $validated['pincode'],
         ];
 
-        if (!empty($validated['email'])) {
-            $userUpdate['email'] = $validated['email'];
+        if ($user && !empty($request->email)) {
+            $rules['email'][] = Rule::unique('users', 'email')->ignore($user->id);
         }
 
-        $user->update($userUpdate);
+        $validated = $request->validate($rules);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Address saved successfully!',
-            'address' => $this->addressPayload($address->fresh()),
-            'user' => $this->checkoutUserPayload($user->fresh()),
-        ]);
+        if ($user) {
+            $user->addresses()->update(['is_default' => false]);
+
+            $addressId = $request->input('address_id');
+            $address = null;
+            if ($addressId) {
+                $address = $user->addresses()->find($addressId);
+            }
+
+            if ($address) {
+                $address->update([
+                    'type' => $validated['type'] ?? 'Home',
+                    'name' => $validated['name'],
+                    'phone' => $validated['phone'],
+                    'address_line' => $validated['address'],
+                    'city' => $validated['city'],
+                    'state' => $validated['state'],
+                    'pincode' => $validated['pincode'],
+                    'latitude' => $validated['latitude'] ?? $address->latitude,
+                    'longitude' => $validated['longitude'] ?? $address->longitude,
+                    'location_source' => $validated['location_source'] ?? $address->location_source,
+                    'is_default' => true,
+                ]);
+            } else {
+                $address = $user->addresses()->create([
+                    'type' => $validated['type'] ?? 'Home',
+                    'name' => $validated['name'],
+                    'phone' => $validated['phone'],
+                    'address_line' => $validated['address'],
+                    'city' => $validated['city'],
+                    'state' => $validated['state'],
+                    'pincode' => $validated['pincode'],
+                    'latitude' => $validated['latitude'] ?? null,
+                    'longitude' => $validated['longitude'] ?? null,
+                    'location_source' => $validated['location_source'] ?? null,
+                    'is_default' => true,
+                ]);
+            }
+
+            $userUpdate = [
+                'name' => $validated['name'],
+                'phone' => $validated['phone'],
+                'city' => $validated['city'],
+                'state' => $validated['state'],
+                'address' => $validated['address'],
+                'pincode' => $validated['pincode'],
+            ];
+
+            if (!empty($validated['email'])) {
+                $userUpdate['email'] = $validated['email'];
+            }
+
+            $user->update($userUpdate);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Address saved successfully!',
+                'address' => $this->addressPayload($address->fresh()),
+                'user' => $this->checkoutUserPayload($user->fresh()),
+            ]);
+        } else {
+            // Guest visitor address persistence
+            $guestId = $request->input('address_id') ? (int) $request->input('address_id') : (int)(microtime(true) * 1000);
+            $fullAddress = $validated['address'] . ', ' . $validated['city'] . ', ' . $validated['state'] . ' - ' . $validated['pincode'];
+            
+            $guestAddress = [
+                'id' => $guestId,
+                'type' => $validated['type'] ?? 'Home',
+                'name' => $validated['name'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'city' => $validated['city'],
+                'state' => $validated['state'],
+                'pincode' => $validated['pincode'],
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
+                'location_source' => $validated['location_source'] ?? null,
+                'is_default' => true,
+                'full_address' => $fullAddress,
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Address saved successfully!',
+                'address' => $guestAddress,
+                'user' => [
+                    'name' => $validated['name'],
+                    'email' => $validated['email'] ?? '',
+                    'phone' => $validated['phone'],
+                    'address' => $validated['address'],
+                    'city' => $validated['city'],
+                    'state' => $validated['state'],
+                    'pincode' => $validated['pincode'],
+                    'address_id' => $guestId,
+                    'address_type' => $validated['type'] ?? 'Home',
+                    'addresses' => [$guestAddress],
+                ],
+            ]);
+        }
     }
 
     public function setDefaultAddress(Address $address)

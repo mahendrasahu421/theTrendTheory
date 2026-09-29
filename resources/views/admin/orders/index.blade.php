@@ -1041,8 +1041,9 @@
     .custom-modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 20, 50, 0.65);
-        backdrop-filter: blur(8px);
+        background: rgba(15, 23, 42, 0.72);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
         z-index: 2000;
         display: none;
         align-items: center;
@@ -1057,21 +1058,34 @@
     }
 
     .custom-modal-card {
+        position: relative;
         background: #ffffff;
         border-radius: 24px;
-        border: 1px solid #edf2f7;
-        box-shadow: 0 30px 70px -15px rgba(0, 40, 90, 0.35);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        box-shadow: 0 35px 80px -15px rgba(0, 40, 90, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
         width: 100%;
-        max-width: 980px;
+        max-width: 1020px;
         overflow: hidden;
-        transform: translateY(20px) scale(0.98);
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(20px) scale(0.97);
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         max-height: 94vh;
         display: flex;
         flex-direction: column;
     }
     .custom-modal-overlay.open .custom-modal-card {
         transform: translateY(0) scale(1);
+    }
+
+    /* Top Accent Line */
+    .custom-modal-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00285a 0%, #2563eb 50%, #38bdf8 100%);
+        z-index: 10;
     }
 
     .custom-modal-card form {
@@ -1085,7 +1099,7 @@
 
     /* Modal Top Header */
     .custom-modal-header {
-        background: #ffffff;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
         padding: 18px 28px;
         color: #0f172a;
         display: flex;
@@ -1097,105 +1111,114 @@
         flex-wrap: wrap;
     }
 
-    .custom-modal-title-group {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        flex-wrap: wrap;
-    }
-
-    .custom-modal-icon-badge {
+    .modal-header-icon {
         width: 44px;
         height: 44px;
-        border-radius: 14px;
+        border-radius: 12px;
         background: linear-gradient(135deg, #00285a 0%, #2563eb 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 20px;
-        box-shadow: 0 4px 14px rgba(0, 40, 90, 0.2);
         flex-shrink: 0;
+        box-shadow: 0 4px 14px rgba(0, 40, 90, 0.2);
     }
 
     .custom-modal-title {
-        font-size: 17.5px;
+        font-size: 17px;
         font-weight: 800;
         color: var(--orders-navy);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         letter-spacing: -0.3px;
+    }
+
+    .modal-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 5px;
+        flex-wrap: wrap;
+        font-size: 12px;
     }
 
     .modal-order-tag {
         background: #eff6ff;
         color: #2563eb;
         border: 1px solid #bfdbfe;
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-size: 13px;
+        padding: 3px 9px;
+        border-radius: 7px;
+        font-size: 12.5px;
         font-weight: 800;
-        letter-spacing: 0.5px;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-    }
-
-    .btn-copy-tag {
+        gap: 5px;
         cursor: pointer;
-        background: none;
-        border: none;
-        padding: 0;
-        color: #2563eb;
-        font-size: 12px;
-        transition: transform 0.15s ease;
+        transition: all 0.15s ease;
+        user-select: none;
     }
-    .btn-copy-tag:hover { transform: scale(1.15); }
+    .modal-order-tag:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        transform: translateY(-1px);
+    }
 
-    .modal-header-actions {
-        display: flex;
+    .modal-meta-pill {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        padding: 3px 9px;
+        border-radius: 7px;
+        font-size: 11.5px;
+        font-weight: 600;
+        display: inline-flex;
         align-items: center;
-        gap: 10px;
     }
 
     .btn-modal-ext-link {
         font-size: 12px;
         font-weight: 700;
         color: #334155;
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        padding: 6px 12px;
-        border-radius: 8px;
+        background: #ffffff;
+        border: 1.5px solid #cbd5e1;
+        padding: 7px 14px;
+        border-radius: 9px;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 6px;
         transition: all 0.15s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .btn-modal-ext-link:hover {
         background: #eff6ff;
         border-color: #2563eb;
         color: #2563eb;
+        transform: translateY(-1px);
     }
 
     .btn-modal-close {
         background: #f1f5f9;
         border: 1px solid #e2e8f0;
-        color: #475569;
-        width: 34px;
-        height: 34px;
+        color: #64748b;
+        width: 36px;
+        height: 36px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 10px;
         transition: all 0.15s ease;
+        font-size: 14px;
     }
     .btn-modal-close:hover {
-        background: #e2e8f0;
-        color: #0f172a;
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #dc2626;
+        transform: rotate(90deg);
     }
 
     /* Modal Body */
@@ -1204,17 +1227,17 @@
         overflow-y: auto;
         flex: 1;
         min-height: 0;
-        background: #fbfcfe;
+        background: #f8fafc;
     }
 
     /* Stepper Container */
     .modal-stepper-wrap {
         background: #ffffff;
-        border: 1.5px solid #edf2f7;
-        border-radius: 18px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 20px;
         padding: 16px 20px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.02);
+        box-shadow: 0 4px 16px rgba(0, 40, 90, 0.03);
     }
 
     .modal-stepper-head {
@@ -1226,7 +1249,7 @@
     .modal-stepper-title {
         font-size: 11.5px;
         font-weight: 800;
-        color: #475569;
+        color: #334155;
         text-transform: uppercase;
         letter-spacing: 0.6px;
         display: flex;
@@ -1243,45 +1266,48 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 6px;
+        gap: 8px;
         overflow-x: auto;
         padding: 4px 0;
+        scrollbar-width: thin;
     }
+
     .modal-flow-node {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 14px;
+        gap: 9px;
+        padding: 9px 14px;
         border-radius: 12px;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         white-space: nowrap;
-        background: #ffffff;
+        background: #f8fafc;
         border: 1.5px solid #e2e8f0;
         cursor: pointer;
         user-select: none;
     }
     .modal-flow-node:hover {
-        border-color: #2563eb;
+        border-color: #3b82f6;
         color: #2563eb;
         background: #eff6ff;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
     }
     .modal-flow-node .node-icon-wrap {
-        width: 26px;
-        height: 26px;
+        width: 28px;
+        height: 28px;
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 13px;
-        background: #f1f5f9;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         color: #64748b;
         transition: all 0.2s ease;
     }
-    .modal-flow-node .node-text-col {
+    .modal-flow-node .node-text-wrap {
         display: flex;
         flex-direction: column;
-        line-height: 1.2;
+        line-height: 1.25;
     }
     .modal-flow-node .node-title {
         font-size: 12px;
@@ -1293,25 +1319,29 @@
         color: #94a3b8;
         font-weight: 600;
     }
+
     .modal-flow-node.active {
-        background: #2563eb;
+        background: linear-gradient(135deg, #00285a 0%, #2563eb 100%);
         border-color: #2563eb;
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
     }
     .modal-flow-node.active .node-icon-wrap {
         background: rgba(255, 255, 255, 0.25);
+        border-color: transparent;
         color: #ffffff;
     }
     .modal-flow-node.active .node-title,
     .modal-flow-node.active .node-sub {
         color: #ffffff;
     }
+
     .modal-flow-node.completed {
         background: #ecfdf5;
         border-color: #a7f3d0;
     }
     .modal-flow-node.completed .node-icon-wrap {
         background: #10b981;
+        border-color: #10b981;
         color: #ffffff;
     }
     .modal-flow-node.completed .node-title {
@@ -1323,9 +1353,9 @@
 
     .modal-flow-node-divider {
         flex: 1;
-        height: 2.5px;
+        height: 3px;
         background: #e2e8f0;
-        min-width: 12px;
+        min-width: 14px;
         border-radius: 99px;
         transition: background 0.25s ease;
     }
@@ -1333,18 +1363,40 @@
         background: #10b981;
     }
 
+    /* Cancelled / Refunded Alert */
+    .studio-alert-banner {
+        border-radius: 12px;
+        padding: 10px 14px;
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .studio-alert-cancelled {
+        background: #fef2f2;
+        border: 1.5px solid #fecaca;
+        color: #b91c1c;
+    }
+    .studio-alert-refunded {
+        background: #f8fafc;
+        border: 1.5px solid #cbd5e1;
+        color: #475569;
+    }
+
     /* 2-Column Grid */
     .modal-studio-grid {
         display: grid;
-        grid-template-columns: 360px 1fr;
-        gap: 22px;
+        grid-template-columns: 370px 1fr;
+        gap: 20px;
         align-items: flex-start;
     }
-    @media (max-width: 860px) {
+    @media (max-width: 890px) {
         .modal-studio-grid { grid-template-columns: 1fr; }
     }
 
-    /* Left Studio Pane (Showcase & Details) */
+    /* Left Studio Pane */
     .modal-showcase-pane {
         display: flex;
         flex-direction: column;
@@ -1353,10 +1405,14 @@
 
     .studio-bento-card {
         background: #ffffff;
-        border: 1.5px solid #edf2f7;
+        border: 1.5px solid #e2e8f0;
         border-radius: 18px;
         padding: 18px 20px;
-        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.02);
+        box-shadow: 0 4px 16px rgba(0, 40, 90, 0.03);
+        transition: border-color 0.2s ease;
+    }
+    .studio-bento-card:hover {
+        border-color: #cbd5e1;
     }
 
     .studio-card-head {
@@ -1368,9 +1424,9 @@
         border-bottom: 1px solid #f1f5f9;
     }
     .studio-card-label {
-        font-size: 11px;
+        font-size: 11.5px;
         font-weight: 800;
-        color: #64748b;
+        color: #475569;
         text-transform: uppercase;
         letter-spacing: 0.6px;
         display: flex;
@@ -1383,17 +1439,25 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-height: 220px;
+        max-height: 240px;
         overflow-y: auto;
+        padding-right: 4px;
+        scrollbar-width: thin;
     }
     .studio-item-row {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 8px;
+        padding: 9px 11px;
         border-radius: 12px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    .studio-item-row:hover {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .studio-item-thumb {
         width: 52px;
@@ -1403,6 +1467,10 @@
         background: #ffffff;
         border: 1.5px solid #e2e8f0;
         flex-shrink: 0;
+        transition: transform 0.2s ease;
+    }
+    .studio-item-row:hover .studio-item-thumb {
+        transform: scale(1.05);
     }
     .studio-item-name {
         font-size: 13px;
@@ -1423,18 +1491,18 @@
         margin-bottom: 12px;
     }
     .studio-cust-avatar {
-        width: 42px;
-        height: 42px;
+        width: 44px;
+        height: 44px;
         border-radius: 12px;
         background: linear-gradient(135deg, #00285a 0%, #2563eb 100%);
         color: #ffffff;
-        font-size: 16px;
+        font-size: 17px;
         font-weight: 800;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        box-shadow: 0 2px 8px rgba(0, 40, 90, 0.15);
+        box-shadow: 0 3px 10px rgba(0, 40, 90, 0.2);
     }
     .studio-cust-name {
         font-size: 14.5px;
@@ -1450,6 +1518,7 @@
         align-items: center;
         gap: 4px;
         margin-top: 2px;
+        font-weight: 600;
     }
     .studio-cust-phone:hover { color: #2563eb; }
 
@@ -1464,14 +1533,33 @@
         margin-bottom: 12px;
     }
 
+    .btn-copy-address {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: #475569;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.15s ease;
+    }
+    .btn-copy-address:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
     .btn-whatsapp-action {
         width: 100%;
-        height: 38px;
-        border-radius: 10px;
-        background: #25d366;
+        height: 40px;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
         color: #ffffff;
         border: none;
-        font-size: 12px;
+        font-size: 12.5px;
         font-weight: 800;
         display: inline-flex;
         align-items: center;
@@ -1479,13 +1567,13 @@
         gap: 8px;
         text-decoration: none;
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
-        transition: all 0.15s ease;
+        box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+        transition: all 0.2s ease;
     }
     .btn-whatsapp-action:hover {
-        background: #20ba59;
         color: #ffffff;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
     }
 
     /* Financial Ledger Card */
@@ -1493,7 +1581,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 5px 0;
+        padding: 6px 0;
         font-size: 12px;
         color: #64748b;
     }
@@ -1503,10 +1591,10 @@
         align-items: center;
         padding-top: 10px;
         margin-top: 8px;
-        border-top: 1.5px solid #e2e8f0;
+        border-top: 1.5px dashed #e2e8f0;
     }
     .studio-total-price {
-        font-size: 18px;
+        font-size: 19px;
         font-weight: 900;
         color: var(--orders-navy);
     }
@@ -1520,10 +1608,14 @@
 
     .studio-control-card {
         background: #ffffff;
-        border: 1.5px solid #edf2f7;
+        border: 1.5px solid #e2e8f0;
         border-radius: 18px;
         padding: 20px 22px;
-        box-shadow: 0 2px 10px rgba(0, 40, 90, 0.02);
+        box-shadow: 0 4px 16px rgba(0, 40, 90, 0.03);
+        transition: border-color 0.2s ease;
+    }
+    .studio-control-card:hover {
+        border-color: #cbd5e1;
     }
 
     .studio-section-label {
@@ -1563,7 +1655,7 @@
     .form-control-modal {
         width: 100%;
         padding: 10px 14px;
-        border: 1.5px solid #e2e8f0;
+        border: 1.5px solid #cbd5e1;
         border-radius: 11px;
         font-size: 13px;
         font-family: inherit;
@@ -1571,20 +1663,19 @@
         color: #0f172a;
         outline: none;
         background: #ffffff;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
     }
-
     .form-control-modal:focus {
         border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.15);
     }
 
     /* Dynamic Hint Alert */
     .studio-rule-box {
         border-radius: 12px;
-        padding: 10px 14px;
-        font-size: 11.5px;
-        margin-top: 8px;
+        padding: 12px 14px;
+        font-size: 12px;
+        margin-top: 10px;
         display: flex;
         align-items: flex-start;
         gap: 10px;
@@ -1592,12 +1683,12 @@
     }
     .studio-rule-cod {
         background: #fffbeb;
-        border: 1px solid #fde68a;
+        border: 1.5px solid #fde68a;
         color: #92400e;
     }
     .studio-rule-prepaid {
         background: #eff6ff;
-        border: 1px solid #bfdbfe;
+        border: 1.5px solid #bfdbfe;
         color: #1e40af;
     }
 
@@ -1624,39 +1715,43 @@
         border-color: #2563eb;
         color: #2563eb;
         background: #eff6ff;
+        transform: translateY(-1px);
     }
     .courier-badge-chip.selected {
-        background: var(--orders-navy);
+        background: linear-gradient(135deg, #00285a 0%, #2563eb 100%);
         color: #ffffff;
-        border-color: var(--orders-navy);
-        box-shadow: 0 2px 6px rgba(0, 40, 90, 0.2);
+        border-color: #00285a;
+        box-shadow: 0 3px 8px rgba(0, 40, 90, 0.25);
     }
 
     .btn-track-external {
-        height: 40px;
-        padding: 0 14px;
-        border-radius: 10px;
-        background: #eff6ff;
-        color: #2563eb;
-        border: 1.5px solid #bfdbfe;
-        font-size: 12px;
-        font-weight: 700;
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        border: none;
+        font-size: 12.5px;
+        font-weight: 800;
         display: inline-flex;
         align-items: center;
         gap: 6px;
         text-decoration: none;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
         white-space: nowrap;
+        box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
     }
     .btn-track-external:hover {
-        background: #dbeafe;
-        color: #1d4ed8;
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(37, 99, 235, 0.35);
     }
 
     /* Footer */
     .custom-modal-footer {
-        padding: 16px 28px;
+        padding: 18px 28px;
         background: #ffffff;
         border-top: 1.5px solid #edf2f7;
         display: flex;
@@ -2148,41 +2243,58 @@
 
 {{-- ── 1. SINGLE ORDER QUICK FULFILLMENT STUDIO MODAL (980px) ── --}}
 <div class="custom-modal-overlay" id="singleStatusModal">
-    <div class="custom-modal-card" style="max-width: 980px;">
+    <div class="custom-modal-card" style="max-width: 1020px;">
         <div class="custom-modal-header">
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <div class="modal-header-icon" style="width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,#00285a 0%,#2563eb 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; box-shadow: 0 2px 8px rgba(0,40,90,0.15);">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="modal-header-icon">
                     <i class="bi bi-box-seam-fill"></i>
                 </div>
                 <div>
-                    <h5 class="custom-modal-title" style="margin:0; font-size:16px; font-weight:800; color:var(--orders-navy);">
+                    <h5 class="custom-modal-title">
                         Order Fulfillment &amp; Dispatch Studio
                     </h5>
-                    <div class="d-flex align-items-center gap-2 mt-0.5" style="font-size:12px; color:#64748b;">
-                        <span>Order Ref:</span>
+                    <div class="modal-meta-row">
+                        <span class="text-muted fw-bold">Order Ref:</span>
                         <span class="modal-order-tag" id="singleModalOrderNumBadge" style="cursor:pointer;" title="Click to copy order number" onclick="copyModalOrderNumber()">
                             <span id="singleModalOrderNumText">#0000</span>
                             <i class="bi bi-clipboard ms-1"></i>
                         </span>
-                        <a href="#" id="singleModalViewDetailLink" target="_blank" class="text-primary text-decoration-none fw-bold" style="font-size:11.5px;">
-                            <i class="bi bi-box-arrow-up-right me-0.5"></i> Open Full View
-                        </a>
+                        <span class="modal-meta-pill" id="singleModalDateWrap">
+                            <i class="bi bi-clock-history me-1 text-primary"></i> <span id="singleModalDateText">--</span>
+                        </span>
+                        <span id="singleModalHeaderStatusBadge"></span>
+                        <span id="singleModalHeaderPaymentBadge"></span>
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn-modal-close" onclick="closeCustomModal('singleStatusModal')" title="Close Studio (ESC)">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <div class="d-flex align-items-center gap-2">
+                <a href="#" id="singleModalViewDetailLink" target="_blank" class="btn-modal-ext-link" title="Open in new window">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> <span>Full Order</span>
+                </a>
+                <button type="button" class="btn-modal-close" onclick="closeCustomModal('singleStatusModal')" title="Close Studio (ESC)">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
         </div>
 
         <form id="singleStatusForm">
             @csrf
             <input type="hidden" id="singleModalOrderId">
 
-            <div class="custom-modal-body" style="padding: 22px 24px;">
+            <div class="custom-modal-body">
                 
                 {{-- Live Visual & Interactive Progress Stepper --}}
                 <div class="modal-stepper-wrap">
+                    <div class="modal-stepper-head">
+                        <span class="modal-stepper-title">
+                            <i class="bi bi-diagram-3-fill text-primary"></i> Fulfillment Lifecycle
+                        </span>
+                        <span class="modal-stepper-hint">Click any milestone stage to quick-advance status</span>
+                    </div>
+
+                    {{-- Dynamic Alert Banner when Cancelled or Refunded --}}
+                    <div id="singleModalAlertBanner" class="studio-alert-banner" style="display:none;"></div>
+
                     <div class="modal-flow-stepper" id="singleModalStepper">
                         <div class="modal-flow-node" data-step="pending" onclick="setModalStatusFromStep('pending')" title="Click to transition to Pending">
                             <div class="node-icon-wrap"><i class="bi bi-hourglass-split"></i></div>
@@ -2193,7 +2305,7 @@
                         </div>
                         <div class="modal-flow-node-divider"></div>
                         <div class="modal-flow-node" data-step="confirmed" onclick="setModalStatusFromStep('confirmed')" title="Click to transition to Confirmed">
-                            <div class="node-icon-wrap"><i class="bi bi-shield-check"></i></div>
+                            <div class="node-icon-wrap"><i class="bi bi-patch-check-fill"></i></div>
                             <div class="node-text-wrap">
                                 <span class="node-title">2. Confirmed</span>
                                 <span class="node-sub">Order approved</span>
@@ -2201,7 +2313,7 @@
                         </div>
                         <div class="modal-flow-node-divider"></div>
                         <div class="modal-flow-node" data-step="processing" onclick="setModalStatusFromStep('processing')" title="Click to transition to Packaging">
-                            <div class="node-icon-wrap"><i class="bi bi-box-seam"></i></div>
+                            <div class="node-icon-wrap"><i class="bi bi-box-seam-fill"></i></div>
                             <div class="node-text-wrap">
                                 <span class="node-title">3. Packaging</span>
                                 <span class="node-sub">Packing in warehouse</span>
@@ -2238,7 +2350,7 @@
                                 <span class="studio-card-label">
                                     <i class="bi bi-bag-check-fill text-primary"></i> Ordered Articles
                                 </span>
-                                <span class="badge bg-light text-dark border px-2 py-0.5 fw-bold" id="singleModalItemsCountBadge" style="font-size:11px;">0 Items</span>
+                                <span class="badge bg-light text-dark border px-2 py-0.5 fw-bold" id="singleModalItemsCountBadge" style="font-size:11px;">0 Articles</span>
                             </div>
                             <div class="studio-items-list" id="singleModalItemsList">
                                 {{-- Dynamically populated via JS --}}
@@ -2251,14 +2363,16 @@
                                 <span class="studio-card-label">
                                     <i class="bi bi-geo-alt-fill text-danger"></i> Customer Destination
                                 </span>
-                                <span class="badge bg-primary-subtle text-primary border px-2 py-0.5 font-xxs fw-bold">Verified Contact</span>
+                                <button type="button" class="btn-copy-address" onclick="copyModalAddress()" title="Copy Full Shipping Address">
+                                    <i class="bi bi-clipboard"></i> Copy Address
+                                </button>
                             </div>
                             
                             <div class="studio-cust-header">
                                 <div class="studio-cust-avatar" id="singleModalCustAvatar">G</div>
-                                <div>
-                                    <strong class="studio-cust-name d-block" id="singleModalCustomerName">Customer Name</strong>
-                                    <a href="tel:" class="studio-cust-phone" id="singleModalCustomerPhone">
+                                <div style="min-width:0; flex:1;">
+                                    <strong class="studio-cust-name d-block text-truncate" id="singleModalCustomerName">Customer Name</strong>
+                                    <a href="tel:" class="studio-cust-phone" id="singleModalCustomerPhone" title="Call Customer">
                                         <i class="bi bi-telephone-fill text-primary"></i> <span id="singleModalCustomerPhoneText">+91 0000000000</span>
                                     </a>
                                 </div>
@@ -2269,7 +2383,7 @@
                             </div>
 
                             <a href="#" target="_blank" class="btn-whatsapp-action" id="singleModalWhatsAppBtn">
-                                <i class="bi bi-whatsapp fs-6"></i> Chat with Customer on WhatsApp
+                                <i class="bi bi-whatsapp fs-5"></i> Chat with Customer on WhatsApp
                             </a>
                         </div>
 
@@ -2314,7 +2428,7 @@
                             <div class="form-group-modal mb-0">
                                 <label class="form-label-modal">
                                     <span>Active Order Status</span>
-                                    <span class="text-muted fw-normal" style="font-size:11px;">Triggers shipping notification</span>
+                                    <span class="text-muted fw-normal" style="font-size:11px;">Triggers customer status update</span>
                                 </label>
                                 <select id="singleModalStatus" class="form-control-modal" onchange="syncModalStepper(this.value)">
                                     <option value="pending">🟡 1. Pending Confirmation</option>
@@ -2359,7 +2473,7 @@
                         {{-- 3. Logistics Courier & Live Tracking Card --}}
                         <div class="studio-control-card">
                             <div class="studio-section-label">
-                                <span><i class="bi bi-truck text-purple me-1.5" style="color:#7c3aed;"></i> 3. Courier &amp; Live Tracking</span>
+                                <span><i class="bi bi-truck me-1.5" style="color:#7c3aed;"></i> 3. Courier &amp; Live Tracking</span>
                                 <span class="studio-section-sub">Airway Bill Assignment</span>
                             </div>
 
@@ -2378,6 +2492,7 @@
                                     <span class="courier-badge-chip" data-courier="India Post" onclick="setQuickCourier('India Post')">India Post</span>
                                     <span class="courier-badge-chip" data-courier="Xpressbees" onclick="setQuickCourier('Xpressbees')">Xpressbees</span>
                                     <span class="courier-badge-chip" data-courier="Shadowfax" onclick="setQuickCourier('Shadowfax')">Shadowfax</span>
+                                    <span class="courier-badge-chip" data-courier="DHL" onclick="setQuickCourier('DHL')">DHL</span>
                                 </div>
                             </div>
 
@@ -2389,11 +2504,11 @@
                                 <div class="d-flex gap-2">
                                     <input type="text" id="singleModalTracking" class="form-control-modal" placeholder="e.g. 128934509124..." oninput="onTrackingInputChange()">
                                     <a href="#" target="_blank" id="singleModalTrackBtn" class="btn-track-external" style="display:none;" title="Track package in new window">
-                                        <i class="bi bi-geo-fill"></i> Track
+                                        <i class="bi bi-geo-fill"></i> Track Live
                                     </a>
                                 </div>
-                                <div id="singleModalTrackHint" style="font-size:11px; color:#64748b; margin-top:6px; display:none;">
-                                    <i class="bi bi-info-circle me-1"></i> Live tracking link ready for <span id="singleModalTrackCourierName" class="fw-bold"></span>.
+                                <div id="singleModalTrackHint" style="font-size:11.5px; color:#64748b; margin-top:8px; display:none;">
+                                    <i class="bi bi-info-circle-fill text-primary me-1"></i> Live tracking link ready for <span id="singleModalTrackCourierName" class="fw-bold"></span>.
                                 </div>
                             </div>
                         </div>
@@ -2406,7 +2521,7 @@
             <div class="custom-modal-footer">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <a href="" id="singleModalLabelBtn" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; color:#334155;">
-                        <i class="bi bi-tag-fill text-warning me-1"></i> 4x6" Thermal Sticker
+                        <i class="bi bi-printer-fill text-warning me-1"></i> 4x6" Thermal Sticker
                     </a>
                     <a href="" id="singleModalPdfBtn" target="_blank" class="btn btn-sm btn-light border fw-bold px-3 py-2" style="border-radius:10px; text-decoration:none; color:#334155;">
                         <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> Tax Invoice PDF
@@ -2414,7 +2529,7 @@
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-light btn-sm fw-bold px-3 py-2" style="border-radius: 10px; border: 1.5px solid #e2e8f0; cursor:pointer;" onclick="closeCustomModal('singleStatusModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 py-2" id="btnSingleModalSubmit" style="border-radius: 10px; background: linear-gradient(135deg, #00285a 0%, #2563eb 100%); border:none; color:#ffffff; cursor:pointer;">
+                    <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 py-2" id="btnSingleModalSubmit" style="border-radius: 10px; background: linear-gradient(135deg, #00285a 0%, #2563eb 100%); border:none; color:#ffffff; cursor:pointer; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);">
                         <i class="bi bi-check-circle-fill me-1"></i> Save Changes
                     </button>
                 </div>
@@ -3156,6 +3271,29 @@ document.addEventListener('DOMContentLoaded', function() {
         dividers.forEach((div, idx) => {
             div.classList.toggle('completed', targetIndex !== -1 && idx < targetIndex);
         });
+
+        // Dynamic Alert Banner for Cancelled or Refunded
+        const alertBanner = document.getElementById('singleModalAlertBanner');
+        if (alertBanner) {
+            if (status === 'cancelled') {
+                alertBanner.className = 'studio-alert-banner alert-cancelled';
+                alertBanner.innerHTML = `<i class="bi bi-x-octagon-fill fs-5 flex-shrink-0"></i><div><strong>Order Cancelled:</strong> This order has been marked as cancelled. Logistics and fulfillment operations are terminated.</div>`;
+                alertBanner.style.display = 'flex';
+            } else if (status === 'refunded') {
+                alertBanner.className = 'studio-alert-banner alert-refunded';
+                alertBanner.innerHTML = `<i class="bi bi-arrow-counterclockwise fs-5 flex-shrink-0"></i><div><strong>Payment Refunded:</strong> Amount has been refunded. No further fulfillment actions required.</div>`;
+                alertBanner.style.display = 'flex';
+            } else {
+                alertBanner.style.display = 'none';
+            }
+        }
+
+        // Live Header Status Badge
+        const headerStatusBadge = document.getElementById('singleModalHeaderStatusBadge');
+        if (headerStatusBadge) {
+            const st = statusBadges[status] || { cls: 'status-refunded', icon: '<i class="bi bi-tag"></i>', text: status };
+            headerStatusBadge.innerHTML = `<span class="status-pill ${st.cls}">${st.icon} ${st.text}</span>`;
+        }
     };
 
     // 1-Click Interactive Step Setter
@@ -3173,13 +3311,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Copy Modal Order Number
+    // Copy Modal Order Number with instant visual feedback
     window.copyModalOrderNumber = function() {
         const textEl = document.getElementById('singleModalOrderNumText');
+        const badgeEl = document.getElementById('singleModalOrderNumBadge');
         if (textEl) {
             const rawNum = textEl.textContent.replace('#', '').trim();
             copyToClipboard(rawNum, 'Order Number');
+            if (badgeEl) {
+                const originalHtml = badgeEl.innerHTML;
+                badgeEl.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="bi bi-check-lg"></i> #${rawNum} Copied!</span>`;
+                setTimeout(() => {
+                    badgeEl.innerHTML = originalHtml;
+                }, 1600);
+            }
         }
+    };
+
+    // Copy Modal Shipping Address
+    window.copyModalAddress = function() {
+        const addrEl = document.getElementById('singleModalCustomerAddress');
+        const nameEl = document.getElementById('singleModalCustomerName');
+        const phoneEl = document.getElementById('singleModalCustomerPhoneText');
+        if (!addrEl) return;
+        
+        const lines = [];
+        if (nameEl && nameEl.textContent.trim()) lines.push(nameEl.textContent.trim());
+        if (phoneEl && phoneEl.textContent.trim() && phoneEl.textContent.trim() !== 'Not provided') {
+            lines.push(`Phone: ${phoneEl.textContent.trim()}`);
+        }
+        if (addrEl.textContent.trim()) lines.push(addrEl.textContent.trim());
+        
+        const fullText = lines.join('\n');
+        copyToClipboard(fullText, 'Shipping Address');
     };
 
     // Courier Chips & Live Tracking Engine
@@ -3249,8 +3413,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Dynamic Payment Advice Box
     let currentModalOrder = null;
     window.updatePaymentAdvice = function() {
-        if (!currentModalOrder) return;
         const payStatus = document.getElementById('singleModalPaymentStatus').value;
+
+        // Dynamic Header Payment Badge
+        const headerPaymentBadge = document.getElementById('singleModalHeaderPaymentBadge');
+        if (headerPaymentBadge) {
+            const clr = clearanceBadges[payStatus] || { cls: 'clearance-pending', icon: '', text: payStatus };
+            headerPaymentBadge.innerHTML = `<span class="badge-clearance ${clr.cls}">${clr.icon} ${clr.text}</span>`;
+        }
+
+        if (!currentModalOrder) return;
         const adviceBox = document.getElementById('singleModalPaymentAdvice');
         const adviceText = document.getElementById('singleModalPaymentAdviceText');
         if (!adviceBox || !adviceText) return;
@@ -3283,6 +3455,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('singleModalOrderId').value = order.id;
         document.getElementById('singleModalOrderNumText').textContent = `#${order.order_number}`;
         
+        const dateTextEl = document.getElementById('singleModalDateText');
+        if (dateTextEl) {
+            dateTextEl.textContent = `${order.created_date || ''} • ${order.created_time || ''}`.trim() || 'Recent Order';
+        }
+
         const detailLink = document.getElementById('singleModalViewDetailLink');
         if (detailLink) detailLink.href = order.show_url;
 

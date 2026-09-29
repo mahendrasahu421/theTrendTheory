@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             SizeSeeder::class,
             ColorSeeder::class,
-            KarmaCollectionSeeder::class,
+            // KarmaCollectionSeeder::class,
             SiteSettingSeeder::class,
             // DemoProductSeeder::class,
         ]);

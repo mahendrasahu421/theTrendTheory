@@ -142,6 +142,126 @@
                 text-decoration: none !important;
                 transition: all 0.25s ease !important;
             }
+            /* Remove animation/zoom effects from hero slides and media */
+            .hero-video,
+            .hero-image-zoom,
+            .hero-media-slide.active .hero-image-zoom,
+            .hero-media-slide img,
+            .hero-media-slide video {
+                transform: translate(-50%, -50%) !important;
+                transition: none !important;
+                animation: none !important;
+            }
+            .hero-media-slide {
+                position: absolute !important;
+                inset: 0 !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: opacity 0.7s ease-in-out, visibility 0.7s ease-in-out !important;
+                z-index: 1 !important;
+            }
+            .hero-media-slide.active {
+                opacity: 1 !important;
+                visibility: visible !important;
+                z-index: 2 !important;
+            }
+
+            /* Carousel Indicators at Bottom of Hero */
+            :root {
+                --hero-slide-duration: 5000ms;
+            }
+            .hero-indicators-container {
+                position: absolute !important;
+                bottom: 30px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                z-index: 20 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 12px !important;
+                padding: 6px 14px !important;
+                background: rgba(0, 0, 0, 0.3) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border-radius: 999px !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            }
+            .hero-bullet-btn {
+                position: relative !important;
+                width: 26px !important;
+                height: 26px !important;
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                cursor: pointer !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                outline: none !important;
+                border-radius: 50% !important;
+                transition: transform 0.2s ease !important;
+            }
+            .hero-bullet-btn:hover {
+                transform: scale(1.15) !important;
+            }
+            .hero-bullet-dot {
+                width: 6px !important;
+                height: 6px !important;
+                border-radius: 50% !important;
+                background-color: rgba(255, 255, 255, 0.45) !important;
+                transition: all 0.3s ease !important;
+                z-index: 2 !important;
+                pointer-events: none !important;
+            }
+            .hero-bullet-btn:hover .hero-bullet-dot {
+                background-color: rgba(255, 255, 255, 0.85) !important;
+            }
+            .hero-bullet-btn.active .hero-bullet-dot {
+                width: 8px !important;
+                height: 8px !important;
+                background-color: #ffffff !important;
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.95) !important;
+            }
+            .hero-bullet-svg {
+                position: absolute !important;
+                inset: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                transform: rotate(-90deg) !important;
+                pointer-events: none !important;
+                opacity: 0 !important;
+                transition: opacity 0.2s ease !important;
+            }
+            .hero-bullet-btn.active .hero-bullet-svg {
+                opacity: 1 !important;
+            }
+            .hero-bullet-track {
+                fill: none !important;
+                stroke: rgba(255, 255, 255, 0.2) !important;
+                stroke-width: 1.8 !important;
+            }
+            .hero-bullet-circle {
+                fill: none !important;
+                stroke: #ffffff !important;
+                stroke-width: 2 !important;
+                stroke-linecap: round !important;
+                stroke-dasharray: 69.12 !important;
+                stroke-dashoffset: 69.12 !important;
+            }
+            .hero-bullet-btn.active.animating .hero-bullet-circle {
+                animation: heroCircleProgress var(--hero-slide-duration, 5000ms) linear forwards !important;
+            }
+            .video-hero:hover .hero-bullet-btn.active.animating .hero-bullet-circle {
+                animation-play-state: paused !important;
+            }
+            @keyframes heroCircleProgress {
+                from {
+                    stroke-dashoffset: 69.12;
+                }
+                to {
+                    stroke-dashoffset: 0;
+                }
+            }
             @media (max-width: 768px) {
                 .video-content-container {
                     padding: 30px 18px 85px !important;
@@ -163,6 +283,11 @@
                     width: 100% !important;
                     padding: 12px 20px !important;
                 }
+                .hero-indicators-container {
+                    bottom: 20px !important;
+                    gap: 10px !important;
+                    padding: 5px 12px !important;
+                }
             }
         </style>
         <section class="video-hero hero-media-slider" data-hero-media-slider id="mainHeroSection" aria-label="Hero Spotlight">
@@ -179,13 +304,13 @@
                             @else
                                 <picture>
                                     <source media="(max-width: 768px)" srcset="{{ $slide['mobile_image'] ?? $slide['image'] }}">
-                                    <img class="hero-video hero-image-zoom" src="{{ $slide['image'] }}"
+                                    <img class="hero-video" src="{{ $slide['image'] }}"
                                         alt="{{ $slide['alt_text'] ?? ($slide['title'] ?? 'Hero media') }}"
                                         loading="{{ $loop->first ? 'eager' : 'lazy' }}"
                                         onerror="this.src='{{ asset('images/placeholder-slide.jpg') }}'">
                                 </picture>
                             @endif
-                            <div class="video-overlay" style="display:none;background:transparent;"></div>
+                            {{-- <div class="video-overlay" style="display:none;background:transparent;"></div> --}}
                         </div>
 
                         <div class="video-content-container">
@@ -229,22 +354,18 @@
                     <i class="bi bi-arrow-right"></i>
                 </button>
 
-                {{-- Bottom Luxury Nav Bar with Segmented Progress & Counter --}}
-                <div class="hero-bottom-bar">
-                    <div class="hero-counter">
-                        <span class="hero-counter-current" id="heroCounterCurrent">01</span>
-                        <span class="hero-counter-sep">/</span>
-                        <span class="hero-counter-total">{{ str_pad(count($topHeroSlides), 2, '0', STR_PAD_LEFT) }}</span>
-                    </div>
-
-                    <div class="hero-progress-segments" aria-label="Hero slide navigation">
-                        @foreach ($topHeroSlides as $slide)
-                            <button class="hero-progress-seg {{ $loop->first ? 'active' : '' }}" type="button"
-                                data-hero-dot="{{ $loop->index }}" aria-label="Go to slide {{ $loop->iteration }}">
-                                <span class="hero-progress-fill"></span>
-                            </button>
-                        @endforeach
-                    </div>
+                {{-- Carousel Navigation Indicators with Circular Auto-Progress Bullets --}}
+                <div class="hero-indicators-container" aria-label="Hero slide navigation">
+                    @foreach ($topHeroSlides as $slide)
+                        <button class="hero-bullet-btn {{ $loop->first ? 'active' : '' }}" type="button"
+                            data-hero-dot="{{ $loop->index }}" aria-label="Go to slide {{ $loop->iteration }}">
+                            <svg class="hero-bullet-svg" viewBox="0 0 28 28">
+                                <circle class="hero-bullet-track" cx="14" cy="14" r="11"></circle>
+                                <circle class="hero-bullet-circle" cx="14" cy="14" r="11"></circle>
+                            </svg>
+                            <span class="hero-bullet-dot"></span>
+                        </button>
+                    @endforeach
                 </div>
             @endif
 
@@ -1332,7 +1453,8 @@
                     var heroIndex = 0;
                     var heroTimer = null;
                     var isMuted = true;
-                    var slideDuration = 8000;
+                    var slideDuration = 5000;
+                    var isHovered = false;
 
                     function syncHeroMedia() {
                         heroSlides.forEach(function(slide, index) {
@@ -1369,65 +1491,69 @@
 
                     function showHeroSlide(nextIndex) {
                         if (!heroSlides.length) return;
+                        clearTimeout(heroTimer);
+
                         heroIndex = (nextIndex + heroSlides.length) % heroSlides.length;
 
+                        // Switch slides
                         heroSlides.forEach(function(slide, index) {
                             var isActive = index === heroIndex;
                             slide.classList.toggle('active', isActive);
                             slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
                         });
 
+                        // Switch bullet dots and restart circular progress
                         heroDots.forEach(function(dot, index) {
                             var isActive = index === heroIndex;
                             dot.classList.toggle('active', isActive);
-                            var fill = dot.querySelector('.hero-progress-fill');
-                            if (fill) {
-                                fill.style.animation = 'none';
-                                fill.offsetHeight; // trigger reflow
-                                if (isActive) {
-                                    fill.style.animation = 'heroProgressFill ' + (slideDuration / 1000) + 's linear forwards';
-                                }
+                            dot.classList.remove('animating');
+
+                            if (isActive) {
+                                void dot.offsetWidth; // Force DOM reflow to reset CSS keyframe animation
+                                dot.classList.add('animating');
                             }
                         });
 
-                        if (heroCounterCurrent) {
-                            heroCounterCurrent.textContent = String(heroIndex + 1).padStart(2, '0');
-                        }
-
                         syncHeroMedia();
+                        scheduleNext();
                     }
 
-                    function startHeroAuto() {
+                    function scheduleNext() {
+                        clearTimeout(heroTimer);
                         if (heroSlides.length < 2) return;
-                        clearInterval(heroTimer);
-                        heroTimer = setInterval(function() {
-                            showHeroSlide(heroIndex + 1);
+                        heroTimer = setTimeout(function() {
+                            if (!isHovered) {
+                                showHeroSlide(heroIndex + 1);
+                            } else {
+                                scheduleNext();
+                            }
                         }, slideDuration);
                     }
 
-                    function resetHeroAuto() {
-                        clearInterval(heroTimer);
-                        startHeroAuto();
-                    }
+                    // Pause timer on hover
+                    heroSlider.addEventListener('mouseenter', function() {
+                        isHovered = true;
+                    });
+
+                    heroSlider.addEventListener('mouseleave', function() {
+                        isHovered = false;
+                    });
 
                     if (heroPrev) {
                         heroPrev.addEventListener('click', function() {
                             showHeroSlide(heroIndex - 1);
-                            resetHeroAuto();
                         });
                     }
 
                     if (heroNext) {
                         heroNext.addEventListener('click', function() {
                             showHeroSlide(heroIndex + 1);
-                            resetHeroAuto();
                         });
                     }
 
                     heroDots.forEach(function(dot) {
                         dot.addEventListener('click', function() {
                             showHeroSlide(parseInt(dot.dataset.heroDot, 10) || 0);
-                            resetHeroAuto();
                         });
                     });
 
@@ -1442,15 +1568,12 @@
                         touchEndX = e.changedTouches[0].screenX;
                         if (touchStartX - touchEndX > 50) {
                             showHeroSlide(heroIndex + 1);
-                            resetHeroAuto();
                         } else if (touchEndX - touchStartX > 50) {
                             showHeroSlide(heroIndex - 1);
-                            resetHeroAuto();
                         }
                     }, { passive: true });
 
                     showHeroSlide(0);
-                    startHeroAuto();
                 }
 
                 // Change product images only on the card currently being hovered/focused.

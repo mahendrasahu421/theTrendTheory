@@ -89,6 +89,9 @@ Route::prefix('api')->group(function () {
     Route::post('push/subscribe', [App\Http\Controllers\PushNotificationController::class, 'subscribe'])->name('api.push.subscribe');
     Route::post('push/unsubscribe', [App\Http\Controllers\PushNotificationController::class, 'unsubscribe'])->name('api.push.unsubscribe');
     Route::post('push/test', [App\Http\Controllers\PushNotificationController::class, 'sendTest'])->name('api.push.test');
+
+    // Checkout Address Save API (Supports both Authenticated & Guest checkouts)
+    Route::post('checkout/address/save', [App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('api.checkout.address.save');
 });
 
 // ═══════════════════════════════════════════════════

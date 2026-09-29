@@ -1511,3 +1511,810 @@
         padding: 10px 14px 14px !important;
     }
 }
+
+/* ==========================================================================
+   BONKERS CORNER STYLE - ADDRESS MANAGEMENT BOTTOM SHEETS
+   ========================================================================== */
+.bonkers-sheet-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 100020;
+    display: none;
+    pointer-events: none;
+}
+
+.bonkers-sheet-wrap.is-open {
+    display: flex;
+    pointer-events: auto;
+}
+
+#bonkersAddressFormSheet {
+    z-index: 100025;
+}
+
+.bonkers-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.bonkers-sheet-wrap.is-open .bonkers-sheet-backdrop {
+    opacity: 1;
+}
+
+.bonkers-sheet-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    max-height: 90vh;
+    background: #ffffff;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -12px 48px rgba(15, 23, 42, 0.28);
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    transform: translateY(105%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.bonkers-sheet-wrap.is-open .bonkers-sheet-panel {
+    transform: translateY(0);
+}
+
+/* Drag Handle */
+.bonkers-drag-handle-wrap {
+    width: 100%;
+    padding: 10px 0 4px;
+    display: flex;
+    justify-content: center;
+    cursor: grab;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.bonkers-drag-handle {
+    width: 44px;
+    height: 5px;
+    background: #cbd5e1;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+}
+
+.bonkers-drag-handle-wrap:hover .bonkers-drag-handle {
+    background: #94a3b8;
+}
+
+/* Header */
+.bonkers-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+.bonkers-sheet-head-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bonkers-sheet-back-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.bonkers-sheet-back-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateX(-2px);
+}
+
+.bonkers-sheet-head-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.bonkers-sheet-title {
+    font-size: 16.5px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.25;
+    letter-spacing: -0.2px;
+}
+
+.bonkers-sheet-sub {
+    font-size: 12px;
+    color: #64748b;
+    margin: 2px 0 0;
+    font-weight: 500;
+}
+
+.bonkers-sheet-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.bonkers-sheet-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: rotate(90deg);
+}
+
+/* Body */
+.bonkers-sheet-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 16px 20px 20px;
+    overscroll-behavior: contain;
+    background: #fafafa;
+}
+
+.bonkers-sheet-body::-webkit-scrollbar {
+    width: 5px;
+}
+.bonkers-sheet-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+/* Sticky Footer */
+.bonkers-sheet-footer {
+    padding: 14px 20px 18px;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.04);
+}
+
+/* Buttons */
+.bonkers-btn-add-new {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+    border: 1.5px dashed #00285a;
+    background: #ffffff;
+    color: #00285a;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.bonkers-btn-add-new:hover {
+    background: #f0f4f9;
+    border-color: #001838;
+}
+
+.bonkers-btn-continue {
+    width: 100%;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    background: #00285a;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 40, 90, 0.25);
+    transition: all 0.2s ease;
+}
+
+.bonkers-btn-continue:hover {
+    background: #001838;
+    box-shadow: 0 10px 24px rgba(0, 40, 90, 0.35);
+    transform: translateY(-1px);
+}
+
+.bonkers-btn-continue:active {
+    transform: translateY(0);
+}
+
+.bonkers-btn-continue:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* ─── ADDRESS CARDS STACK ─── */
+.bonkers-address-cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bonkers-address-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.22s ease;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.bonkers-address-card:hover {
+    border-color: #94a3b8;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.bonkers-address-card.is-selected {
+    border-color: #00285a;
+    background: #f8fafc;
+    box-shadow: 0 6px 18px rgba(0, 40, 90, 0.08);
+}
+
+/* Custom Radio Circle */
+.bonkers-radio-col {
+    padding-top: 3px;
+    flex-shrink: 0;
+}
+
+.bonkers-radio-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.bonkers-address-card.is-selected .bonkers-radio-circle {
+    border-color: #00285a;
+    background: #00285a;
+}
+
+.bonkers-radio-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffffff;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bonkers-address-card.is-selected .bonkers-radio-dot {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Card Content Details */
+.bonkers-address-card-info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.bonkers-card-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.bonkers-name-type-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.bonkers-recipient-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+}
+
+/* Tag Pills */
+.bonkers-tag-pill {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2.5px 7.5px;
+    border-radius: 6px;
+}
+
+.bonkers-tag-home {
+    background: #e0e7ff;
+    color: #1e3a8a;
+}
+
+.bonkers-tag-work {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.bonkers-tag-other {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.bonkers-tag-default {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.bonkers-card-edit-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #00285a;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.bonkers-card-edit-btn:hover {
+    background: #f8fafc;
+    border-color: #00285a;
+    color: #001838;
+}
+
+.bonkers-address-line {
+    font-size: 13.5px;
+    color: #475569;
+    line-height: 1.45;
+    margin: 0 0 6px 0;
+    word-break: break-word;
+}
+
+.bonkers-contact-line {
+    font-size: 12.5px;
+    color: #64748b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.bonkers-contact-line i {
+    color: #00285a;
+    font-size: 12px;
+}
+
+/* Empty State */
+.bonkers-empty-addresses {
+    text-align: center;
+    padding: 36px 16px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1.5px dashed #cbd5e1;
+}
+
+.bonkers-empty-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin: 0 auto 12px;
+}
+
+.bonkers-empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.bonkers-empty-text {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 18px;
+}
+
+/* ─── ADD / EDIT ADDRESS FORM MULTI-STEP STYLES ─── */
+.bonkers-step-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+}
+
+.bonkers-field-group {
+    /* margin-bottom: 14px; */
+}
+
+.bonkers-field-group:last-child {
+    margin-bottom: 0;
+}
+
+.bonkers-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.req-star {
+    color: #ef4444;
+}
+
+.opt-tag {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+.bonkers-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.bonkers-input-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 15px;
+    color: #94a3b8;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.bonkers-input {
+    width: 100%;
+    height: 46px;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 0 14px 0 40px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.bonkers-input:focus {
+    outline: none;
+    border-color: #00285a;
+    box-shadow: 0 0 0 3px rgba(0, 40, 90, 0.12);
+}
+
+.bonkers-input:focus + .bonkers-input-icon,
+.bonkers-input:focus ~ .bonkers-input-icon {
+    color: #00285a;
+}
+
+/* Validation states */
+.bonkers-input.is-invalid {
+    border-color: #ef4444 !important;
+    background: #fff5f5 !important;
+    animation: bonkersShake 0.25s ease-in-out;
+}
+
+.bonkers-input.is-valid {
+    border-color: #10b981 !important;
+    background: #f0fdf4 !important;
+}
+
+@keyframes bonkersShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.bonkers-field-feedback {
+    min-height: 16px;
+    font-size: 11.5px;
+    font-weight: 600;
+    /* margin-top: 4px; */
+    display: flex;
+    align-items: center;
+    /* gap: 4px; */
+}
+
+.bonkers-field-feedback.is-error {
+    color: #dc2626;
+}
+
+.bonkers-field-feedback.is-success {
+    color: #059669;
+}
+
+/* Pincode Row */
+.bonkers-pincode-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.bonkers-pincode-input-row .bonkers-input-wrapper {
+    flex: 1 1 auto;
+}
+
+.bonkers-pincode-spinner {
+    position: absolute;
+    right: 14px;
+    color: #00285a;
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.spin-anim {
+    display: inline-block;
+    animation: bonkersSpin 0.75s linear infinite;
+}
+
+@keyframes bonkersSpin {
+    100% { transform: rotate(360deg); }
+}
+
+.bonkers-btn-pin-check {
+    padding: 0 18px;
+    height: 46px;
+    border-radius: 10px;
+    border: none;
+    background: #00285a;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.bonkers-btn-pin-check:hover {
+    background: #001838;
+}
+
+/* Accordion Sections for Step 2 & Step 3 */
+.bonkers-accordion-section {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-8px);
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, transform 0.3s ease;
+}
+
+.bonkers-accordion-section.is-expanded {
+    max-height: 1400px;
+    opacity: 1;
+    transform: translateY(0);
+    overflow: visible;
+    pointer-events: auto;
+}
+
+/* Location verified card */
+.bonkers-location-pill-card {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+
+.bonkers-loc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.bonkers-loc-badge {
+    font-size: 12px;
+    font-weight: 800;
+    color: #15803d;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.bonkers-btn-change-pin {
+    background: none;
+    border: none;
+    color: #00285a;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+}
+
+.bonkers-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Readonly fields */
+.bonkers-input-wrapper.readonly-wrap {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.bonkers-input.readonly-input {
+    background: #f8fafc !important;
+    border-color: #cbd5e1;
+    color: #334155;
+    font-weight: 700;
+    cursor: not-allowed;
+    padding-right: 34px;
+}
+
+.bonkers-lock-icon {
+    position: absolute;
+    right: 12px;
+    font-size: 13px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+/* Details Card */
+.bonkers-details-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+}
+
+/* Phone input with +91 prefix */
+.bonkers-phone-wrapper {
+    position: relative;
+}
+
+.bonkers-phone-prefix {
+    position: absolute;
+    left: 14px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #475569;
+    pointer-events: none;
+    border-right: 1px solid #cbd5e1;
+    padding-right: 8px;
+    line-height: 1.2;
+}
+
+.bonkers-phone-input {
+    padding-left: 56px !important;
+}
+
+/* Save Address As: Chips */
+.bonkers-type-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+
+.bonkers-type-chip {
+    height: 42px;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    border-radius: 10px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.bonkers-type-chip:hover {
+    border-color: #00285a;
+    background: #f8fafc;
+}
+
+.bonkers-type-chip.is-active {
+    border-color: #00285a;
+    background: #00285a;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 40, 90, 0.2);
+}
+
+.bonkers-general-msg {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 18px;
+    text-align: center;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+    .bonkers-sheet-panel {
+        max-height: 92vh;
+        border-radius: 20px 20px 0 0;
+    }
+    .bonkers-sheet-head {
+        padding: 8px 16px 12px;
+    }
+    .bonkers-sheet-body {
+        padding: 14px 16px 16px;
+    }
+    .bonkers-sheet-footer {
+        padding: 12px 16px 16px;
+    }
+    .bonkers-grid-2col {
+        grid-template-columns: 1fr;
+    }
+}
+
