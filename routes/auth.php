@@ -1,12 +1,21 @@
 <?php
 // routes/auth.php
-// Authentication routes — Login, Register, Password Reset
+// Authentication routes — Login, Register, Password Reset, Social Auth, Firebase
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\FirebaseAuthSyncController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/otp/send', [AuthController::class, 'sendOtp'])->name('otp.send');
 Route::post('/otp/verify', [AuthController::class, 'verifyOtp'])->name('otp.verify');
+Route::post('/auth/check-duplicate', [AuthController::class, 'checkDuplicate'])->name('auth.check.duplicate');
+
+// ═══════════════════════════════════════════════════
+// FIREBASE AUTH & FIRESTORE SYNC (Public API)
+// ═══════════════════════════════════════════════════
+Route::post('/api/firebase/auth/sync', [FirebaseAuthSyncController::class, 'sync'])->name('firebase.auth.sync');
+Route::get('/api/firebase/config', [FirebaseAuthSyncController::class, 'config'])->name('firebase.config');
 
 // ═══════════════════════════════════════════════════
 // GUEST ONLY (already logged in users redirect to home)
@@ -20,6 +29,14 @@ Route::middleware('guest')->group(function () {
     // Register
     Route::get('/register', [AuthController::class, 'registerForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
+    // Social Authentication (Google & Facebook)
+    Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+        ->whereIn('provider', ['google', 'facebook'])
+        ->name('social.redirect');
+    Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+        ->whereIn('provider', ['google', 'facebook'])
+        ->name('social.callback');
 
     // Forgot Password
     Route::get('/forgot-password', [AuthController::class, 'forgotForm'])->name('password.request');

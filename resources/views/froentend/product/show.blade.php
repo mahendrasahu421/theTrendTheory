@@ -1570,11 +1570,13 @@
 }
 
 /* ── Hide mobile drawer, backdrop & sticky bar on Desktop ── */
-.mobile-sticky-wrapper,
-.mobile-variant-drawer,
-.mobile-accordion-backdrop,
-.mobile-sticky-bar {
-    display: none !important;
+@media (min-width: 992px) {
+    .mobile-sticky-wrapper,
+    .mobile-variant-drawer,
+    .mobile-accordion-backdrop,
+    .mobile-sticky-bar {
+        display: none !important;
+    }
 }
 
 #checkoutPop:not(.is-open),
@@ -1594,7 +1596,48 @@
         max-width: 100%;
     }
     .pd-wrap {
-        padding-bottom: 120px !important;
+        padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* On mobile app and mobile view: hide inline buy buttons so only the bottom fixed buttons are shown */
+    .pd-btn-row-stack {
+        display: none !important;
+    }
+
+    /* Product images become a touch-friendly horizontal gallery on phones and
+       the Android WebView.  Each image snaps into place while the page can
+       still scroll normally once the user swipes outside the gallery. */
+    .pd-gallery-col {
+        min-width: 0;
+    }
+    .pd-gallery-stream {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 14px;
+        -webkit-overflow-scrolling: touch;
+        margin-inline: -14px;
+        padding: 0 14px 10px;
+        scrollbar-width: none;
+    }
+    .pd-gallery-stream::-webkit-scrollbar {
+        display: none;
+    }
+    .pd-gallery-2col-grid {
+        display: contents;
+    }
+    .pd-hero-img-wrap,
+    .pd-gallery-sub-card {
+        flex: 0 0 min(84vw, 420px);
+        width: min(84vw, 420px);
+        aspect-ratio: 3 / 4;
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
     }
 
     .mobile-sticky-wrapper {
@@ -1606,7 +1649,7 @@
         position: fixed;
         inset: 0;
         background: rgba(15, 23, 42, 0.32);
-        z-index: 1040;
+        z-index: 11040;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.25s ease;
@@ -1633,7 +1676,7 @@
         border-top-left-radius: 24px;
         border-top-right-radius: 24px;
         box-shadow: 0 -10px 45px rgba(0, 20, 50, 0.25);
-        z-index: 1055;
+        z-index: 11060;
         transform: translateY(115%);
         opacity: 0;
         pointer-events: none;
@@ -1643,7 +1686,7 @@
         border: 1px solid #e2e8f0;
         border-bottom: none;
         overflow: hidden;
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        padding-bottom: 0;
     }
     .mobile-variant-drawer:not(.is-open) {
         transform: translateY(115%) !important;
@@ -1840,13 +1883,15 @@
 
     /* Drawer Scrollable Body: Single Step Active Panel */
     .drawer-body {
-        padding: 12px 14px 16px;
+        flex: 1;
+        min-height: 0;
+        padding: 12px 14px;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         display: flex;
         flex-direction: column;
         gap: 12px;
-        max-height: calc(75vh - 120px);
+        max-height: none;
     }
     .drawer-single-panel {
         animation: fadeInStep 0.2s ease both;
@@ -2048,9 +2093,21 @@
         50% { transform: scale(1.02); }
     }
 
-    /* Drawer Confirm Button */
+    /* The drawer action occupies the same bottom area as the page's fixed
+       actions. It stays visible while colour, size and print-side options
+       scroll above it. */
+    .drawer-action-footer {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 14px max(10px, env(safe-area-inset-bottom));
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -6px 16px rgba(15, 23, 42, 0.06);
+    }
     .drawer-confirm-box {
-        margin-top: 4px;
+        margin: 0;
     }
     .drawer-confirm-btn {
         width: 100%;
@@ -2091,20 +2148,30 @@
 
     /* ── The Fixed Sticky Bottom Bar ── */
     .mobile-sticky-bar {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 64px;
-        background: #ffffff;
-        border-top: 1px solid #e2e8f0;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-        z-index: 1046;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 14px;
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        min-height: 64px !important;
+        background: #ffffff !important;
+        border-top: 1px solid #e2e8f0 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12) !important;
+        z-index: 99999 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 10px 14px !important;
+        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+        transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
+    }
+    /* Once the colour/size/print-side drawer opens, its black confirmation
+       button takes over this bottom action area. */
+    .mobile-variant-drawer.is-open ~ .mobile-sticky-bar {
+        transform: translateY(110%);
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
     }
     .sticky-btn-atc {
         flex: 1;
@@ -2411,7 +2478,7 @@
     <div class="pd-grid">
         {{-- ── LEFT: EDITORIAL PHOTO GALLERY STREAM (BONKERS STYLE) ── --}}
         <div class="pd-gallery-col">
-            <div class="pd-gallery-stream">
+            <div class="pd-gallery-stream" role="region" aria-label="Product images. Swipe left or right to view all photos." tabindex="0">
                 {{-- Hero Main Image --}}
                 <div class="pd-hero-img-wrap" onclick="openProductGallery(0)">
                     <img src="{{ $mainImg }}" alt="{{ $displayName }}" id="mainImg"
@@ -3047,17 +3114,17 @@
             </div>
             @endif
 
-            {{-- Feedback Alert / Hint --}}
-            <div class="drawer-feedback-msg" id="drawerFeedbackMsg" style="display: none;"></div>
+        </div>
 
-            {{-- Drawer Primary Confirm Action Button --}}
+        {{-- This replaces the two fixed page buttons while the option drawer is open. --}}
+        <div class="drawer-action-footer">
+            <div class="drawer-feedback-msg" id="drawerFeedbackMsg" style="display: none;"></div>
             <div class="drawer-confirm-box">
                 <button type="button" class="drawer-confirm-btn" id="drawerConfirmBtn" onclick="onMobileConfirmAction()">
                     <span class="confirm-btn-spinner" id="drawerConfirmSpinner" style="display:none;"><i class="bi bi-arrow-repeat spin"></i></span>
                     <span class="confirm-btn-text" id="drawerConfirmText">Select Options to Proceed</span>
                 </button>
             </div>
-
         </div>
     </div>
 

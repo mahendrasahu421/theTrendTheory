@@ -21,6 +21,10 @@ class User extends Authenticatable
         'address',
         'pincode',
         'profile_image',
+        'google_id',
+        'facebook_id',
+        'social_avatar',
+        'firebase_uid',
         'is_active',
     ];
     protected $hidden = ['password', 'remember_token'];
@@ -288,8 +292,12 @@ class User extends Authenticatable
 
     public function getAvatarAttribute(): string
     {
-        return $this->profile_image
-            ? asset('storage/' . $this->profile_image)
-            : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=00285a&color=fff&size=100';
+        if ($this->profile_image) {
+            return asset('storage/' . $this->profile_image);
+        }
+        if ($this->social_avatar) {
+            return $this->social_avatar;
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=00285a&color=fff&size=100';
     }
 }

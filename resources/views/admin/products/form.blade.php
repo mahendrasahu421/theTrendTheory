@@ -1518,10 +1518,25 @@
                                   placeholder="Brief description for search engines...">{{ old('meta_description', $isEdit ? $product->meta_description : '') }}</textarea>
                     </div>
                     <div class="fgrp full">
-                        <label>OG Image URL</label>
-                        <input class="fc" type="text" name="og_image"
-                               value="{{ old('og_image', $isEdit ? $product->og_image : '') }}"
-                               placeholder="https://...">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="margin:0;">OG Image URL (WhatsApp &amp; Social Previews)</label>
+                            <span style="background:#eff6ff;color:#2563eb;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;">
+                                <i class="bi bi-magic"></i> Auto-set from product photo
+                            </span>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <input class="fc" type="text" id="ogImageInput" name="og_image"
+                                   value="{{ old('og_image', $isEdit ? $product->og_image : '') }}"
+                                   placeholder="Auto-set from main product photo if left empty">
+                            @if($isEdit && !empty($product->image_url))
+                                <button type="button" class="btn" onclick="document.getElementById('ogImageInput').value = '{{ $product->image_url }}'" style="white-space:nowrap;background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:10px;font-size:12px;font-weight:700;color:#00285a;padding:0 12px;" title="Reset to current main image">
+                                    <i class="bi bi-arrow-repeat"></i> Set Main Photo
+                                </button>
+                            @endif
+                        </div>
+                        <small style="color:#64748b;font-size:11.5px;margin-top:4px;display:block;">
+                            Leave empty to automatically use the product's primary photo for WhatsApp, Facebook, Telegram &amp; Google previews.
+                        </small>
                     </div>
                 </div>
 

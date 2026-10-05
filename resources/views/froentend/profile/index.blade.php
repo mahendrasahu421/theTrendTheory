@@ -46,9 +46,26 @@
 .status-cancelled  { background:#f5f5f5; color:#757575; }
 .no-orders { text-align:center; padding:30px; color:#7a8fa6; font-size:14px; }
 
+/* Addresses */
+.addr-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-bottom:20px; }
+.addr-card { border:1.5px solid #eef2f6; border-radius:12px; padding:16px; position:relative; background:#fafcff; transition:.2s; }
+.addr-card.is-default { border-color:#00285a; background:#f8fbff; box-shadow:0 2px 8px rgba(0,40,90,0.06); }
+.addr-badge-default { display:inline-block; background:#00285a; color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; text-transform:uppercase; margin-left:6px; }
+.addr-type-pill { display:inline-block; background:#e2e8f0; color:#475569; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; text-transform:uppercase; }
+.addr-name { font-weight:700; color:#00285a; font-size:14px; margin-top:8px; margin-bottom:4px; }
+.addr-meta { font-size:12.5px; color:#475569; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+.addr-text { font-size:12.5px; color:#64748b; line-height:1.4; margin-top:6px; }
+.addr-actions { display:flex; align-items:center; gap:8px; margin-top:14px; padding-top:10px; border-top:1px dashed #e2e8f0; flex-wrap:wrap; }
+.addr-btn-sm { font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; cursor:pointer; text-decoration:none; border:1px solid #cbd5e1; background:#fff; color:#475569; display:inline-flex; align-items:center; gap:4px; }
+.addr-btn-sm:hover { border-color:#00285a; color:#00285a; }
+.addr-btn-danger { color:#dc2626; border-color:#fecaca; }
+.addr-btn-danger:hover { background:#fee2e2; border-color:#dc2626; color:#b91c1c; }
+.addr-new-box { background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:12px; padding:18px; margin-top:12px; }
+
 @media(max-width:768px) {
     .profile-grid { grid-template-columns:1fr; }
     .form-row { grid-template-columns:1fr; }
+    .addr-grid { grid-template-columns:1fr; }
 }
 </style>
 
@@ -111,22 +128,160 @@
                         <div class="form-grp">
                             <label>Full Name</label>
                             <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
+                            @error('name')
+                                <small style="color:#e53935;font-size:12px;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="form-grp">
-                            <label>Email</label>
-                            <input type="email" value="{{ $user->email }}" disabled style="opacity:.6;cursor:not-allowed">
+                            <label>Email Address</label>
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
+                            @error('email')
+                                <small style="color:#e53935;font-size:12px;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="form-grp">
-                            <label>Phone</label>
-                            <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="+91 XXXXX XXXXX">
+                            <label>Phone Number</label>
+                            <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="+91 XXXXX XXXXX">
+                            @error('phone')
+                                <small style="color:#e53935;font-size:12px;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="form-grp">
                             <label>City</label>
                             <input type="text" name="city" value="{{ old('city', $user->city) }}" placeholder="Kanpur">
                         </div>
+                        <div class="form-grp">
+                            <label>State</label>
+                            <input type="text" name="state" value="{{ old('state', $user->state) }}" placeholder="Uttar Pradesh">
+                        </div>
+                        <div class="form-grp">
+                            <label>Pincode</label>
+                            <input type="text" name="pincode" maxlength="10" value="{{ old('pincode', $user->pincode) }}" placeholder="208001">
+                        </div>
+                        <div class="form-grp full">
+                            <label>Street Address</label>
+                            <input type="text" name="address" value="{{ old('address', $user->address) }}" placeholder="Flat / House No., Landmark, Street">
+                        </div>
                     </div>
-                    <button type="submit" class="save-btn">SAVE CHANGES</button>
+                    <button type="submit" class="save-btn" style="margin-top:12px;">SAVE CHANGES</button>
                 </form>
+            </div>
+
+            {{-- Saved Addresses --}}
+            <div class="profile-card">
+                <div class="profile-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span>SAVED ADDRESSES</span>
+                    <button type="button" class="addr-btn-sm" onclick="toggleAddAddressForm()" style="background:#00285a;color:#fff;border-color:#00285a;padding:6px 12px;">
+                        <i class="bi bi-plus-lg"></i> Add Address
+                    </button>
+                </div>
+
+                @if(isset($addresses) && $addresses->count() > 0)
+                    <div class="addr-grid">
+                        @foreach($addresses as $addr)
+                            <div class="addr-card {{ $addr->is_default ? 'is-default' : '' }}">
+                                <div>
+                                    <span class="addr-type-pill">{{ $addr->type ?: 'Home' }}</span>
+                                    @if($addr->is_default)
+                                        <span class="addr-badge-default">Default</span>
+                                    @endif
+                                </div>
+                                <div class="addr-name">{{ $addr->name }}</div>
+                                <div class="addr-meta">
+                                    <i class="bi bi-telephone-fill" style="color:#00285a;font-size:11px;"></i>
+                                    <span>{{ $addr->phone }}</span>
+                                </div>
+                                <div class="addr-meta">
+                                    <i class="bi bi-envelope-fill" style="color:#00285a;font-size:11px;"></i>
+                                    <span>{{ $addr->email ?: $user->email }}</span>
+                                </div>
+                                <div class="addr-text">
+                                    {{ $addr->address_line }},<br>
+                                    {{ $addr->city }}, {{ $addr->state }} - {{ $addr->pincode }}
+                                </div>
+                                <div class="addr-actions">
+                                    @if(!$addr->is_default)
+                                        <form method="POST" action="{{ route('profile.addresses.default', $addr->id) }}" style="display:inline;">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="addr-btn-sm">
+                                                <i class="bi bi-check2-circle"></i> Set Default
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form method="POST" action="{{ route('profile.addresses.destroy', $addr->id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this address?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="addr-btn-sm addr-btn-danger">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p style="font-size:13.5px;color:#64748b;margin-bottom:16px;">
+                        No delivery addresses saved yet. Add an address below for seamless checkout.
+                    </p>
+                @endif
+
+                {{-- Add New Address Form (Collapsible) --}}
+                <div id="addAddressBox" class="addr-new-box" style="{{ ($errors->any() && old('address')) ? '' : 'display:none;' }}">
+                    <h4 style="font-size:13px;font-weight:700;color:#00285a;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">
+                        <i class="bi bi-geo-alt"></i> Add New Address
+                    </h4>
+                    <form method="POST" action="{{ route('profile.addresses.store') }}">
+                        @csrf
+                        <div class="form-row">
+                            <div class="form-grp">
+                                <label>Address Type</label>
+                                <select name="type" style="padding:10px 14px;border:1.5px solid #e8edf5;border-radius:10px;font-size:14px;outline:none;background:#fff;">
+                                    <option value="Home" {{ old('type') == 'Home' ? 'selected' : '' }}>Home (All day delivery)</option>
+                                    <option value="Work" {{ old('type') == 'Work' ? 'selected' : '' }}>Work / Office (10 AM - 6 PM)</option>
+                                    <option value="Other" {{ old('type') == 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-grp">
+                                <label>Recipient Full Name <span style="color:#e53935;">*</span></label>
+                                <input type="text" name="name" value="{{ old('name', $user->name) }}" required placeholder="e.g. John Doe">
+                            </div>
+                            <div class="form-grp">
+                                <label>Email Address <span style="color:#e53935;">*</span></label>
+                                <input type="email" name="email" value="{{ old('email', $user->email) }}" required placeholder="For invoice and order delivery updates">
+                                <small style="font-size:11px;color:#7a8fa6;">Order invoices and delivery updates will be sent here</small>
+                            </div>
+                            <div class="form-grp">
+                                <label>Mobile Number <span style="color:#e53935;">*</span></label>
+                                <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" required placeholder="10-digit mobile number">
+                            </div>
+                            <div class="form-grp full">
+                                <label>House / Flat / Street Address <span style="color:#e53935;">*</span></label>
+                                <input type="text" name="address" value="{{ old('address') }}" required placeholder="Flat 402, Sunshine Heights, Civil Lines">
+                            </div>
+                            <div class="form-grp">
+                                <label>City <span style="color:#e53935;">*</span></label>
+                                <input type="text" name="city" value="{{ old('city', $user->city) }}" required placeholder="Kanpur">
+                            </div>
+                            <div class="form-grp">
+                                <label>State <span style="color:#e53935;">*</span></label>
+                                <input type="text" name="state" value="{{ old('state', $user->state) }}" required placeholder="Uttar Pradesh">
+                            </div>
+                            <div class="form-grp">
+                                <label>Pincode <span style="color:#e53935;">*</span></label>
+                                <input type="text" name="pincode" maxlength="10" value="{{ old('pincode', $user->pincode) }}" required placeholder="208001">
+                            </div>
+                            <div class="form-grp" style="justify-content:center;">
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:14px;text-transform:none;font-size:13px;color:#1e293b;">
+                                    <input type="checkbox" name="is_default" value="1" checked style="width:16px;height:16px;">
+                                    <span>Make this my default shipping address</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:10px;margin-top:14px;">
+                            <button type="submit" class="save-btn">SAVE ADDRESS</button>
+                            <button type="button" class="addr-btn-sm" onclick="toggleAddAddressForm()" style="padding:10px 18px;border-radius:30px;">CANCEL</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             {{-- Change Password --}}
@@ -744,6 +899,17 @@ function tttSubmitCancel() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') tttCloseCancelModal();
 });
+
+function toggleAddAddressForm() {
+    var box = document.getElementById('addAddressBox');
+    if (!box) return;
+    if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        box.style.display = 'none';
+    }
+}
 </script>
 
 @endsection

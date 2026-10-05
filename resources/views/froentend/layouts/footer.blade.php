@@ -766,13 +766,128 @@
                     <h4 class="ttt-col-title">Join THE TREND THEORY</h4>
                     <p class="ttt-newsletter-desc">Get exclusive access to private drops, secret discounts, and style lookbooks.</p>
                     
-                    <form action="{{ route('newsletter.subscribe') }}" method="POST">
+                    <form id="tttNewsletterForm" action="{{ route('newsletter.subscribe') }}" method="POST" onsubmit="return handleTttNewsletterSubmit(event, this)">
                         @csrf
                         <div class="ttt-input-box">
                             <input type="email" name="email" placeholder="Your email address" required autocomplete="email" aria-label="Email">
-                            <button type="submit" aria-label="Join newsletter">Join</button>
+                            <button type="submit" id="tttNewsletterBtn" aria-label="Join newsletter">Join</button>
                         </div>
+                        <div id="tttNewsletterFeedback" style="display:none; margin-top:8px; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600;"></div>
+                        @if(session('newsletter_success'))
+                            <div style="margin-top:8px; padding:6px 12px; border-radius:6px; background:#dcfce7; color:#15803d; font-size:12px; font-weight:600; border:1px solid #bbf7d0;">
+                                {{ session('newsletter_success') }}
+                            </div>
+                        @elseif(session('newsletter_info'))
+                            <div style="margin-top:8px; padding:6px 12px; border-radius:6px; background:#e0f2fe; color:#0369a1; font-size:12px; font-weight:600; border:1px solid #bae6fd;">
+                                {{ session('newsletter_info') }}
+                            </div>
+                        @elseif($errors->has('email'))
+                            <div style="margin-top:8px; padding:6px 12px; border-radius:6px; background:#fee2e2; color:#b91c1c; font-size:12px; font-weight:600; border:1px solid #fecaca;">
+                                {{ $errors->first('email') }}
+                            </div>
+                        @endif
                     </form>
+                    <script>
+                        function handleTttNewsletterSubmit(e, form) {
+                            e.preventDefault();
+                            var emailInput = form.querySelector('input[name="email"]');
+                            var email = (emailInput.value || '').trim();
+                            if (!email) return false;
+
+                            var btn = form.querySelector('#tttNewsletterBtn');
+                            var origBtnHtml = btn.innerHTML;
+                            btn.disabled = true;
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" style="width:12px;height:12px;border-width:2px;display:inline-block;vertical-align:middle;"></span>';
+
+                            var tokenInput = form.querySelector('input[name="_token"]');
+                            var csrf = tokenInput ? tokenInput.value : '';
+
+                            fetch(form.action, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': csrf
+                                },
+                                body: JSON.stringify({ email: email, source: 'footer' })
+                            })
+                            .then(function(res) {
+                                return res.json().then(function(data) {
+                                    return { ok: res.ok, status: res.status, data: data };
+                                });
+                            })
+                            .then(function(result) {
+                                btn.disabled = false;
+                                btn.innerHTML = origBtnHtml;
+
+                                if (!result.ok) {
+                                    var errMsg = (result.data && result.data.message) ? result.data.message : 'Please enter a valid email address.';
+                                    if (result.data && result.data.errors && result.data.errors.email) {
+                                        errMsg = result.data.errors.email[0];
+                                    }
+                                    if (window.tttNotify) window.tttNotify(errMsg, 'error');
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            title: 'Invalid Email',
+                                            text: errMsg,
+                                            icon: 'error',
+                                            confirmButtonColor: '#00285a'
+                                        });
+                                    }
+                                    return;
+                                }
+
+                                var data = result.data;
+                                emailInput.value = '';
+
+                                if (data.status === 'already_subscribed') {
+                                    if (window.tttNotify) window.tttNotify(data.message, 'info');
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            title: 'Already Subscribed! ✨',
+                                            text: data.message,
+                                            icon: 'info',
+                                            confirmButtonText: 'Explore New Streetwear',
+                                            confirmButtonColor: '#00285a'
+                                        });
+                                    }
+                                } else {
+                                    if (window.tttNotify) window.tttNotify(data.message, 'success');
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            title: data.title || 'Welcome to the Inner Circle! 🎉',
+                                            html: `
+                                                <p style="font-size:14px; color:#475569; margin-bottom:14px; line-height:1.5;">${data.message}</p>
+                                                <div style="background:#f8fafc; border:2px dashed #00285a; border-radius:12px; padding:16px; margin-bottom:14px; text-align:center;">
+                                                    <div style="font-size:11px; font-weight:800; color:#d97706; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Your Welcome Gift Code</div>
+                                                    <div style="font-size:24px; font-weight:800; letter-spacing:3px; color:#00285a; font-family:monospace;">${data.coupon || 'TREND10'}</div>
+                                                    <div style="font-size:12px; color:#64748b; margin-top:4px;">Flat 10% OFF on all Streetwear</div>
+                                                </div>
+                                                <p style="font-size:12px; color:#64748b; margin:0;">A welcome VIP pass with your perks has been dispatched to <strong>${data.email}</strong>.</p>
+                                            `,
+                                            icon: 'success',
+                                            confirmButtonText: 'Shop New Arrivals 🛍️',
+                                            confirmButtonColor: '#00285a',
+                                            showCancelButton: true,
+                                            cancelButtonText: 'Done',
+                                            cancelButtonColor: '#94a3b8'
+                                        }).then(function(res) {
+                                            if (res.isConfirmed) {
+                                                window.location.href = '/shop';
+                                            }
+                                        });
+                                    }
+                                }
+                            })
+                            .catch(function(err) {
+                                btn.disabled = false;
+                                btn.innerHTML = origBtnHtml;
+                                form.submit();
+                            });
+
+                            return false;
+                        }
+                    </script>
 
                     <div class="ttt-contact-support">
                         <span><i class="bi bi-envelope"></i> {{ $siteEmail }}</span>

@@ -57,10 +57,23 @@ return [
     'firebase' => [
         'api_key'        => env('FIREBASE_API_KEY', 'AIzaSyBxewN-r_TDJfHBwuzcdIq2Bme6dyRCWVo'),
         'project_id'     => env('FIREBASE_PROJECT_ID', 'the-trend-theory'),
+        'auth_domain'    => env('FIREBASE_AUTH_DOMAIN', 'the-trend-theory.firebaseapp.com'),
         'sender_id'      => env('FIREBASE_SENDER_ID', '664156075505'),
         'storage_bucket' => env('FIREBASE_STORAGE_BUCKET', 'the-trend-theory.firebasestorage.app'),
-        'app_id'         => env('FIREBASE_APP_ID', '1:664156075505:ios:6e6b662021c3ce7eef0050'),
+        'app_id'         => env('FIREBASE_APP_ID', '1:664156075505:web:3b83c116e07b428bef0050'),
         'server_key'     => env('FIREBASE_SERVER_KEY'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL', 'http://127.0.0.1:8000') . '/auth/google/callback'),
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('FACEBOOK_REDIRECT_URI', env('APP_URL', 'http://127.0.0.1:8000') . '/auth/facebook/callback'),
     ],
 ];
 

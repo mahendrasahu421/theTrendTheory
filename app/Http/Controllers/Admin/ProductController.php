@@ -389,6 +389,17 @@ class ProductController extends Controller
                 }
             }
 
+            // Auto-set OG Image URL from resolved primary image if not provided
+            if (empty($product->og_image)) {
+                $ogFallback = $product->image ?: ($product->front_image ?: (Media::where('model_type', Product::class)->where('model_id', $product->id)->first()?->url ?: $product->back_image));
+                if ($ogFallback) {
+                    if (!filter_var($ogFallback, FILTER_VALIDATE_URL) && !str_starts_with($ogFallback, 'http')) {
+                        $ogFallback = url(str_starts_with($ogFallback, '/') ? $ogFallback : '/storage/' . $ogFallback);
+                    }
+                    $product->updateQuietly(['og_image' => $ogFallback]);
+                }
+            }
+
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -670,6 +681,17 @@ class ProductController extends Controller
             $this->storePrintSideImages($request, $product, 'back');
             $this->storeColorImages($request, $product);
             $this->syncTagsFromRequest($request, $product);
+
+            // Auto-set OG Image URL from resolved primary image if not provided
+            if (empty($product->og_image) || empty($request->og_image)) {
+                $ogFallback = $request->og_image ?: ($product->image ?: ($product->front_image ?: (Media::where('model_type', Product::class)->where('model_id', $product->id)->first()?->url ?: $product->back_image)));
+                if ($ogFallback) {
+                    if (!filter_var($ogFallback, FILTER_VALIDATE_URL) && !str_starts_with($ogFallback, 'http')) {
+                        $ogFallback = url(str_starts_with($ogFallback, '/') ? $ogFallback : '/storage/' . $ogFallback);
+                    }
+                    $product->updateQuietly(['og_image' => $ogFallback]);
+                }
+            }
 
             DB::commit();
         } catch (\Exception $e) {

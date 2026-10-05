@@ -22,8 +22,8 @@
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb fs-13 mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-muted text-decoration-none">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('blogs.index') }}" class="text-muted text-decoration-none">Journal</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('blogs.index', ['category' => $post->category]) }}" class="text-muted text-decoration-none">{{ $post->category }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ $post->type === 'news' ? route('news.index') : route('blogs.index') }}" class="text-muted text-decoration-none">{{ $post->type === 'news' ? 'Latest News' : 'Journal' }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route($post->type === 'news' ? 'news.index' : 'blogs.index', ['category' => $post->category]) }}" class="text-muted text-decoration-none">{{ $post->category }}</a></li>
                     <li class="breadcrumb-item active text-dark fw-medium text-truncate" style="max-width: 250px;" aria-current="page">{{ $post->title }}</li>
                 </ol>
             </nav>
@@ -31,14 +31,12 @@
             {{-- Article Header --}}
             <header class="mb-4">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <span class="badge bg-dark text-white px-3 py-1 rounded-pill fs-12 text-uppercase">
+                    <span class="badge text-white px-3 py-1 rounded-pill fs-12 text-uppercase" style="background: #00285a;">
+                        {{ $post->type === 'news' ? 'Latest News' : 'Blog' }}
+                    </span>
+                    <span class="badge bg-light text-dark border px-3 py-1 rounded-pill fs-12 text-uppercase">
                         {{ $post->category }}
                     </span>
-                    @if ($post->type === 'news')
-                        <span class="badge bg-primary text-white px-3 py-1 rounded-pill fs-12 text-uppercase">
-                            News / Press
-                        </span>
-                    @endif
                     <span class="text-muted fs-13">&bull;</span>
                     <span class="text-muted fs-13"><i class="bi bi-clock me-1"></i>{{ $post->read_time }}</span>
                 </div>
@@ -140,10 +138,10 @@
                 </div>
             @endif
 
-            {{-- Back to Journal Button --}}
+            {{-- Back to Journal / News Button --}}
             <div class="text-center py-4">
-                <a href="{{ route('blogs.index') }}" class="btn btn-outline-dark rounded-pill px-4 py-2 fs-13 fw-bold">
-                    <i class="bi bi-arrow-left me-1"></i> Back to All Articles
+                <a href="{{ $post->type === 'news' ? route('news.index') : route('blogs.index') }}" class="btn btn-outline-dark rounded-pill px-4 py-2 fs-13 fw-bold" style="border-color: #00285a; color: #00285a;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to {{ $post->type === 'news' ? 'Latest News' : 'All Articles' }}
                 </a>
             </div>
 

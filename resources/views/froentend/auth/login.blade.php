@@ -406,6 +406,74 @@
     color: #b91c1c;
 }
 
+.auth-alert-box.warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #b45309;
+}
+
+/* ── SOCIAL AUTH BUTTONS ── */
+.social-auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 46px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.btn-social svg {
+    flex-shrink: 0;
+}
+
+.btn-google {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.btn-google:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.btn-facebook {
+    background: #1877f2;
+    color: #ffffff;
+    border: 1.5px solid #1877f2;
+    box-shadow: 0 2px 6px rgba(24, 119, 242, 0.25);
+}
+
+.btn-facebook:hover {
+    background: #166fe5;
+    border-color: #166fe5;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(24, 119, 242, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-social:active {
+    transform: translateY(0);
+}
+
 /* ── RESPONSIVE ADAPTATION ── */
 @media (max-width: 900px) {
     .auth-main-layout {
@@ -448,7 +516,14 @@
                 <p class="auth-card-sub">Sign in to your account to continue shopping</p>
             </div>
 
-            {{-- Status & Error Alerts --}}
+            {{-- Status, Warning & Error Alerts --}}
+            @if(session('warning'))
+                <div class="auth-alert-box warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>{{ session('warning') }}</span>
+                </div>
+            @endif
+
             @if(session('status'))
                 <div class="auth-alert-box success">
                     <i class="bi bi-check-circle-fill"></i>
@@ -462,6 +537,36 @@
                     <span>{{ $errors->first() }}</span>
                 </div>
             @endif
+
+            {{-- Client-side Alert Box --}}
+            <div id="clientAuthAlert" class="auth-alert-box error" style="display: none;">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span id="clientAuthAlertText"></span>
+            </div>
+
+            {{-- ── SOCIAL LOGIN OPTIONS ── --}}
+            <div class="social-auth-buttons">
+                <button type="button" class="btn-social btn-google" id="btnGoogleLogin" onclick="handleGoogleSignIn(event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                    </svg>
+                    <span>Sign in with Google</span>
+                </button>
+
+                <button type="button" class="btn-social btn-facebook" id="btnFacebookLogin" onclick="handleFacebookSignIn(event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    <span>Sign in with Facebook</span>
+                </button>
+            </div>
+
+            <div class="auth-divider-box" style="margin: 14px 0 16px;">
+                <span>OR SIGN IN WITH</span>
+            </div>
 
             {{-- Mode Switch Tabs --}}
             <div class="auth-tabs-nav">
@@ -519,10 +624,11 @@
                     <div class="form-floating-group">
                         <label class="form-label-custom" for="otpIdentifier">Phone Number or Email</label>
                         <div class="input-with-icon">
-                            <input type="text" id="otpIdentifier" class="input-custom">
+                            <input type="text" id="otpIdentifier" class="input-custom" placeholder="e.g. +91 9876543210 or email">
                             <i class="bi bi-person-badge-fill input-icon-left"></i>
                         </div>
                     </div>
+                    <div id="recaptcha-container"></div>
                     <button type="button" class="btn-auth-submit" id="btnSendOtp" onclick="handleSendOtp()">
                         <span>SEND LOGIN OTP</span>
                         <i class="bi bi-send-fill"></i>
@@ -576,7 +682,118 @@
 </div>
 
 @push('scripts')
+{{-- Firebase Web SDK v10 compat --}}
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="{{ asset('js/firebase-ecommerce.js') }}"></script>
+
 <script>
+// ── Client-side Alert Helpers ──
+function showAuthAlert(msg, type = 'error') {
+    const box = document.getElementById('clientAuthAlert');
+    const text = document.getElementById('clientAuthAlertText');
+    if (!box || !text) return;
+    text.innerText = msg;
+    box.className = 'auth-alert-box ' + type;
+    box.style.display = 'flex';
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideAuthAlert() {
+    const box = document.getElementById('clientAuthAlert');
+    if (box) box.style.display = 'none';
+}
+
+// ── Firebase Google Sign-in Handler ──
+async function handleGoogleSignIn(e) {
+    if (e) e.preventDefault();
+    hideAuthAlert();
+    const btn = document.getElementById('btnGoogleLogin');
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Connecting with Google...';
+
+    try {
+        if (!window.TrendFirebase) {
+            throw new Error('Firebase Authentication is loading. Please wait a moment and try again.');
+        }
+
+        const res = await window.TrendFirebase.signInWithGoogle();
+        if (res && res.redirecting) {
+            return; // Redirecting to Google
+        }
+        if (res && res.syncResult && res.syncResult.success) {
+            window.location.href = res.syncResult.redirect || '{{ route("home") }}';
+            return;
+        } else if (res && res.syncResult && res.syncResult.message) {
+            throw new Error(res.syncResult.message);
+        }
+    } catch (err) {
+        console.error('Firebase Google Sign-in error:', err);
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+
+        if (err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request')) {
+            return;
+        }
+
+        let userMsg = 'Google sign-in could not be completed. Please try again.';
+        if (err.code === 'auth/unauthorized-domain') {
+            userMsg = 'Domain "' + window.location.hostname + '" is not authorized in Firebase Console yet. Please add it in Firebase Console > Authentication > Settings > Authorized domains.';
+        } else if (err.code === 'auth/operation-not-allowed') {
+            userMsg = 'Google sign-in is disabled in Firebase Console. Please turn on Google under Authentication > Sign-in method.';
+        } else if (err.code === 'auth/network-request-failed') {
+            userMsg = 'Network connection issue. Please check your internet connection.';
+        } else if (err.message) {
+            userMsg = err.message;
+        }
+
+        showAuthAlert(userMsg, 'error');
+    }
+}
+
+// ── Firebase Facebook Sign-in Handler ──
+async function handleFacebookSignIn(e) {
+    if (e) e.preventDefault();
+    hideAuthAlert();
+    const btn = document.getElementById('btnFacebookLogin');
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Connecting with Facebook...';
+
+    try {
+        if (!window.TrendFirebase) {
+            throw new Error('Firebase Authentication is loading. Please try again.');
+        }
+
+        const res = await window.TrendFirebase.signInWithFacebook();
+        if (res && res.redirecting) return;
+        if (res && res.syncResult && res.syncResult.success) {
+            window.location.href = res.syncResult.redirect || '{{ route("home") }}';
+            return;
+        } else if (res && res.syncResult && res.syncResult.message) {
+            throw new Error(res.syncResult.message);
+        }
+    } catch (err) {
+        console.error('Firebase Facebook Sign-in error:', err);
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+
+        if (err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request')) {
+            return;
+        }
+
+        let userMsg = 'Facebook sign-in could not be completed.';
+        if (err.code === 'auth/operation-not-allowed') {
+            userMsg = 'Facebook sign-in is not enabled in Firebase Console. Please enable Facebook under Authentication > Sign-in method.';
+        } else if (err.message) {
+            userMsg = err.message;
+        }
+        showAuthAlert(userMsg, 'warning');
+    }
+}
+
 // ── Switch between Password & OTP Tabs ──
 function switchAuthTab(tab) {
     const pwdForm = document.getElementById('passwordLoginForm');
@@ -610,11 +827,12 @@ function togglePasswordVisibility(inputId, btn) {
     }
 }
 
-// ── OTP Handling ──
+// ── OTP Handling (Firebase Phone Auth + Local OTP fallback) ──
 let otpTimer = null;
 let currentIdentifier = '';
+let isFirebasePhoneSession = false;
 
-function handleSendOtp() {
+async function handleSendOtp() {
     const input = document.getElementById('otpIdentifier');
     const val = input.value.trim();
     if (!val || val.length < 5) {
@@ -628,6 +846,32 @@ function handleSendOtp() {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> SENDING OTP...';
 
+    // Check if phone number for Firebase Phone Auth
+    const cleanDigits = val.replace(/[\s\-()]/g, '');
+    const isPhoneNumber = !val.includes('@') && /^\+?[0-9]{10,14}$/.test(cleanDigits);
+
+    if (isPhoneNumber && window.TrendFirebase) {
+        try {
+            await window.TrendFirebase.sendPhoneOtp(cleanDigits, 'recaptcha-container');
+            isFirebasePhoneSession = true;
+            btn.disabled = false;
+            btn.innerHTML = '<span>SEND LOGIN OTP</span> <i class="bi bi-send-fill"></i>';
+
+            document.getElementById('otpStepSend').style.display = 'none';
+            document.getElementById('otpStepVerify').style.display = 'block';
+            document.getElementById('otpTargetDisplay').innerText = val;
+            startOtpTimer(30);
+
+            const firstBox = document.querySelectorAll('.otp-box-digit')[0];
+            if (firstBox) firstBox.focus();
+            return;
+        } catch (firebaseErr) {
+            console.warn('Firebase Phone Auth fallback to server OTP:', firebaseErr);
+            isFirebasePhoneSession = false;
+        }
+    }
+
+    // Server-side OTP fallback
     fetch('{{ route("otp.send") }}', {
         method: 'POST',
         headers: {
@@ -642,17 +886,17 @@ function handleSendOtp() {
         btn.innerHTML = '<span>SEND LOGIN OTP</span> <i class="bi bi-send-fill"></i>';
 
         if (data.success) {
+            isFirebasePhoneSession = false;
             document.getElementById('otpStepSend').style.display = 'none';
             document.getElementById('otpStepVerify').style.display = 'block';
             document.getElementById('otpTargetDisplay').innerText = val;
             startOtpTimer(30);
 
-            // Focus first digit box
             const firstBox = document.querySelectorAll('.otp-box-digit')[0];
             if (firstBox) firstBox.focus();
 
             if (data.otp) {
-                console.log('Development OTP:', data.otp);
+                console.log('OTP:', data.otp);
             }
         } else {
             alert(data.message || 'Could not send OTP. Please try again.');
@@ -685,6 +929,7 @@ function startOtpTimer(seconds) {
 function resetOtpSteps() {
     document.getElementById('otpStepSend').style.display = 'block';
     document.getElementById('otpStepVerify').style.display = 'none';
+    isFirebasePhoneSession = false;
     clearInterval(otpTimer);
 }
 
@@ -696,7 +941,6 @@ function moveToNextOtp(current, nextIndex) {
             boxes[nextIndex].focus();
         }
     }
-    // If all filled, auto trigger verify
     const code = getOtpCode();
     if (code.length === 6) {
         handleVerifyOtp();
@@ -716,7 +960,7 @@ function getOtpCode() {
     return code;
 }
 
-function handleVerifyOtp() {
+async function handleVerifyOtp() {
     const code = getOtpCode();
     if (code.length !== 6) {
         alert('Please enter complete 6-digit OTP.');
@@ -727,6 +971,26 @@ function handleVerifyOtp() {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> VERIFYING...';
 
+    // If using Firebase Phone Authentication
+    if (isFirebasePhoneSession && window.TrendFirebase) {
+        try {
+            const res = await window.TrendFirebase.verifyPhoneOtp(code);
+            btn.disabled = false;
+            btn.innerHTML = '<span>VERIFY &amp; LOGIN</span> <i class="bi bi-shield-check"></i>';
+            if (res && res.syncResult && res.syncResult.success) {
+                window.location.href = res.syncResult.redirect || '{{ route("home") }}';
+                return;
+            }
+        } catch (firebaseOtpErr) {
+            console.warn('Firebase Phone OTP verify error:', firebaseOtpErr);
+            btn.disabled = false;
+            btn.innerHTML = '<span>VERIFY &amp; LOGIN</span> <i class="bi bi-shield-check"></i>';
+            alert(firebaseOtpErr.message || 'Invalid Firebase OTP code.');
+            return;
+        }
+    }
+
+    // Standard Server verify
     fetch('{{ route("otp.verify") }}', {
         method: 'POST',
         headers: {

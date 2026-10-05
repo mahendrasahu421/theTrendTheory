@@ -10,7 +10,12 @@ use App\Models\Review;
 use App\Models\TrendingStory;
 use App\Models\SiteSetting;
 use App\Models\Media;
+use App\Models\NewsletterSubscriber;
+use App\Models\Blog;
+use App\Mail\NewsletterWelcomeMail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
@@ -145,16 +150,6 @@ class HomeController extends Controller
             $mostPurchasedRaw = $fillWithLatestActive($mostPurchasedRaw, 10);
             $newArrivalsRaw = $fillWithLatestActive($newArrivalsRaw, 8);
 
-            // ─────────────────────────────────────────────────────────
-            // 5. LOG FOR DEBUG
-            // ─────────────────────────────────────────────────────────
-            Log::info('Homepage Products Summary', [
-                'most_purchased_count' => $mostPurchasedRaw->count(),
-                'men_products_count' => $mensProductsRaw->count(),
-                'women_products_count' => $womensProductsRaw->count(),
-                'new_arrivals_count' => $newArrivalsRaw->count(),
-                'gallery_media_count' => $galleryMedia->count()
-            ]);
 
             $heroSlides = HeroSlide::active()->ordered()->get()->map(function ($slide) {
                 return [
@@ -323,22 +318,59 @@ class HomeController extends Controller
                     ];
                 })->toArray(),
 
-                'trendingStories' => TrendingStory::active(3)->map(function ($story) {
-                    return [
-                        'id' => $story->id,
-                        'caption' => $story->caption,
-                        'caption_highlight' => $story->caption_highlight,
-                        'image_url' => $story->image_url,
-                        'username' => $story->username,
-                        'user_avatar_url' => $story->user_avatar_url,
-                        'badge_text' => $story->badge_text,
-                        'badge_type' => $story->badge_type,
-                        'duration' => $story->duration,
-                        'likes' => $story->likes,
-                        'formatted_likes' => $story->formatted_likes,
-                        'views' => $story->views,
-                    ];
-                })->toArray(),
+                'trendingStories' => (function () {
+                    // Fetch latest published news added from backend
+                    $newsItems = Blog::published()
+                        ->where('type', 'news')
+                        ->latest('published_at')
+                        ->latest('created_at')
+                        ->take(3)
+                        ->get();
+
+                    // If no news items found, fallback to any published blogs
+                    if ($newsItems->isEmpty()) {
+                        $newsItems = Blog::published()
+                            ->latest('published_at')
+                            ->latest('created_at')
+                            ->take(3)
+                            ->get();
+                    }
+
+                    if ($newsItems->isNotEmpty()) {
+                        return $newsItems->map(function ($item) {
+                            return [
+                                'id' => $item->id,
+                                'title' => $item->title,
+                                'slug' => $item->slug,
+                                'url' => route('news.show', $item->slug),
+                                'caption' => $item->summary ?? \Illuminate\Support\Str::limit(strip_tags($item->content), 140),
+                                'image_url' => $item->image_url ?? asset('images/placeholder-story.jpg'),
+                                'author_name' => $item->author_name ?? 'THE TREND THEORY Editorial',
+                                'category' => $item->category ?? 'Fashion Trends',
+                                'read_time' => $item->read_time ?? '3 min read',
+                                'formatted_date' => $item->published_at ? $item->published_at->format('F d Y') : $item->created_at->format('F d Y'),
+                                'full_content' => $item->content,
+                            ];
+                        })->toArray();
+                    }
+
+                    // Fallback to TrendingStory model
+                    return TrendingStory::active(3)->map(function ($story) {
+                        return [
+                            'id' => $story->id,
+                            'title' => $story->title,
+                            'slug' => \Illuminate\Support\Str::slug($story->title),
+                            'url' => route('news.index'),
+                            'caption' => $story->caption,
+                            'image_url' => $story->image_url,
+                            'author_name' => $story->username ?? 'The Trend Theory',
+                            'category' => 'Streetwear News',
+                            'read_time' => '3 min read',
+                            'formatted_date' => $story->created_at ? $story->created_at->format('F d Y') : date('F d Y'),
+                            'full_content' => $story->caption,
+                        ];
+                    })->toArray();
+                })(),
 
                 'reviews' => Review::featured(3)->map(function ($review) {
                     return [
@@ -357,6 +389,142 @@ class HomeController extends Controller
                         'created_at' => $review->created_at,
                     ];
                 })->toArray(),
+
+                // ─────────────────────────────────────────────────────────
+                // INSTAGRAM SHOPPABLE REELS
+                // ─────────────────────────────────────────────────────────
+                'instagramReels' => (function () {
+                    $activeProducts = Product::active()->take(6)->get();
+                    if ($activeProducts->isEmpty()) {
+                        return [];
+                    }
+
+                    $reels = [
+                        [
+                            'id' => 1,
+                            'title' => 'Monochrome Velvet Drop',
+                            'video_url' => 'https://assets.mixkit.co/videos/preview/mixkit-fashion-model-posing-in-neon-light-39878-large.mp4',
+                            'poster' => 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
+                            'username' => '@thetrendtheory',
+                            'product_ids' => [$activeProducts->first()->id ?? 1],
+                        ],
+                        [
+                            'id' => 2,
+                            'title' => 'Warehouse Styling & Heavy Drapes',
+                            'video_url' => 'https://assets.mixkit.co/videos/preview/mixkit-young-man-walking-down-the-street-40915-large.mp4',
+                            'poster' => 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=600&auto=format&fit=crop&q=80',
+                            'username' => '@kabir.vibe',
+                            'product_ids' => [($activeProducts->get(1) ?? $activeProducts->first())->id],
+                        ],
+                        [
+                            'id' => 3,
+                            'title' => 'Streetwear Rotation ft. Hustle',
+                            'video_url' => 'https://assets.mixkit.co/videos/preview/mixkit-girl-in-a-leather-jacket-in-the-city-at-night-41584-large.mp4',
+                            'poster' => 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&auto=format&fit=crop&q=80',
+                            'username' => '@ananya.fits',
+                            'product_ids' => [
+                                ($activeProducts->get(1) ?? $activeProducts->first())->id,
+                                ($activeProducts->get(2) ?? $activeProducts->first())->id,
+                            ],
+                        ],
+                        [
+                            'id' => 4,
+                            'title' => 'Summer Crop & Relaxed Shorts',
+                            'video_url' => 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-posing-for-the-camera-in-a-studio-41416-large.mp4',
+                            'poster' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
+                            'username' => '@rohan.street',
+                            'product_ids' => [
+                                ($activeProducts->get(0) ?? $activeProducts->first())->id,
+                                ($activeProducts->get(3) ?? $activeProducts->first())->id,
+                            ],
+                        ],
+                        [
+                            'id' => 5,
+                            'title' => 'Oversized Tee Rotation ft. Baggy Denim',
+                            'video_url' => 'https://assets.mixkit.co/videos/preview/mixkit-stylish-man-in-sunglasses-posing-outside-41590-large.mp4',
+                            'poster' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
+                            'username' => '@thetrendtheory',
+                            'product_ids' => [
+                                ($activeProducts->get(4) ?? $activeProducts->first())->id,
+                                ($activeProducts->get(1) ?? $activeProducts->first())->id,
+                            ],
+                        ],
+                        [
+                            'id' => 6,
+                            'title' => 'Retro Colorblock & Jersey Drip',
+                            'video_url' => 'https://assets.mixkit.co/videos/preview/mixkit-man-dancing-under-the-rain-41275-large.mp4',
+                            'poster' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
+                            'username' => '@thetrend.in',
+                            'product_ids' => [
+                                ($activeProducts->get(5) ?? $activeProducts->first())->id,
+                                ($activeProducts->get(2) ?? $activeProducts->first())->id,
+                            ],
+                        ],
+                    ];
+
+                    $productMap = $activeProducts->keyBy('id');
+
+                    return array_map(function ($item) use ($productMap, $activeProducts) {
+                        $products = [];
+                        foreach ($item['product_ids'] as $pid) {
+                            $prod = $productMap->get($pid) ?? $activeProducts->first();
+                            if ($prod) {
+                                $origPrice = $prod->display_original_price ?? ($prod->price > 0 ? round($prod->price * 1.35) : 1499);
+                                $hasDiscount = $origPrice > $prod->price;
+                                $discountPct = $hasDiscount ? round((($origPrice - $prod->price) / $origPrice) * 100) . '% OFF' : '33% OFF';
+
+                                // Multiple gallery images for quick-buy sheet top strip
+                                $galleryImages = [];
+                                if ($prod->relationLoaded('productImages') && $prod->productImages->isNotEmpty()) {
+                                    $galleryImages = $prod->productImages->pluck('url')->filter()->take(4)->values()->toArray();
+                                } elseif ($prod->relationLoaded('media') && $prod->media->isNotEmpty()) {
+                                    $galleryImages = $prod->media->take(4)->map(fn($m) => $m->getUrl())->filter()->values()->toArray();
+                                }
+                                if (empty($galleryImages)) {
+                                    $galleryImages = array_values(array_filter([
+                                        $prod->card_image,
+                                        $prod->main_image,
+                                        $prod->image_url,
+                                    ]));
+                                }
+                                if (count($galleryImages) < 2) {
+                                    $galleryImages = [
+                                        $prod->card_image ?? 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80',
+                                        'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500&auto=format&fit=crop&q=80',
+                                        'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=500&auto=format&fit=crop&q=80',
+                                    ];
+                                }
+
+                                // Sizes
+                                $sizes = [];
+                                if ($prod->relationLoaded('sizes') && $prod->sizes->isNotEmpty()) {
+                                    $sizes = $prod->sizes->pluck('name')->toArray();
+                                }
+                                if (empty($sizes)) {
+                                    $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+                                }
+
+                                $products[] = [
+                                    'id' => $prod->id,
+                                    'name' => $prod->name,
+                                    'slug' => $prod->slug,
+                                    'url' => route('product.show', $prod->slug),
+                                    'price' => '₹ ' . number_format($prod->price),
+                                    'price_raw' => $prod->price,
+                                    'original_price' => $origPrice ? '₹ ' . number_format($origPrice) : null,
+                                    'discount_percent' => $discountPct,
+                                    'image' => $prod->card_image,
+                                    'gallery_images' => array_values($galleryImages),
+                                    'sizes' => $sizes,
+                                    'has_discount' => $hasDiscount,
+                                ];
+                            }
+                        }
+                        $item['products'] = $products;
+                        $item['likes'] = 13 + (($item['id'] * 7) % 35);
+                        return $item;
+                    }, $reels);
+                })(),
             ];
         })();
 
@@ -438,5 +606,104 @@ class HomeController extends Controller
         ];
 
         return view('froentend.home', array_merge($data, $seoData));
+    }
+
+    /**
+     * Handle newsletter subscription request (GET or POST).
+     */
+    public function subscribe(Request $request)
+    {
+        if ($request->isMethod('get')) {
+            return redirect('/#footer')->with('newsletter_info', 'Enter your email below to join THE TREND THEORY newsletter.');
+        }
+
+        $validated = $request->validate([
+            'email' => ['required', 'email:filter', 'max:191'],
+        ], [
+            'email.required' => 'Please enter your email address.',
+            'email.email'    => 'Please enter a valid email address.',
+            'email.max'      => 'Email address is too long.',
+        ]);
+
+        $email = strtolower(trim($validated['email']));
+
+        $subscriber = NewsletterSubscriber::where('email', $email)->first();
+
+        if ($subscriber) {
+            if ($subscriber->is_active) {
+                $message = 'You are already subscribed to THE TREND THEORY newsletter!';
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'status'  => 'already_subscribed',
+                        'message' => $message,
+                    ]);
+                }
+                return redirect()->back()->with('newsletter_info', $message);
+            }
+
+            // Reactivate subscriber
+            $subscriber->update([
+                'is_active'       => true,
+                'unsubscribed_at' => null,
+                'ip_address'      => $request->ip(),
+                'user_agent'      => substr((string) $request->userAgent(), 0, 500),
+            ]);
+
+            // Dispatch welcome back email
+            try {
+                Mail::to($email)->send(new NewsletterWelcomeMail($subscriber, 'TREND10'));
+            } catch (\Throwable $e) {
+                Log::warning('Newsletter welcome email dispatch error: ' . $e->getMessage());
+            }
+
+            $message = 'Welcome back! Your subscription has been reactivated. Check your inbox for your 10% welcome coupon (TREND10).';
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'status'  => 'reactivated',
+                    'title'   => 'Welcome Back! 🎉',
+                    'message' => $message,
+                    'coupon'  => 'TREND10',
+                    'email'   => $email,
+                ]);
+            }
+            return redirect()->back()
+                ->with('newsletter_success', $message)
+                ->with('newsletter_coupon', 'TREND10');
+        }
+
+        // Create new subscriber
+        $subscriber = NewsletterSubscriber::create([
+            'email'      => $email,
+            'is_active'  => true,
+            'ip_address' => $request->ip(),
+            'user_agent' => substr((string) $request->userAgent(), 0, 500),
+            'source'     => $request->input('source', 'footer'),
+        ]);
+
+        // Dispatch welcome email with coupon and details
+        try {
+            Mail::to($email)->send(new NewsletterWelcomeMail($subscriber, 'TREND10'));
+        } catch (\Throwable $e) {
+            Log::warning('Newsletter welcome email dispatch error: ' . $e->getMessage());
+        }
+
+        $message = 'Thank you for subscribing! Your exclusive 10% discount code (TREND10) and welcome perks have been dispatched to ' . $email . '.';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'status'  => 'subscribed',
+                'title'   => 'Welcome to the Inner Circle! 🔥',
+                'message' => $message,
+                'coupon'  => 'TREND10',
+                'email'   => $email,
+            ]);
+        }
+
+        return redirect()->back()
+            ->with('newsletter_success', $message)
+            ->with('newsletter_coupon', 'TREND10');
     }
 }

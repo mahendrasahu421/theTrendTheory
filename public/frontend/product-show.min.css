@@ -167,7 +167,7 @@
 }
 
 .pd-name {
-    font-family: "Cinzel", serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 26px;
     font-weight: 700;
     color: #00285a;
@@ -615,7 +615,7 @@
     box-shadow: 0 4px 20px rgba(0, 40, 90, 0.04);
 }
 .pd-size-guide-card h3 {
-    font-family: "Cinzel", serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     color: #00285a;
     margin-bottom: 18px;
@@ -656,7 +656,7 @@
     margin-top: 48px;
 }
 .pd-reviews-title {
-    font-family: "Cinzel", serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     color: #00285a;
     margin-bottom: 20px;
@@ -730,7 +730,7 @@
     margin-top: 56px;
 }
 .pd-related-title {
-    font-family: "Cinzel", serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     color: #00285a;
     margin: 0 0 20px;

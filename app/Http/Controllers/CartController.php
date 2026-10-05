@@ -569,6 +569,7 @@ class CartController extends Controller
     {
         $request->validate([
             'name'       => 'required|string|max:150',
+            'email'      => 'nullable|email|max:150',
             'phone'      => 'required|string|max:20',
             'address'    => 'required|string|max:255',
             'landmark'   => 'nullable|string|max:120',
@@ -679,6 +680,19 @@ class CartController extends Controller
             'shipping_state'   => $request->state,
             'shipping_pincode' => $request->pincode,
         ]);
+
+        // Sync email to user account if provided
+        if (auth()->check() && $request->filled('email')) {
+            $authUser = auth()->user();
+            $newEmail = trim((string) $request->email);
+            if (empty($authUser->email) || $authUser->email !== $newEmail) {
+                $duplicate = \App\Models\User::where('email', $newEmail)->where('id', '!=', $authUser->id)->exists();
+                if (!$duplicate) {
+                    $authUser->email = $newEmail;
+                    $authUser->save();
+                }
+            }
+        }
 
         // Order items save
         foreach ($itemsList as $item) {
@@ -929,6 +943,19 @@ class CartController extends Controller
             'shipping_state'   => $orderData['state']   ?? '',
             'shipping_pincode' => $orderData['pincode'] ?? '',
         ]);
+
+        // Sync email to user account if provided
+        if (auth()->check() && !empty($orderData['email'])) {
+            $authUser = auth()->user();
+            $newEmail = trim((string) $orderData['email']);
+            if (empty($authUser->email) || $authUser->email !== $newEmail) {
+                $duplicate = \App\Models\User::where('email', $newEmail)->where('id', '!=', $authUser->id)->exists();
+                if (!$duplicate) {
+                    $authUser->email = $newEmail;
+                    $authUser->save();
+                }
+            }
+        }
 
         // Save order items from cart (if cart mode)
         if ($isBuyNow) {

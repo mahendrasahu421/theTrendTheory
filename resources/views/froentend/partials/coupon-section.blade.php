@@ -18,7 +18,6 @@
         @if($appliedCode)
             <div class="ttt-coupon-applied-pill-row">
                 <div class="ttt-applied-left">
-                    <i class="bi bi-patch-check-fill text-success"></i>
                     <span>Coupon <b>{{ $appliedCode }}</b> applied</span>
                 </div>
                 <button type="button" onclick="removeCouponCode()" class="ttt-remove-coupon-btn">REMOVE</button>
@@ -33,14 +32,6 @@
         {{-- Available Coupons Row with View All --}}
         <div class="ttt-offers-mid-row">
             <div class="ttt-offers-left" onclick="openCouponsModal()">
-                <span class="ttt-badge-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l2.4 2.4 3.4-.6 1.2 3.2 3.2 1.2-.6 3.4 2.4 2.4-2.4 2.4.6 3.4-3.2 1.2-1.2 3.2-3.4-.6-2.4 2.4-2.4-2.4-3.4.6-1.2-3.2-3.2-1.2.6-3.4-2.4-2.4 2.4-2.4-.6-3.4 3.2-1.2 1.2-3.2 3.4.6 2.4-2.4z"/>
-                        <line x1="9" y1="15" x2="15" y2="9"/>
-                        <circle cx="9.5" cy="9.5" r=".7" fill="#475569"/>
-                        <circle cx="14.5" cy="14.5" r=".7" fill="#475569"/>
-                    </svg>
-                </span>
                 <span class="ttt-available-text">
                     <span id="availableCouponsCount">{{ $allCoupons->count() }}</span> coupons available
                 </span>
@@ -50,12 +41,6 @@
 
         {{-- Loyalty Points Row --}}
         <div class="ttt-loyalty-row">
-            <span class="ttt-loyalty-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#526071" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2l2.4 2.4 3.4-.6 1.2 3.2 3.2 1.2-.6 3.4 2.4 2.4-2.4 2.4.6 3.4-3.2 1.2-1.2 3.2-3.4-.6-2.4 2.4-2.4-2.4-3.4.6-1.2-3.2-3.2-1.2.6-3.4-2.4-2.4 2.4-2.4-.6-3.4 3.2-1.2 1.2-3.2 3.4.6 2.4-2.4z"/>
-                    <polygon points="12 8 13.2 10.8 16 11.2 14 13.1 14.5 16 12 14.6 9.5 16 10 13.1 8 11.2 10.8 10.8 12 8" fill="#526071" stroke="#526071" stroke-width="0.5"/>
-                </svg>
-            </span>
             <span class="ttt-loyalty-text">
                 You're earning <b id="loyaltyPointsCount">{{ $loyaltyPoints }} loyalty points</b> on this order
             </span>
@@ -68,23 +53,15 @@
 <div class="ttt-coupon-bottom-sheet" id="couponBottomSheet" role="dialog" aria-modal="true" aria-labelledby="couponSheetTitle">
     {{-- Floating Circle Close Button --}}
     <button type="button" class="ttt-sheet-close-btn" onclick="closeCouponsModal()" aria-label="Close modal">
-        <i class="bi bi-x-lg"></i>
+        &times;
     </button>
 
     <div class="ttt-sheet-inner">
         {{-- Modal Header --}}
         <div class="ttt-sheet-header">
-            <span class="ttt-sheet-head-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2l2.4 2.4 3.4-.6 1.2 3.2 3.2 1.2-.6 3.4 2.4 2.4-2.4 2.4.6 3.4-3.2 1.2-1.2 3.2-3.4-.6-2.4 2.4-2.4-2.4-3.4.6-1.2-3.2-3.2-1.2.6-3.4-2.4-2.4 2.4-2.4-.6-3.4 3.2-1.2 1.2-3.2 3.4.6 2.4-2.4z"/>
-                    <line x1="9" y1="15" x2="15" y2="9"/>
-                    <circle cx="9.5" cy="9.5" r=".7" fill="#475569"/>
-                    <circle cx="14.5" cy="14.5" r=".7" fill="#475569"/>
-                </svg>
-            </span>
             <h3 class="ttt-sheet-title" id="couponSheetTitle">Coupons &amp; Offers</h3>
             <button type="button" class="ttt-header-close-btn" onclick="closeCouponsModal()" aria-label="Close modal">
-                <i class="bi bi-x-lg"></i>
+                &times;
             </button>
         </div>
 
@@ -168,7 +145,7 @@
                     @if(!$isEligible && $shortage > 0)
                         <div class="ttt-card-eligible-btn-wrap">
                             <button type="button" class="ttt-sheet-explore-btn" onclick="closeCouponsModal(); window.location.href='{{ route('shop.index') }}';">
-                                Show me eligible products <i class="bi bi-chevron-down"></i>
+                                Show me eligible products &rarr;
                             </button>
                         </div>
                     @endif
@@ -403,7 +380,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 26px;
+    line-height: 1;
     color: #1e293b;
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -451,7 +429,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 20px;
+    line-height: 1;
     color: #475569;
     cursor: pointer;
     margin-left: auto;

@@ -241,6 +241,27 @@ class Product extends Model
         return asset('images/placeholder-product.jpg');
     }
 
+    public function getOgImageAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            if (filter_var($value, FILTER_VALIDATE_URL)) {
+                return $value;
+            }
+            if (str_starts_with($value, '/')) {
+                return url($value);
+            }
+            return url('/storage/' . $value);
+        }
+
+        // Auto fallback to product image_url
+        $fallback = $this->image_url;
+        if ($fallback && !str_contains($fallback, 'placeholder')) {
+            return filter_var($fallback, FILTER_VALIDATE_URL) ? $fallback : url($fallback);
+        }
+
+        return null;
+    }
+
     public function getAllImagesListAttribute(): array
     {
         $list = [];

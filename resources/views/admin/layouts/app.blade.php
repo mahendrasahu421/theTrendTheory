@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Panel') — THE TREND THEORY</title>
+    <!-- Brand Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}?v={{ file_exists(public_path('images/favicon.png')) ? filemtime(public_path('images/favicon.png')) : time() }}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ file_exists(public_path('favicon.ico')) ? filemtime(public_path('favicon.ico')) : time() }}" />
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v={{ file_exists(public_path('apple-touch-icon.png')) ? filemtime(public_path('apple-touch-icon.png')) : time() }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -1435,7 +1439,7 @@
 
             @if ($user->hasPermission('reviews.view') || $user->hasPermission('analytics.view') || $user->isAdmin() || $user->isSuperAdmin())
                 @php $liveActive = \App\Models\VisitorLog::where('last_activity_at', '>=', now()->subMinutes(5))->count(); @endphp
-                <div class="sb-dropdown-item {{ request()->routeIs('admin.reviews*') || request()->routeIs('admin.analytics*') || request()->routeIs('admin.notifications*') ? 'open' : '' }}">
+                <div class="sb-dropdown-item {{ request()->routeIs('admin.reviews*') || request()->routeIs('admin.analytics*') || request()->routeIs('admin.notifications*') || request()->routeIs('admin.newsletter*') ? 'open' : '' }}">
                     <button type="button" class="sb-dropdown-btn" onclick="toggleSbMenu(this)">
                         <span class="sb-section-label">Social Proof</span>
                         @if ($liveActive > 0)
@@ -1469,6 +1473,11 @@
                                 class="sb-sublink {{ request()->routeIs('admin.notifications*') ? 'active' : '' }}">
                                 <i class="bi bi-bell"></i>
                                 <span>Notifications</span>
+                            </a>
+                            <a href="{{ route('admin.newsletter.index') }}"
+                                class="sb-sublink {{ request()->routeIs('admin.newsletter*') ? 'active' : '' }}">
+                                <i class="bi bi-envelope-paper"></i>
+                                <span>Newsletter</span>
                             </a>
                         @endif
                     </div>
@@ -1631,6 +1640,34 @@
                 if (!btn.dataset.originalHtml) btn.dataset.originalHtml = btn.innerHTML;
                 if (!btn.dataset.keepLabel) btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
             });
+        });
+    </script>
+    <!-- SweetAlert2 for Admin Notifications & Confirmation Modals -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: @json(session('success')),
+                        showConfirmButton: false,
+                        timer: 3500,
+                        timerProgressBar: true
+                    });
+                }
+            @elseif(session('error'))
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: @json(session('error')),
+                        confirmButtonColor: '#00285a'
+                    });
+                }
+            @endif
         });
     </script>
     @stack('scripts')

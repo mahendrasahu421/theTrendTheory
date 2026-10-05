@@ -95,6 +95,11 @@ Route::prefix('api')->group(function () {
 });
 
 // ═══════════════════════════════════════════════════
+// NEWSLETTER SUBSCRIPTION (Public)
+// ═══════════════════════════════════════════════════
+Route::match(['get', 'post'], '/newsletter/subscribe', [App\Http\Controllers\HomeController::class, 'subscribe'])->name('newsletter.subscribe');
+
+// ═══════════════════════════════════════════════════
 // AUTH REQUIRED — FRONTEND
 // ═══════════════════════════════════════════════════
 Route::middleware('auth')->group(function () {
@@ -139,6 +144,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/addresses', [App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
     Route::patch('/profile/addresses/{address}/default', [App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('profile.addresses.default');
+    Route::delete('/profile/addresses/{address}', [App\Http\Controllers\ProfileController::class, 'destroyAddress'])->name('profile.addresses.destroy');
     Route::patch('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Order Cancel (Customer)
@@ -149,9 +155,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{order}/return', [App\Http\Controllers\ReturnController::class, 'store'])->name('order.return.store');
     Route::get('/my-returns', [App\Http\Controllers\ReturnController::class, 'index'])->name('order.returns');
     Route::get('/my-returns/{return}', [App\Http\Controllers\ReturnController::class, 'show'])->name('order.return.show');
-
-    // Newsletter
-    Route::post('/newsletter/subscribe', [App\Http\Controllers\HomeController::class, 'subscribe'])->name('newsletter.subscribe');
 });
 
 // ═══════════════════════════════════════════════════
@@ -213,6 +216,16 @@ Route::middleware(['admin'])
             Route::put('announcements/{announcement}', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcements.update');
             Route::delete('announcements/{announcement}', [App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
             Route::post('announcements/{announcement}/toggle', [App\Http\Controllers\Admin\AnnouncementController::class, 'toggle'])->name('announcements.toggle');
+        });
+
+        // ── Newsletter Subscribers (super_admin, admin)
+        Route::middleware('role:super_admin,admin')->group(function () {
+            Route::get('newsletter-subscribers', [App\Http\Controllers\Admin\NewsletterController::class, 'index'])->name('newsletter.index');
+            Route::post('newsletter-subscribers', [App\Http\Controllers\Admin\NewsletterController::class, 'store'])->name('newsletter.store');
+            Route::post('newsletter-subscribers/bulk', [App\Http\Controllers\Admin\NewsletterController::class, 'bulkAction'])->name('newsletter.bulk');
+            Route::get('newsletter-subscribers/export', [App\Http\Controllers\Admin\NewsletterController::class, 'export'])->name('newsletter.export');
+            Route::post('newsletter-subscribers/{subscriber}/toggle', [App\Http\Controllers\Admin\NewsletterController::class, 'toggle'])->name('newsletter.toggle');
+            Route::delete('newsletter-subscribers/{subscriber}', [App\Http\Controllers\Admin\NewsletterController::class, 'destroy'])->name('newsletter.destroy');
         });
 
         // ── Blogs (super_admin, admin, product_manager, product_editor)

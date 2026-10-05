@@ -170,16 +170,43 @@ class AuthController extends Controller
     {
         $request->validate([
             'name'     => 'required|string|max:150',
-            'email'    => 'required|email|unique:users,email',
+            'email'    => 'required|email|max:150|unique:users,email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone'    => 'nullable|string|max:20',
+        ], [
+            'email.required' => 'Email address is required.',
+            'email.email'    => 'Please enter a valid email address.',
+            'email.unique'   => 'This email address is already registered. Please sign in instead.',
+            'password.required' => 'Please enter a secure password.',
+            'password.confirmed' => 'Password confirmation does not match.',
         ]);
+
+        // Duplicate phone check with phone normalization
+        $phoneInput = trim((string) $request->phone);
+        if (!empty($phoneInput)) {
+            $cleanDigits = preg_replace('/\D+/', '', $phoneInput);
+            $phone10 = strlen($cleanDigits) >= 10 ? substr($cleanDigits, -10) : $cleanDigits;
+
+            $duplicatePhone = User::where(function ($q) use ($phoneInput, $cleanDigits, $phone10) {
+                $q->where('phone', $phoneInput)
+                  ->orWhere('phone', $cleanDigits);
+                if (strlen($phone10) >= 10) {
+                    $q->orWhere('phone', 'LIKE', '%' . $phone10);
+                }
+            })->first();
+
+            if ($duplicatePhone) {
+                return back()->withInput()->withErrors([
+                    'phone' => 'This mobile number is already registered. Please sign in or use another number.'
+                ]);
+            }
+        }
 
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'phone'    => $request->phone,
+            'phone'    => $phoneInput ?: null,
             'role'     => 'customer',
         ]);
 
@@ -187,6 +214,62 @@ class AuthController extends Controller
         Auth::login($user);
 
         return redirect()->route('home')->with('success', 'Welcome to THE TREND THEORY!');
+    }
+
+    /**
+     * AJAX endpoint to check duplicate email or mobile number in real time.
+     */
+    public function checkDuplicate(Request $request)
+    {
+        $request->validate([
+            'type'  => 'required|string|in:email,phone',
+            'value' => 'required|string|max:150',
+        ]);
+
+        $type   = $request->input('type');
+        $value  = trim($request->input('value'));
+        $userId = auth()->id();
+
+        if ($type === 'email') {
+            $query = User::where('email', $value);
+            if ($userId) {
+                $query->where('id', '!=', $userId);
+            }
+            $exists = $query->exists();
+
+            return response()->json([
+                'exists'  => $exists,
+                'message' => $exists ? 'This email address is already registered. Please sign in instead.' : 'Email is available.',
+            ]);
+        }
+
+        if ($type === 'phone') {
+            $cleanDigits = preg_replace('/\D+/', '', $value);
+            $phone10    = strlen($cleanDigits) >= 10 ? substr($cleanDigits, -10) : $cleanDigits;
+
+            if (strlen($phone10) < 10) {
+                return response()->json(['exists' => false, 'message' => '']);
+            }
+
+            $query = User::where(function ($q) use ($value, $cleanDigits, $phone10) {
+                $q->where('phone', $value)
+                  ->orWhere('phone', $cleanDigits)
+                  ->orWhere('phone', 'LIKE', '%' . $phone10);
+            });
+
+            if ($userId) {
+                $query->where('id', '!=', $userId);
+            }
+
+            $exists = $query->exists();
+
+            return response()->json([
+                'exists'  => $exists,
+                'message' => $exists ? 'This mobile number is already linked to an account.' : 'Mobile number is available.',
+            ]);
+        }
+
+        return response()->json(['exists' => false]);
     }
 
     // ── LOGOUT ─────────────────────────────────────────────

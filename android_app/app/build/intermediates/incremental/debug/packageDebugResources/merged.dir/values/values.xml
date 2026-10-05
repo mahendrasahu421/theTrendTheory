@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="black">#000000</color>
+    <color name="brand_accent">#FF3F6C</color>
+    <color name="brand_mint">#00A76F</color>
+    <color name="brand_primary">#00285A</color>
+    <color name="brand_primary_dark">#001A3B</color>
+    <color name="gray_border">#E2E8F0</color>
+    <color name="gray_light">#F8FAFC</color>
+    <color name="text_muted">#64748B</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">The Trend Theory</string>
+    <string name="app_tagline">Luxury Streetwear Born in India</string>
+    <string name="no_internet_msg">Please check your mobile data or Wi-Fi internet connection and retry.</string>
+    <string name="no_internet_title">Cannot Reach Server</string>
+    <string name="press_again_to_exit">Press back again to exit</string>
+    <string name="retry">Retry Connection</string>
+    <string name="web_url">https://gdp-disk-might-texts.trycloudflare.com</string>
+    <string name="web_url_fallback">http://192.168.29.180:8000</string>
+    <style name="Theme.TheTrendTheory" parent="Theme.MaterialComponents.Light.NoActionBar">
+        
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorPrimaryVariant">@color/brand_primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <item name="colorSecondary">@color/brand_accent</item>
+        <item name="colorSecondaryVariant">@color/brand_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <item name="android:statusBarColor">@color/brand_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar" ns1:targetApi="27">true</item>
+    </style>
+    <style name="Theme.TheTrendTheory.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/brand_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/brand_primary</item>
+    </style>
+</resources>

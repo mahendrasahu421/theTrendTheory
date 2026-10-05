@@ -509,67 +509,121 @@
     color: #059669;
 }
 
-.cart-calc-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
-    margin-bottom: 18px;
+/* ── Clean Order Summary Styles (Screenshot Matched) ── */
+.cart-saved-badge {
+    background: #e6f9f0;
+    color: #00875a;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    letter-spacing: 0.1px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
-.calc-row {
+.cart-summary-breakdown-card {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    padding: 16px 0 14px;
+}
+
+.cart-summary-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 13.5px;
-    color: #475569;
+    color: #64748b;
+    line-height: 1.4;
 }
 
-.calc-row b {
-    color: var(--tt-text-main);
-    font-weight: 700;
+.cart-summary-row .row-label {
+    color: #64748b;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.calc-row.green b,
-.calc-row.green span {
-    color: #047857;
-    font-weight: 700;
+.cart-summary-row .row-val {
+    color: #1e293b;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
 }
 
-.calc-row-total {
+.cart-summary-row.is-discount .row-val,
+.cart-summary-row.is-savings .row-val {
+    color: #00a76f !important;
+    font-weight: 600;
+}
+
+.cart-info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-style: normal;
+    color: #94a3b8;
+    border: 1px solid #cbd5e1;
+    cursor: help;
+    user-select: none;
+    line-height: 1;
+    margin-left: 3px;
+}
+
+.cart-summary-divider {
+    height: 1px;
+    background: #eef2f6;
+    margin: 6px 0 8px;
+}
+
+.cart-estimated-total-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1.5px dashed #cbd5e1;
-    padding-top: 14px;
-    margin-top: 4px;
+    margin-bottom: 20px;
 }
 
-.calc-total-title {
-    font-size: 14.5px;
+.cart-estimated-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.cart-estimated-val {
+    font-size: 22px;
     font-weight: 800;
-    color: var(--tt-text-main);
-    text-transform: uppercase;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
 }
 
-.calc-total-num {
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--tt-primary);
-    letter-spacing: -0.5px;
-}
-
-.cart-savings-highlight {
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
-    border-radius: 10px;
-    padding: 10px 14px;
-    color: #047857;
-    font-size: 12.5px;
-    font-weight: 800;
+.cart-trust-strip {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
+    justify-content: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.cart-mobile-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+}
+
+.cart-mobile-chevron.rotated {
+    transform: rotate(180deg);
 }
 
 /* Coupon Box */
@@ -1149,98 +1203,44 @@
         font-size: 16px;
     }
 
-    /* Summary card collapsible on mobile */
+    /* Summary card full order summary on mobile */
     .cart-summary-card {
-        padding: 0 !important;
+        padding: 20px 18px !important;
         border-radius: 16px;
-        margin-top: 16px;
-        overflow: hidden;
-        border: 1.5px solid #e2e8f0;
+        margin-top: 20px;
+        border: 1px solid #e2e8f0;
         box-shadow: 0 2px 14px rgba(15, 23, 42, 0.05);
         background: #ffffff;
-        transition: border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .cart-summary-card.is-open {
-        border-color: #cbd5e1;
-        box-shadow: 0 6px 22px rgba(15, 23, 42, 0.09);
     }
 
     .cart-summary-head {
-        padding: 14px 16px;
-        margin: 0;
-        cursor: pointer;
-        user-select: none;
-        -webkit-tap-highlight-color: transparent;
+        padding: 0 0 14px 0 !important;
+        margin-bottom: 14px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 0 solid transparent;
-        transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-
-    .cart-summary-card.is-open .cart-summary-head {
-        border-bottom: 1px solid #f1f5f9;
-        background-color: #f8fafc;
+        border-bottom: 1px solid #f1f5f9 !important;
+        background: transparent !important;
+        cursor: default !important;
     }
 
     .cart-summary-head-title {
-        font-size: 14.5px;
-        font-weight: 800;
-        color: var(--tt-primary);
-        letter-spacing: 0.6px;
-        gap: 6px;
-    }
-
-    .cart-summary-head-count {
-        font-size: 12px;
-        color: #64748b;
-    }
-
-    .cart-summary-head-total {
-        display: inline-block !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         font-size: 15px;
-        font-weight: 800;
-        color: var(--tt-primary);
+        font-weight: 700;
+        color: var(--tt-text-main);
         letter-spacing: -0.2px;
     }
 
-    .cart-summary-head-secure {
-        display: none !important;
+    .cart-summary-collapsible-body {
+        display: block !important;
+        max-height: none !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        padding: 0 !important;
     }
 
     .cart-summary-chevron {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #f1f5f9;
-        color: #00285a;
-        font-size: 13px;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, color 0.2s ease;
-    }
-
-    .cart-summary-card.is-open .cart-summary-chevron {
-        transform: rotate(180deg);
-        background: #e2e8f0;
-        color: var(--tt-primary);
-    }
-
-    .cart-summary-collapsible-body {
-        max-height: 0;
-        overflow: hidden;
-        opacity: 0;
-        padding: 0 16px;
-        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
-    }
-
-    .cart-summary-card.is-open .cart-summary-collapsible-body {
-        max-height: 1500px;
-        opacity: 1;
-        padding: 16px 16px 18px;
+        display: none !important;
     }
 
     /* Hide desktop checkout button on mobile since we have the sticky bar */
@@ -1508,10 +1508,10 @@
     {{-- Breadcrumb & Stepper --}}
     <div class="cart-nav-strip">
         <div class="cart-breadcrumb">
-            <a href="{{ route('home') }}"><i class="bi bi-house-door"></i> Home</a>
-            <i class="bi bi-chevron-right" style="font-size: 10px;"></i>
+            <a href="{{ route('home') }}">Home</a>
+            <span style="font-size: 11px; opacity: 0.6;">›</span>
             <a href="{{ route('shop.index') }}">Shop</a>
-            <i class="bi bi-chevron-right" style="font-size: 10px;"></i>
+            <span style="font-size: 11px; opacity: 0.6;">›</span>
             <span>Shopping Cart</span>
         </div>
 
@@ -1536,29 +1536,40 @@
     @if(count($cart) > 0)
         @php
             $totalItemsCount = collect($cart)->sum('quantity');
-            $totalMrp = collect($cart)->sum(function($item) {
-                $p = (float)($item['price'] ?? 0);
-                $orig = (float)($item['original_price'] ?? $p);
-                return $orig * (int)($item['quantity'] ?? 1);
-            });
+            $totalMrp = 0;
+            foreach($cart as $cItem) {
+                $cQty = (int)($cItem['quantity'] ?? 1);
+                $cPrice = (float)($cItem['price'] ?? 0);
+                $cOrig = !empty($cItem['original_price']) && (float)$cItem['original_price'] > $cPrice 
+                    ? (float)$cItem['original_price'] 
+                    : null;
+                if (!$cOrig && !empty($cItem['id'])) {
+                    $pModel = \App\Models\Product::find($cItem['id']);
+                    if ($pModel && $pModel->original_price && (float)$pModel->original_price > $cPrice) {
+                        $cOrig = (float)$pModel->original_price;
+                    }
+                }
+                $cOrig = $cOrig ?: $cPrice;
+                $totalMrp += ($cOrig * $cQty);
+            }
             $discountOnMrp = max(0, $totalMrp - $subtotal);
             $prepaidDiscount = round($subtotal * 0.05, 2);
             $freeShippingThreshold = 999;
             $freeShippingProgress = min(100, round(($subtotal / $freeShippingThreshold) * 100));
             $neededForFreeShip = max(0, $freeShippingThreshold - $subtotal);
-            $totalSavings = $discountOnMrp + ($couponDiscount ?? 0) + $prepaidDiscount;
+            $totalSavings = round($discountOnMrp + ($couponDiscount ?? 0) + $prepaidDiscount, 2);
         @endphp
 
         {{-- Header Bar --}}
         <div class="cart-header-row">
             <div>
                 <h1 class="cart-main-heading">
-                    <i class="bi bi-bag-check-fill"></i> YOUR SHOPPING BAG
+                    YOUR SHOPPING BAG
                     <span class="cart-item-count-badge" id="cartPageBadge">{{ $totalItemsCount }} {{ $totalItemsCount === 1 ? 'ITEM' : 'ITEMS' }}</span>
                 </h1>
             </div>
             <div class="cart-trust-shield-pill">
-                <i class="bi bi-shield-lock-fill"></i> 100% Verified &amp; Secure Checkout
+                100% Verified &amp; Secure Checkout
             </div>
         </div>
 
@@ -1572,11 +1583,11 @@
                 <div class="free-shipping-tracker" id="freeShipTracker">
                     <div class="free-ship-header {{ $neededForFreeShip == 0 ? 'unlocked' : '' }}" id="freeShipText">
                         @if($neededForFreeShip == 0)
-                            <span><i class="bi bi-patch-check-fill text-success"></i> <strong>Congratulations!</strong> You unlocked FREE Shipping!</span>
+                            <span><strong>Congratulations!</strong> You unlocked FREE Shipping!</span>
                             <span class="badge bg-success-subtle text-success border px-2 py-1">FREE DELIVERY</span>
                         @else
-                            <span><i class="bi bi-truck text-primary"></i> Add <strong>₹{{ number_format($neededForFreeShip) }}</strong> more to unlock <strong>FREE Shipping</strong></span>
-                            <span class="text-muted font-monospace">₹{{ number_format($subtotal) }}/₹999</span>
+                            <span>Add <strong>₹{{ number_format($neededForFreeShip, 2) }}</strong> more to unlock <strong>FREE Shipping</strong></span>
+                            <span class="text-muted font-monospace">₹{{ number_format($subtotal, 2) }}/₹999.00</span>
                         @endif
                     </div>
                     <div class="free-ship-track-bar">
@@ -1619,15 +1630,15 @@
 
                                 <div class="cart-item-tags-row">
                                     @if(!empty($item['size']))
-                                        <span class="cart-tag-pill"><i class="bi bi-rulers"></i> Size: {{ $item['size'] }}</span>
+                                        <span class="cart-tag-pill">Size: {{ $item['size'] }}</span>
                                     @endif
                                     @if(!empty($item['color']))
-                                        <span class="cart-tag-pill"><i class="bi bi-palette"></i> Color: {{ $item['color'] }}</span>
+                                        <span class="cart-tag-pill">Color: {{ $item['color'] }}</span>
                                     @endif
                                     @if(!empty($item['design_side']))
-                                        <span class="cart-tag-pill"><i class="bi bi-aspect-ratio"></i> Print: {{ ucfirst($item['design_side']) }} Side</span>
+                                        <span class="cart-tag-pill">Print: {{ ucfirst($item['design_side']) }} Side</span>
                                     @endif
-                                    <span class="cart-in-stock-tag"><i class="bi bi-check-circle-fill"></i> In Stock</span>
+                                    <span class="cart-in-stock-tag">In Stock</span>
                                 </div>
 
                                 <div class="cart-item-pricing">
@@ -1666,19 +1677,15 @@
                 {{-- Assurance Strip Below Items --}}
                 <div class="cart-perks-strip">
                     <div class="cart-perk-item">
-                        <i class="bi bi-patch-check-fill text-primary"></i>
                         <span>100% Authentic Guaranteed</span>
                     </div>
                     <div class="cart-perk-item">
-                        <i class="bi bi-arrow-repeat text-success"></i>
                         <span>7-Day Easy Returns</span>
                     </div>
                     <div class="cart-perk-item">
-                        <i class="bi bi-truck text-warning"></i>
                         <span>Express Fast Dispatch</span>
                     </div>
                     <div class="cart-perk-item">
-                        <i class="bi bi-cash-coin text-info"></i>
                         <span>Cash on Delivery Available</span>
                     </div>
                 </div>
@@ -1688,70 +1695,69 @@
             {{-- ── RIGHT: STICKY ORDER SUMMARY ── --}}
             <div class="cart-summary-column">
                 <div class="cart-summary-card" id="cartSummaryCard">
-                    <div class="cart-summary-head" id="cartSummaryHead" onclick="toggleCartOrderSummary()">
+                    <div class="cart-summary-head" id="cartSummaryHead">
                         <div class="cart-summary-head-title">
-                            <i class="bi bi-receipt"></i>
                             <span>ORDER SUMMARY</span>
-                            <span class="cart-summary-head-count" id="summaryHeadCountBadge">({{ $totalItemsCount }})</span>
                         </div>
                         <div class="cart-summary-head-right">
-                            <span class="cart-summary-head-total" id="summaryHeadTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
-                            <span class="cart-summary-head-secure">SECURE</span>
-                            <i class="bi bi-chevron-down cart-summary-chevron" id="cartSummaryChevron"></i>
+                            <span class="cart-saved-badge" id="cartSavedSoFarBadge" style="{{ $totalSavings > 0 ? '' : 'display:none;' }}">
+                                <span id="cartSavedSoFarVal">₹{{ number_format($totalSavings, 2) }}</span> saved so far
+                            </span>
                         </div>
                     </div>
 
-                    {{-- Collapsible Body on Mobile --}}
+                    {{-- Body --}}
                     <div class="cart-summary-collapsible-body" id="cartSummaryBody">
-                        {{-- Prepaid Discount Alert Ribbon --}}
-                        <div class="cart-prepaid-alert">
-                            <i class="bi bi-lightning-charge-fill"></i>
-                            <span><strong>Prepaid Offer:</strong> Extra 5% Instant Discount auto-applied at checkout!</span>
-                        </div>
 
-                        {{-- Price Calculation Rows --}}
-                        <div class="cart-calc-rows">
-                            <div class="calc-row">
-                                <span>Total MRP (<span id="summaryTotalItems">{{ $totalItemsCount }}</span> items)</span>
-                                <b id="summaryMrpVal">₹{{ number_format($totalMrp) }}</b>
+                        {{-- Price Calculation Rows Matching Screenshot --}}
+                        <div class="cart-summary-breakdown-card">
+                            <div class="cart-summary-row">
+                                <span class="row-label">MRP total</span>
+                                <span class="row-val" id="summaryMrpVal">₹{{ number_format($totalMrp, 2) }}</span>
                             </div>
-                            <div class="calc-row green" id="mrpDiscountRow">
-                                <span><i class="bi bi-percent"></i> Discount on MRP</span>
-                                <b id="summaryMrpDiscountVal">-₹{{ number_format($discountOnMrp) }}</b>
+                            <div class="cart-summary-row is-discount" id="mrpDiscountRow" style="{{ $discountOnMrp > 0 ? '' : 'display:none;' }}">
+                                <span class="row-label">Discount on MRP</span>
+                                <span class="row-val" id="summaryMrpDiscountVal">-₹{{ number_format($discountOnMrp, 2) }}</span>
                             </div>
-                            <div class="calc-row">
-                                <span>Subtotal</span>
-                                <b id="summarySubtotalVal">₹{{ number_format($subtotal) }}</b>
+                            <div class="cart-summary-row">
+                                <span class="row-label">Cart Subtotal</span>
+                                <span class="row-val" id="summarySubtotalVal">₹{{ number_format($subtotal, 2) }}</span>
                             </div>
-                            <div class="calc-row green" id="prepaidDiscountRow">
-                                <span><i class="bi bi-lightning-fill"></i> Prepaid 5% Extra Off</span>
-                                <b id="summaryPrepaidDiscountVal">-₹{{ number_format($prepaidDiscount) }}</b>
+                            <div class="cart-summary-row is-discount" id="couponDiscountRow" style="{{ isset($couponDiscount) && $couponDiscount > 0 ? '' : 'display:none;' }}">
+                                <span class="row-label">Total discount</span>
+                                <span class="row-val" id="summaryCouponDiscountVal">-₹{{ number_format($couponDiscount ?? 0, 2) }}</span>
                             </div>
-                            <div class="calc-row {{ $shipping == 0 ? 'green' : '' }}">
-                                <span><i class="bi bi-truck"></i> Estimated Shipping</span>
-                                <b id="summaryShippingVal">{{ $shipping == 0 ? 'FREE' : '₹' . $shipping }}</b>
+                            <div class="cart-summary-row is-discount" id="prepaidDiscountRow">
+                                <span class="row-label">
+                                    Prepaid Discount
+                                    <span class="cart-info-icon" title="5% Instant Discount on UPI and online payments">ⓘ</span>
+                                </span>
+                                <span class="row-val" id="summaryPrepaidDiscountVal">-₹{{ number_format($prepaidDiscount, 2) }}</span>
                             </div>
-                            <div class="calc-row green" id="couponDiscountRow" style="display: {{ isset($couponDiscount) && $couponDiscount > 0 ? 'flex' : 'none' }};">
-                                <span><i class="bi bi-tag-fill"></i> Coupon Discount (<span id="couponCodeBadge">{{ session('coupon_code', '') }}</span>)</span>
-                                <b id="summaryCouponDiscountVal">-₹{{ number_format($couponDiscount ?? 0) }}</b>
+                            <div class="cart-summary-row">
+                                <span class="row-label">
+                                    Shipping Charges
+                                    <span class="cart-info-icon" title="{{ $shipping == 0 ? 'Free Shipping on orders above ₹999' : 'Standard Delivery ₹50' }}">ⓘ</span>
+                                </span>
+                                <span class="row-val" id="summaryShippingVal">
+                                    @if($shipping == 0)
+                                        <span style="color:#00a76f; font-weight:600;">FREE</span>
+                                    @else
+                                        ₹{{ number_format($shipping, 2) }}
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="cart-summary-row is-savings" id="totalSavingsRow">
+                                <span class="row-label">Total savings</span>
+                                <span class="row-val" id="summaryTotalSavingsVal">₹{{ number_format($totalSavings, 2) }}</span>
                             </div>
 
-                            <div class="calc-row-total">
-                                <div>
-                                    <div class="calc-total-title">Total Payable</div>
-                                    <div style="font-size: 11px; color: #64748b; font-weight: 500;">(Inclusive of all taxes)</div>
-                                </div>
-                                <span class="calc-total-num" id="summaryGrandTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
-                            </div>
-                        </div>
+                            <div class="cart-summary-divider"></div>
 
-                        {{-- Savings Highlight Pill --}}
-                        <div class="cart-savings-highlight" id="totalSavingsBadge">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <i class="bi bi-patch-check-fill"></i>
-                                <span>YOUR TOTAL SAVINGS</span>
+                            <div class="cart-estimated-total-row">
+                                <span class="cart-estimated-label">Estimated Total</span>
+                                <span class="cart-estimated-val" id="summaryGrandTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount), 2) }}</span>
                             </div>
-                            <b id="summaryTotalSavingsVal">₹{{ number_format($totalSavings) }}</b>
                         </div>
 
                         {{-- Offers & Rewards and Bottom Sheet Modal --}}
@@ -1760,19 +1766,19 @@
                         {{-- Primary Checkout Button --}}
                         <button type="button" class="btn-checkout-primary" onclick="proceedToGlobalCheckout()">
                             <span>PROCEED TO CHECKOUT</span>
-                            <i class="bi bi-shield-lock-fill"></i>
                         </button>
 
                         <a href="{{ route('shop.index') }}" class="btn-continue-shopping">
-                            <i class="bi bi-arrow-left"></i> Continue Shopping
+                            Continue Shopping
                         </a>
 
-                        {{-- Trust Grid --}}
-                        <div class="cart-summary-trust-grid">
-                            <div class="trust-badge-card"><i class="bi bi-patch-check-fill"></i> 100% Original</div>
-                            <div class="trust-badge-card"><i class="bi bi-arrow-repeat"></i> 7-Day Returns</div>
-                            <div class="trust-badge-card"><i class="bi bi-shield-check"></i> RBI Verified</div>
-                            <div class="trust-badge-card"><i class="bi bi-lock-fill"></i> 256-Bit SSL</div>
+                        {{-- Trust Badges Strip --}}
+                        <div class="cart-trust-strip">
+                            <span>256-Bit SSL Encryption</span>
+                            <span>•</span>
+                            <span>100% Genuine</span>
+                            <span>•</span>
+                            <span>7-Day Returns</span>
                         </div>
                     </div>
                 </div>
@@ -1789,60 +1795,59 @@
                 <div class="cart-mobile-drawer" id="cartMobileDrawer">
                     <div class="cart-drawer-header">
                         <span class="cart-drawer-title">
-                            <i class="bi bi-receipt-cutoff text-primary"></i> Order Price Details
+                            Order Summary
                         </span>
                         <button type="button" class="cart-drawer-close" onclick="toggleCartMobileBill(false)" aria-label="Close">
-                            <i class="bi bi-x-lg"></i>
+                            &times;
                         </button>
                     </div>
 
                     <div class="cart-drawer-body">
                         <div class="cart-drawer-row">
-                            <span>Total MRP (<span id="mobileDrawerTotalItems">{{ $totalItemsCount }}</span> items)</span>
-                            <strong id="mobileDrawerMrpVal">₹{{ number_format($totalMrp) }}</strong>
+                            <span>MRP total (<span id="mobileDrawerTotalItems">{{ $totalItemsCount }}</span> items)</span>
+                            <strong id="mobileDrawerMrpVal">₹{{ number_format($totalMrp, 2) }}</strong>
                         </div>
 
-                        <div class="cart-drawer-row text-success" id="mobileDrawerMrpDiscountRow">
-                            <span><i class="bi bi-percent"></i> Discount on MRP</span>
-                            <strong id="mobileDrawerMrpDiscountVal">-₹{{ number_format($discountOnMrp) }}</strong>
+                        <div class="cart-drawer-row text-success" id="mobileDrawerMrpDiscountRow" style="{{ $discountOnMrp > 0 ? '' : 'display:none;' }}">
+                            <span>Discount on MRP</span>
+                            <strong id="mobileDrawerMrpDiscountVal">-₹{{ number_format($discountOnMrp, 2) }}</strong>
                         </div>
 
                         <div class="cart-drawer-row">
-                            <span>Bag Subtotal</span>
-                            <strong id="mobileDrawerSubtotalVal">₹{{ number_format($subtotal) }}</strong>
+                            <span>Cart Subtotal</span>
+                            <strong id="mobileDrawerSubtotalVal">₹{{ number_format($subtotal, 2) }}</strong>
+                        </div>
+
+                        <div class="cart-drawer-row text-success" id="mobileDrawerCouponDiscountRow" style="{{ isset($couponDiscount) && $couponDiscount > 0 ? '' : 'display:none;' }}">
+                            <span>Total discount</span>
+                            <strong id="mobileDrawerCouponDiscountVal">-₹{{ number_format($couponDiscount ?? 0, 2) }}</strong>
                         </div>
 
                         <div class="cart-drawer-row text-success" id="mobileDrawerPrepaidDiscountRow">
-                            <span><i class="bi bi-lightning-fill"></i> Prepaid 5% Extra Off</span>
-                            <strong id="mobileDrawerPrepaidDiscountVal">-₹{{ number_format($prepaidDiscount) }}</strong>
+                            <span>Prepaid Discount ⓘ</span>
+                            <strong id="mobileDrawerPrepaidDiscountVal">-₹{{ number_format($prepaidDiscount, 2) }}</strong>
                         </div>
 
                         <div class="cart-drawer-row">
-                            <span>Estimated Shipping</span>
+                            <span>Shipping Charges ⓘ</span>
                             <strong id="mobileDrawerShippingVal" class="{{ $shipping == 0 ? 'text-success' : '' }}">
-                                {{ $shipping == 0 ? 'FREE' : '₹' . $shipping }}
+                                {{ $shipping == 0 ? 'FREE' : '₹' . number_format($shipping, 2) }}
                             </strong>
                         </div>
 
-                        @if(isset($couponDiscount) && $couponDiscount > 0)
-                            <div class="cart-drawer-row text-success" id="mobileDrawerCouponDiscountRow">
-                                <span><i class="bi bi-tag-fill"></i> Coupon Discount</span>
-                                <strong id="mobileDrawerCouponDiscountVal">-₹{{ number_format($couponDiscount) }}</strong>
-                            </div>
-                        @endif
+                        <div class="cart-drawer-row text-success" id="mobileDrawerTotalSavingsRow">
+                            <span>Total savings</span>
+                            <strong id="mobileDrawerTotalSavingsVal">₹{{ number_format($totalSavings, 2) }}</strong>
+                        </div>
 
                         <div class="cart-drawer-divider"></div>
 
                         <div class="cart-drawer-row cart-drawer-total-row">
                             <div>
-                                <span class="cart-drawer-total-label">Total Payable</span>
+                                <span class="cart-drawer-total-label">Estimated Total</span>
                                 <small class="d-block text-muted" style="font-size: 11px;">(Inclusive of GST & all taxes)</small>
                             </div>
-                            <span class="cart-drawer-total-val" id="mobileDrawerGrandTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
-                        </div>
-
-                        <div class="cart-drawer-savings" id="mobileDrawerSavingsPill">
-                            <i class="bi bi-stars"></i> Total Savings: <b id="mobileDrawerTotalSavingsVal">₹{{ number_format($totalSavings) }}</b>
+                            <span class="cart-drawer-total-val" id="mobileDrawerGrandTotalVal">₹{{ number_format(max(0, $total - $prepaidDiscount), 2) }}</span>
                         </div>
                     </div>
                 </div>
@@ -1851,17 +1856,19 @@
                 <div class="cart-mobile-bar-header" onclick="toggleCartMobileBill()">
                     <div class="cart-mobile-header-left">
                         <span class="cart-mobile-total-label">Total:</span>
-                        <span class="cart-mobile-amount" id="mobileStickyCartTotal">₹{{ number_format(max(0, $total - $prepaidDiscount)) }}</span>
+                        <span class="cart-mobile-amount" id="mobileStickyCartTotal">₹{{ number_format(max(0, $total - $prepaidDiscount), 2) }}</span>
                         @if($totalSavings > 0)
                             <span class="badge-saving-pill" id="mobileStickyCartSavings">
-                                <i class="bi bi-stars"></i> Save ₹{{ number_format($totalSavings) }}
+                                Save ₹{{ number_format($totalSavings, 2) }}
                             </span>
                         @endif
                     </div>
                     <div class="cart-mobile-header-right">
                         <span class="cart-mobile-view-bill">
                             <span id="cartMobileToggleText">View Bill</span>
-                            <i class="bi bi-chevron-up" id="cartMobileToggleChevron"></i>
+                            <span id="cartMobileToggleChevron" class="cart-mobile-chevron">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                            </span>
                         </span>
                     </div>
                 </div>
@@ -1870,7 +1877,6 @@
                 <div class="cart-mobile-btn-row">
                     <button type="button" class="btn-cart-mobile-checkout-full" onclick="proceedToGlobalCheckout()">
                         <span>PROCEED TO CHECKOUT (<span id="mobileStickyCartCount">{{ $totalItemsCount }}</span>)</span>
-                        <i class="bi bi-arrow-right"></i>
                     </button>
                 </div>
             </div>
@@ -1879,13 +1885,12 @@
         {{-- Empty Cart State --}}
         <div class="cart-empty-wrapper">
             <div class="cart-empty-circle">
-                <i class="bi bi-bag-x"></i>
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             </div>
             <h2 class="cart-empty-headline">YOUR CART IS EMPTY</h2>
             <p class="cart-empty-subline">Explore our latest luxury streetwear drops, discover trending pieces and add them to your cart.</p>
             <a href="{{ route('shop.index') }}" class="btn-start-shopping-cta">
-                <span>EXPLORE ALL DROPS</span>
-                <i class="bi bi-arrow-right"></i>
+                <span>EXPLORE ALL DROPS &rarr;</span>
             </a>
         </div>
     @endif
@@ -1901,18 +1906,14 @@
                     <p>Pick up right where you left off</p>
                 </div>
                 <div class="slider-container-collection position-relative">
-                    <button type="button" class="collection-arrow collection-arrow-left" id="recentArrowLeft" aria-label="Previous">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button type="button" class="collection-arrow collection-arrow-right" id="recentArrowRight" aria-label="Next">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
+                    <button type="button" class="collection-arrow collection-arrow-left" id="recentArrowLeft" aria-label="Previous">&#8249;</button>
+                    <button type="button" class="collection-arrow collection-arrow-right" id="recentArrowRight" aria-label="Next">&#8250;</button>
                     <div class="collection-slider-wrapper" id="recentSliderWrapper">
                         <div class="collection-track" id="recentSliderTrack">
                             @foreach($recentlyViewedProducts as $product)
                                 @include('froentend.partials.product-card', [
-                                    'product' => $product,
-                                    'type' => 'collection',
+                                     'product' => $product,
+                                     'type' => 'collection',
                                 ])
                             @endforeach
                         </div>
@@ -1933,18 +1934,14 @@
                     <p>Curated luxury streetwear pieces handpicked for your style</p>
                 </div>
                 <div class="slider-container-collection position-relative">
-                    <button type="button" class="collection-arrow collection-arrow-left" id="relatedArrowLeft" aria-label="Previous">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button type="button" class="collection-arrow collection-arrow-right" id="relatedArrowRight" aria-label="Next">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
+                    <button type="button" class="collection-arrow collection-arrow-left" id="relatedArrowLeft" aria-label="Previous">&#8249;</button>
+                    <button type="button" class="collection-arrow collection-arrow-right" id="relatedArrowRight" aria-label="Next">&#8250;</button>
                     <div class="collection-slider-wrapper" id="relatedSliderWrapper">
                         <div class="collection-track" id="relatedSliderTrack">
                             @foreach($relatedProducts as $product)
                                 @include('froentend.partials.product-card', [
-                                    'product' => $product,
-                                    'type' => 'collection',
+                                     'product' => $product,
+                                     'type' => 'collection',
                                 ])
                             @endforeach
                         </div>
@@ -1952,7 +1949,7 @@
                 </div>
                 <div class="collection-footer text-center mt-3">
                     <a href="{{ route('shop.index') }}" class="section-btn" style="text-decoration:none;">
-                        VIEW ALL DROPS <i class="bi bi-arrow-right"></i>
+                        VIEW ALL DROPS &rarr;
                     </a>
                 </div>
             </div>
@@ -2107,21 +2104,28 @@
         var grandTotal = Math.max(0, subtotal + shipping - discount - prepaidDiscount);
         var totalSavings = discountOnMrp + discount + prepaidDiscount;
 
+        function fmt(n) {
+            return Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         var mrpEl = document.getElementById('summaryMrpVal');
-        if (mrpEl) mrpEl.textContent = '₹' + Math.round(totalMrp).toLocaleString('en-IN');
+        if (mrpEl) mrpEl.textContent = '₹' + fmt(totalMrp);
 
         var mrpDiscEl = document.getElementById('summaryMrpDiscountVal');
-        if (mrpDiscEl) mrpDiscEl.textContent = '-₹' + Math.round(discountOnMrp).toLocaleString('en-IN');
+        if (mrpDiscEl) mrpDiscEl.textContent = '-₹' + fmt(discountOnMrp);
+
+        var mrpDiscRow = document.getElementById('mrpDiscountRow');
+        if (mrpDiscRow) mrpDiscRow.style.display = discountOnMrp > 0 ? 'flex' : 'none';
 
         var subEl = document.getElementById('summarySubtotalVal');
-        if (subEl) subEl.textContent = '₹' + Math.round(subtotal).toLocaleString('en-IN');
+        if (subEl) subEl.textContent = '₹' + fmt(subtotal);
 
         var prepDiscEl = document.getElementById('summaryPrepaidDiscountVal');
-        if (prepDiscEl) prepDiscEl.textContent = '-₹' + Math.round(prepaidDiscount).toLocaleString('en-IN');
+        if (prepDiscEl) prepDiscEl.textContent = '-₹' + fmt(prepaidDiscount);
 
         var shipEl = document.getElementById('summaryShippingVal');
         if (shipEl) {
-            shipEl.textContent = shipping === 0 ? 'FREE' : '₹' + shipping;
+            shipEl.innerHTML = shipping === 0 ? '<span style="color:#00a76f; font-weight:600;">FREE</span>' : '₹' + fmt(shipping);
             if (shipEl.parentElement) shipEl.parentElement.classList.toggle('green', shipping === 0);
         }
 
@@ -2130,17 +2134,26 @@
         if (discRow && discVal) {
             if (discount > 0) {
                 discRow.style.display = 'flex';
-                discVal.textContent = '-₹' + Math.round(discount).toLocaleString('en-IN');
+                discVal.textContent = '-₹' + fmt(discount);
             } else {
                 discRow.style.display = 'none';
             }
         }
 
         var totalEl = document.getElementById('summaryGrandTotalVal');
-        if (totalEl) totalEl.textContent = '₹' + Math.round(grandTotal).toLocaleString('en-IN');
+        if (totalEl) totalEl.textContent = '₹' + fmt(grandTotal);
 
         var savingsEl = document.getElementById('summaryTotalSavingsVal');
-        if (savingsEl) savingsEl.textContent = '₹' + Math.round(totalSavings).toLocaleString('en-IN');
+        if (savingsEl) savingsEl.textContent = '₹' + fmt(totalSavings);
+
+        var totalSavingsRow = document.getElementById('totalSavingsRow');
+        if (totalSavingsRow) totalSavingsRow.style.display = totalSavings > 0 ? 'flex' : 'none';
+
+        var savedSoFarVal = document.getElementById('cartSavedSoFarVal');
+        if (savedSoFarVal) savedSoFarVal.textContent = '₹' + fmt(totalSavings);
+
+        var savedSoFarBadge = document.getElementById('cartSavedSoFarBadge');
+        if (savedSoFarBadge) savedSoFarBadge.style.display = totalSavings > 0 ? 'inline-flex' : 'none';
 
         var badgeEl = document.getElementById('cartPageBadge');
         if (badgeEl) badgeEl.textContent = count + ' ' + (count === 1 ? 'ITEM' : 'ITEMS');
@@ -2149,7 +2162,7 @@
         if (itemsEl) itemsEl.textContent = count;
 
         var headTotEl = document.getElementById('summaryHeadTotalVal');
-        if (headTotEl) headTotEl.textContent = '₹' + Math.round(grandTotal).toLocaleString('en-IN');
+        if (headTotEl) headTotEl.textContent = '₹' + fmt(grandTotal);
 
         var headCountBadge = document.getElementById('summaryHeadCountBadge');
         if (headCountBadge) headCountBadge.textContent = '(' + count + ')';
@@ -2165,23 +2178,23 @@
         if (textEl) {
             if (needed === 0) {
                 textEl.className = 'free-ship-header unlocked';
-                textEl.innerHTML = '<span><i class="bi bi-patch-check-fill text-success"></i> <strong>Congratulations!</strong> You unlocked FREE Shipping!</span> <span class="badge bg-success-subtle text-success border px-2 py-1">FREE DELIVERY</span>';
+                textEl.innerHTML = '<span><strong>Congratulations!</strong> You unlocked FREE Shipping!</span> <span class="badge bg-success-subtle text-success border px-2 py-1">FREE DELIVERY</span>';
             } else {
                 textEl.className = 'free-ship-header';
-                textEl.innerHTML = '<span><i class="bi bi-truck text-primary"></i> Add <strong>₹' + Math.round(needed).toLocaleString('en-IN') + '</strong> more to unlock <strong>FREE Shipping</strong></span> <span class="text-muted font-monospace">₹' + Math.round(subtotal).toLocaleString('en-IN') + '/₹999</span>';
+                textEl.innerHTML = '<span>Add <strong>₹' + fmt(needed) + '</strong> more to unlock <strong>FREE Shipping</strong></span> <span class="text-muted font-monospace">₹' + fmt(subtotal) + '/₹999.00</span>';
             }
         }
 
         // ── Mobile Sticky Bar & Drawer Updates ──
         var mobileTotalEl = document.getElementById('mobileStickyCartTotal');
-        if (mobileTotalEl) mobileTotalEl.textContent = '₹' + Math.round(grandTotal).toLocaleString('en-IN');
+        if (mobileTotalEl) mobileTotalEl.textContent = '₹' + fmt(grandTotal);
 
         var mobileCountEl = document.getElementById('mobileStickyCartCount');
         if (mobileCountEl) mobileCountEl.textContent = count;
 
         var mobileSavingsEl = document.getElementById('mobileStickyCartSavings');
         if (mobileSavingsEl) {
-            mobileSavingsEl.innerHTML = '<i class="bi bi-stars"></i> Save ₹' + Math.round(totalSavings).toLocaleString('en-IN');
+            mobileSavingsEl.textContent = 'Save ₹' + fmt(totalSavings);
             mobileSavingsEl.style.display = totalSavings > 0 ? 'inline-flex' : 'none';
         }
 
@@ -2189,20 +2202,23 @@
         if (drawerItems) drawerItems.textContent = count;
 
         var drawerMrp = document.getElementById('mobileDrawerMrpVal');
-        if (drawerMrp) drawerMrp.textContent = '₹' + Math.round(totalMrp).toLocaleString('en-IN');
+        if (drawerMrp) drawerMrp.textContent = '₹' + fmt(totalMrp);
 
         var drawerMrpDisc = document.getElementById('mobileDrawerMrpDiscountVal');
-        if (drawerMrpDisc) drawerMrpDisc.textContent = '-₹' + Math.round(discountOnMrp).toLocaleString('en-IN');
+        if (drawerMrpDisc) drawerMrpDisc.textContent = '-₹' + fmt(discountOnMrp);
+
+        var mobMrpDiscRow = document.getElementById('mobileDrawerMrpDiscountRow');
+        if (mobMrpDiscRow) mobMrpDiscRow.style.display = discountOnMrp > 0 ? 'flex' : 'none';
 
         var drawerSub = document.getElementById('mobileDrawerSubtotalVal');
-        if (drawerSub) drawerSub.textContent = '₹' + Math.round(subtotal).toLocaleString('en-IN');
+        if (drawerSub) drawerSub.textContent = '₹' + fmt(subtotal);
 
         var drawerPrep = document.getElementById('mobileDrawerPrepaidDiscountVal');
-        if (drawerPrep) drawerPrep.textContent = '-₹' + Math.round(prepaidDiscount).toLocaleString('en-IN');
+        if (drawerPrep) drawerPrep.textContent = '-₹' + fmt(prepaidDiscount);
 
         var drawerShip = document.getElementById('mobileDrawerShippingVal');
         if (drawerShip) {
-            drawerShip.textContent = shipping === 0 ? 'FREE' : '₹' + shipping;
+            drawerShip.textContent = shipping === 0 ? 'FREE' : '₹' + fmt(shipping);
             drawerShip.className = shipping === 0 ? 'text-success' : '';
         }
 
@@ -2211,17 +2227,20 @@
         if (drawerCouponRow && drawerCouponVal) {
             if (discount > 0) {
                 drawerCouponRow.style.display = 'flex';
-                drawerCouponVal.textContent = '-₹' + Math.round(discount).toLocaleString('en-IN');
+                drawerCouponVal.textContent = '-₹' + fmt(discount);
             } else {
                 drawerCouponRow.style.display = 'none';
             }
         }
 
         var drawerGrand = document.getElementById('mobileDrawerGrandTotalVal');
-        if (drawerGrand) drawerGrand.textContent = '₹' + Math.round(grandTotal).toLocaleString('en-IN');
+        if (drawerGrand) drawerGrand.textContent = '₹' + fmt(grandTotal);
 
         var drawerSav = document.getElementById('mobileDrawerTotalSavingsVal');
-        if (drawerSav) drawerSav.textContent = '₹' + Math.round(totalSavings).toLocaleString('en-IN');
+        if (drawerSav) drawerSav.textContent = '₹' + fmt(totalSavings);
+
+        var mobTotalSavingsRow = document.getElementById('mobileDrawerTotalSavingsRow');
+        if (mobTotalSavingsRow) mobTotalSavingsRow.style.display = totalSavings > 0 ? 'flex' : 'none';
     }
 
     // Toggle Mobile Bill Details Drawer
